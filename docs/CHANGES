@@ -1,6 +1,6 @@
 Changes with version
 
- *) Fixed a memory leak in tree building code (one list object per node)
+ *) Fixed a few reference leaks
 
  *) Updated rJSmin to version 1.0.7
 

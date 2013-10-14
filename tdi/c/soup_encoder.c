@@ -544,6 +544,7 @@ TDI_SoupEncoderType_endtag(tdi_soup_encoder_t *self, PyObject *args)
     *cresult++ = '<';
     *cresult++ = '/';
     (void)memcpy(cresult, PyString_AS_STRING(name), (size_t)size);
+    Py_DECREF(name);
     cresult += size;
     *cresult = '>';
 
