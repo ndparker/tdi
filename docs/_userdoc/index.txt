@@ -128,6 +128,15 @@ directory of the source distribution package or online at
 <http://www.apache.org/licenses/LICENSE-2.0>`_.
 
 
+Bugs
+~~~~
+
+No bugs, of course. ;-)
+But if you've found one or have an idea how to improve |TDI|, feel free
+to send a pull request on `github <https://github.com/ndparker/tdi>`_
+or send a mail to <tdi-bugs@perlig.de>.
+
+
 Author Information
 ~~~~~~~~~~~~~~~~~~
 

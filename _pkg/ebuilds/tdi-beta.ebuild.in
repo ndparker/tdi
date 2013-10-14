@@ -21,7 +21,7 @@ IUSE="doc"
 
 S="${WORKDIR}/${MY_P}"
 
-DOCS=( README )
+DOCS=( README.rst )
 HTML_DOCS=( docs/{apidoc,userdoc} )
 
 python_install() {

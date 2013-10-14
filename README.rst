@@ -1,6 +1,11 @@
-                                                        -*- coding: utf-8 -*-
+.. -*- coding: utf-8 -*-
+
+================================================
+ TDI - The next evolutional step for templating
+================================================
+
 TABLE OF CONTENTS
-=================
+-----------------
 
 1. Introduction
 2. Copyright and License
@@ -12,7 +17,7 @@ TABLE OF CONTENTS
 
 
 INTRODUCTION
-============
+------------
 
 TDI (Template Data Interface) is a markup templating system written in python
 with optional speedup code written in C. Unlike most templating systems the
@@ -23,7 +28,7 @@ where they can be modified in any way you want.
 
 
 COPYRIGHT AND LICENSE
-=====================
+---------------------
 
 Copyright 2006 - 2013
 André Malo or his licensors, as applicable.
@@ -34,7 +39,7 @@ at: <http://www.apache.org/licenses/LICENSE-2.0>.
 
 
 SYSTEM REQUIREMENTS
-===================
+-------------------
 
 You need python 2 (>= 2.4). Python 3 is NOT supported yet.
 
@@ -45,7 +50,7 @@ The following python implementations are supported, too:
 
 
 INSTALLATION
-============
+------------
 
 TDI is set up using the standard python distutils. So you can install
 it using the usual command:
@@ -64,7 +69,7 @@ $ python setup.py --help
 
 
 DOCUMENTATION
-=============
+-------------
 
 You'll find a user documentation in the docs/userdoc/ directory of the
 distribution package. It is installed by default under <prefix>/share/doc/tdi
@@ -77,19 +82,20 @@ The latest documentation is also available online at
 
 
 BUGS
-====
+----
 
 No bugs, of course. ;-)
-But if you've found one or have an idea how to improve the TDI,
-please send a mail to <tdi-bugs@perlig.de>.
+But if you've found one or have an idea how to improve the TDI, feel free
+to send a pull request on `github <https://github.com/ndparker/tdi>`_
+or send a mail to <tdi-bugs@perlig.de>.
 
 
 AUTHOR INFORMATION
-==================
+------------------
 
 André "nd" Malo <nd@perlig.de>
 GPG: 0x8103A37E
 
 
-If God intended people to be naked, they would be born that way.
-                                                 -- Oscar Wilde
+  If God intended people to be naked, they would be born that way.
+                                                   -- Oscar Wilde

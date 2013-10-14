@@ -689,9 +689,9 @@ class PreCheck(Target):
     DEPS = ["clean", "doc", "check", "test"]
 
 
-class Release(Target):
+class SVNRelease(Target):
     """ Release current version """
-    NAME = "release"
+    #NAME = "release"
     DEPS = None
 
     def run(self):
@@ -769,6 +769,11 @@ class Release(Target):
             if line.startswith('X'):
                 continue
             make.fail("Uncommitted changes!")
+
+
+class Release(SVNRelease):
+    NAME = "release"
+    #DEPS = None
 
 
 class Revision(Target):
