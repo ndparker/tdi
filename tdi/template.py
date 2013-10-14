@@ -61,7 +61,7 @@ class Template(object):
 
     def tree():
         """
-        The node tree with overlay filters
+        Prepared node tree
 
         :Type: `tdi.nodetree.Root`
         """
@@ -158,16 +158,24 @@ class Template(object):
         """ Return a clean template (without any wrapper) """
         return self
 
-    def reload(self):
+    def reload(self, force=False):
         """
         Reload template(s) if possible and needed
+
+        :Parameters:
+          `force` : ``bool``
+            Force reload? (only if there's a loader present)
 
         :Return: The reloaded (new) template or self
         :Rtype: `Template`
         """
         if self._loader is not None:
+            if force:
+                mtime = None
+            else:
+                mtime = self.mtime
             try:
-                tree, mtime = self._loader(self.mtime)
+                tree, mtime = self._loader(mtime)
             except (AttributeError, IOError, OSError, Error), e:
                 raise TemplateReloadError(str(e))
             if tree is not None:
@@ -186,6 +194,29 @@ class Template(object):
         if self._loader is not None:
             return self._loader(self.mtime, check_only=True)[0]
         return False
+
+    def _prepare(self):
+        """
+        Prepare the tree
+
+        This is a hook, which is run before prerendering is checked and
+        executed. By default, this applies the overlay filters.
+
+        :Return: prepared tree
+        :Rtype: `tdi.nodetree.Root`
+        """
+        tree, factory = self._tree[0], self.factory
+        if factory.overlay_filters is None:
+            return tree
+        ffactory = factory.replace(**factory.overlay_filters)
+        return ffactory.from_string(''.join(list(tree.render(
+            _model_adapters.RenderAdapter.for_prerender(None,
+                attr=dict(
+                    scope=ffactory.builder().analyze.scope,
+                    tdi=ffactory.builder().analyze.attribute,
+                )
+            )
+        ))), encoding=tree.encoder.encoding).virgin_tree
 
     def _prerender(self, model, adapter):
         """
@@ -206,18 +237,7 @@ class Template(object):
         # First: overlay filters
         ftree = otree[1]
         if ftree is None:
-            ftree = otree[0]
-            if factory.overlay_filters is not None:
-                ffactory = factory.replace(**factory.overlay_filters)
-                ftree = ffactory.from_string(''.join(list(ftree.render(
-                    _model_adapters.RenderAdapter.for_prerender(None,
-                        attr=dict(
-                            scope=ffactory.builder().analyze.scope,
-                            tdi=ffactory.builder().analyze.attribute,
-                        )
-                    )
-                ))), encoding=ftree.encoder.encoding).virgin_tree
-            otree[1] = ftree
+            otree[1] = ftree = self._prepare()
 
         # Without a model *never* return a prerendered tree
         if model is None:
@@ -437,17 +457,22 @@ class OverlayTemplate(Template):
                 return self.__class__(original, overlay, keep=True)
         return self
 
-    def reload(self):
+    def reload(self, force=False):
         """
         Reload template(s) if possible and needed
+
+        :Parameters:
+          `force` : ``bool``
+            Force reload (if possible)?
 
         :Return: The reloaded template or self
         :Rtype: `Template`
         """
         if self._left is not None:
-            original = self._left.reload()
-            overlay = self._right.reload()
-            if original is not self._left or overlay is not self._right:
+            original = self._left.reload(force=force)
+            overlay = self._right.reload(force=force)
+            if force or \
+                    original is not self._left or overlay is not self._right:
                 return self.__class__(original, overlay, keep=True)
         return self
 
@@ -500,7 +525,10 @@ class AutoUpdate(object):
           - `AttributeError` : not found
         """
         # pylint: disable = W0212
-        return getattr(self.reload()._template, name)
+        return getattr(self.reload(force=False)._template, name)
+
+    def autoupdate_factory(self, new):
+        return self.__class__(new, _cb=self._cb)
 
     def register_autoupdate_callback(self, callback):
         """
@@ -544,17 +572,21 @@ class AutoUpdate(object):
         """
         return self._template.update_available()
 
-    def reload(self):
+    def reload(self, force=False):
         """
         Reload template(s) if possible and needed
+
+        :Parameters:
+          `force` : ``bool``
+            Force reload (if possible)?
 
         :Return: The reloaded (new) template or self
         :Rtype: `Template`
         """
         template = self._template
-        if template.update_available():
+        if force or template.update_available():
             try:
-                self._template = template.reload()
+                self._template = template.reload(force=force)
             except TemplateReloadError, e:
                 AutoUpdateWarning.emit(
                     'Template autoupdate failed: %s' % str(e)
