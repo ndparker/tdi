@@ -343,8 +343,8 @@ for _idx, (_statename, _funcname) in enumerate([
     _LEXERS.append(_funcname)
     _STATES.append(_statename)
 
-TextLexer._LEXERS = tuple(_LEXERS)
-TextLexer._STATES = tuple(_STATES)
+TextLexer._LEXERS = tuple(_LEXERS) # pylint: disable = W0212
+TextLexer._STATES = tuple(_STATES) # pylint: disable = W0212
 del _idx, _statename, _funcname, _LEXERS, _STATES # pylint: disable = W0631
 
 

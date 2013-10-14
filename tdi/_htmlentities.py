@@ -1,7 +1,6 @@
-# -*- coding: ascii -*-
-# pylint: disable = C0302
+# -*- coding: ascii -*- pylint: disable = C0302
 #
-# Copyright 2012
+# Copyright 2012 - 2013
 # Andr\xe9 Malo or his licensors, as applicable
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

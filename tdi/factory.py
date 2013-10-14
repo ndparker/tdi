@@ -271,8 +271,7 @@ def file_opener(filename, mtime, check_only=False):
         if mtime is not None and xtime is not None and mtime == xtime:
             stream, _ = None, stream.close()
         return stream, xtime
-    except:
-        # pylint: disable = W0702
+    except: # pylint: disable = W0702
         e = _sys.exc_info()
         try:
             stream.close()

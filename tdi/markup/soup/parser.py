@@ -138,7 +138,7 @@ class SoupLexer(object):
     # pylint: disable = E1101
 
     def __init__(self, listener, conditional_ie_comments=True):
-        """
+        r"""
         Initialization
 
         :Parameters:
@@ -669,8 +669,8 @@ for _idx, (_statename, _funcname) in enumerate([
     _LEXERS.append(_funcname)
     _STATES.append(_statename)
 
-SoupLexer._LEXERS = tuple(_LEXERS)
-SoupLexer._STATES = tuple(_STATES)
+SoupLexer._LEXERS = tuple(_LEXERS) # pylint: disable = W0212
+SoupLexer._STATES = tuple(_STATES) # pylint: disable = W0212
 del _idx, _statename, _funcname, _LEXERS, _STATES # pylint: disable = W0631
 
 
