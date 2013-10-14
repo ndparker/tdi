@@ -1,0 +1,137 @@
+.. license:
+    Copyright 2010 - 2013
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+======================
+ Node Tree Navigation
+======================
+
+It's often much more practical to modify child nodes directly instead of
+giving each its own :samp:`render_{name}` method. Conveniently you can
+access child nodes of a node directly as attribute using the child
+node's name:
+
+.. literalinclude:: ../examples/addressing.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+However, since the node object defines some names by itself, you cannot
+address *every* name by this method [#]_\. Thatswhy there's a canonical
+(but more ugly), method too, which takes a string as the child node's
+name. This method is also reasonable to use if you don't know the node
+name in advance (same template as above, just a different model):
+
+.. literalinclude:: ../examples/addressing2.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+    :end-before: END INCLUDE
+
+The output is the same for both cases:
+
+.. literalinclude:: ../examples/out/addressing2.out
+    :language: html
+
+
+Avoiding Model Calls
+~~~~~~~~~~~~~~~~~~~~
+
+Directly accessed child nodes implicitely create another need -- to
+not handle nodes twice (because a :samp:`render_{name}` method might be
+called for those nodes as well). You have three options here:
+
+1) Don't define :samp:`render_{name}` methods for those nodes. This may
+   lead to strange effects if later such a method is created
+   nevertheless (really strange if the creator just added a new node
+   with the same name in a completely different context in ignorance of
+   the old usage).
+
+2) Returning a true value from a render method marks the current node
+   and all of its children as *done*. No methods are called for this
+   subtree anymore.
+
+    .. literalinclude:: ../examples/avoiding.py
+        :language: python
+        :start-after: BEGIN INCLUDE
+
+3) You can flag particular nodes for no automatic method calling in the
+   template already with the ``*`` flag.
+
+    .. literalinclude:: ../examples/avoiding2.py
+        :language: html
+        :start-after: from_string("""
+        :end-before: """)
+
+The result is the same, of course:
+
+.. literalinclude:: ../examples/out/avoiding2.out
+    :language: html
+
+
+Inspecting Templates
+~~~~~~~~~~~~~~~~~~~~
+
+If you're unsure about the structure of your template (especially after
+combining different templates or prerendering), you can ask |TDI| for it.
+
+The :tdi:`tdi.template.Template./tree` attribute of the template object
+holds the node tree. It can be visualized using the
+:tdi:`tdi.nodetree.Root./to_string()` method:
+
+.. literalinclude:: ../examples/inspecting.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+This script produces a simple nested node name output:
+
+.. literalinclude:: ../examples/out/inspecting.out
+
+This output is useful for debugging purposes. It can also be used for simple
+automated tests if and how the node structure changed after
+modifications of a template, as well.
+
+:meth:`to_string` can also be more verbose:
+
+.. literalinclude:: ../examples/inspecting2.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+The verbose output gives more node information (if there is some, which
+is not the case here) and shortened versions of the text between the
+nodes. That way it's easily possible to check if the template was parsed
+correctly (i.e. according to your expectations):
+
+.. literalinclude:: ../examples/out/inspecting2.out
+
+For your convenience the the :meth:`to_string` method is connected to
+the string representations of the template object (nodes only) and the
+:attr:`tree` attribute (verbose variant), so you can just write:
+
+.. sourcecode:: python
+
+    print template
+
+in order to get a quick abstract of the template.
+
+----
+
+.. [#] The following attributes are owned by the node object:
+       :attr:`content`, :attr:`copy`, :attr:`ctx`,
+       :attr:`hiddenelement`, :attr:`closedelement`, :attr:`iterate`,
+       :attr:`raw`, :attr:`remove`, :attr:`render`, :attr:`repeat`,
+       :attr:`replace`. Python keywords cannot be used either.
+
+
+.. vim: ft=rest tw=72

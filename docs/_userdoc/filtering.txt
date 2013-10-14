@@ -1,0 +1,190 @@
+.. license:
+    Copyright 2010 - 2012
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+===========
+ Filtering
+===========
+
+|TDI| allows modifying and extending its parser events before they reach
+the tree builder. Since these filters are applied once before the
+rendering process, they have no performance impact during the actual
+rendering.
+
+
+Understanding The Build Process
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+From Template To Template Tree
+------------------------------
+
+First let's take a look at the basic template tree building logic:
+
+.. figure:: treebuilder.png
+
+    Processflow: How a template becomes a template tree
+
+It's more or less standard compiler logic. The steps are as follows:
+
+#. The template is fed chunk by chunk to the parser (which contains a
+   lexer and a "tokenizer").
+#. The found tokens are just messages or :dfn:`events` like "a starttag
+   with this name and these attributes" or "an endtag with this name".
+   These events are passed to the tree builder.
+#. The tree builder creates relations between the events by maintaining
+   a stack of them and thus determining the current nesting. This
+   information is used to actually build the tree.
+#. The template tree is the final structure containing all nodes,
+   prepared for rendering.
+
+Adding Filters
+--------------
+
+Installing event filters into the process flow described above is easy.
+You just need to intercept the events between step 2 (events emitted by
+the parser) and step 3 (events received by the tree builder). The
+following figure visualizes the updated logic:
+
+.. figure:: treebuilder-filtered.png
+
+    Processflow: Creating a template tree with filters
+
+And here is, how it's implemented:
+
+The tree builder is an object implementing two interfaces:
+:tdi:`tdi.interfaces./BuilderInterface` and
+:tdi:`tdi.interfaces./BuildingListenerInterface`\. The former is used by
+a user of the builder object (the code expecting the result). The latter
+is used by the parser, which feeds the builder with events. Events are
+implemented as different methods of the ``BuildingListenerInterface``,
+like :meth:`handle_starttag` or :meth:`handle_endtag`\.
+
+A filter is an object, which "impersonates" a builder in every
+direction. It has to implement both interfaces and pass along or
+manipulate the method calls it receives. Sometimes filters may even
+generate their own. In other words, a filter object simply wraps the
+builder or the next filter. By stacking them that way you can easily
+combine as many filters as you want.
+
+
+Using Filters
+~~~~~~~~~~~~~
+
+Filters can be hooked into different stages of the template loading
+process. But all of them follow the same principle. You need to specify
+a list of filter factories. A second parameter specifies, whether the
+default filters should be applied (usually a good idea). A filter
+factory is a callable returning the filter object
+(:tdi:`tdi.interfaces./FilterFactoryInterface`). Often the filter class
+itself can be passed as factory.
+
+There's only one default filter right now:
+:tdi:`tdi./filters.EncodingDetectFilter`, which generates
+`handle_encoding` events whenever it sees a suitable declaration in the
+event stream.
+
+|TDI| always adds a filter, which provides the filename of the template
+(which may or may be not something useful). But this filter cannot be
+turned off. (:tdi:`tdi./filters.FilterFilename`)
+
+The following sections describe the different places, where you can hook
+in your filters.
+
+
+Load Filters
+------------
+
+Load filters are invoked when initially loading a template into the
+memory. They are specified using the ``eventfilters`` and
+``default_eventfilters`` arguments in
+:tdi:`tdi.factory./Factory.__init__` and
+:tdi:`tdi.factory./Factory.replace`.
+
+A typical load filter is the :tdi:`tdi.tools.html./MinifyFilter`
+provided by the html tools:
+
+.. literalinclude:: ../examples/filters_load.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+Note, how it minifies everything except the ``<script>`` and ``<style>``
+elements:
+
+.. literalinclude:: ../examples/out/filters_load.out
+    :language: html
+
+If you want to squash those, too, just add more filters:
+
+.. literalinclude:: ../examples/filters_load2.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+.. literalinclude:: ../examples/out/filters_load2.out
+    :language: html
+
+.. Note::
+
+    Filter order may be important. For example, the
+    :tdi:`tdi.tools./javascript.CDATAFilter` adds a CDATA wrapper around
+    a script block, while the :tdi:`tdi.tools./javascript.MinifyFilter`
+    removes those. So, if you want to create CDATA containers around
+    your minified script, the CDATA filter needs to run afterwards.
+
+    Filters are specified in **reverse running order**. That is, if you
+    write them vertically (as in the examples above), the builder is
+    "up" and the parser is "down".
+
+
+Overlay Filters
+---------------
+
+Overlay filters are applied after all overlaying is done. That's right
+before pre-rendering (or rendering, if the template is not
+pre-rendered). The filters are specified using the
+``overlay_eventfilters`` and ``overlay_default_eventfilters`` arguments
+in :tdi:`tdi.factory./Factory.__init__`.
+
+Filtering at this stage is mostly useful if you need to look at the final
+template (constructed by the overlays). For example, you might write a
+filter, which resolves script or style dependencies of the template.
+
+
+Prerender Filters
+-----------------
+
+Prerender filters are run after pre-rendering, but before actual
+rendering (well, as pre-rendering invokes the parser, it's technically
+*during* the pre-rendering). The point about these filters is - they are
+specified per prerender-model and not per per factory. So you can apply
+different filters for different needs.
+
+|TDI| looks if the prerender-model provides a :meth:`prerender_filters`
+method. If it exists, it's called without any arguments. The method is
+expected to return a dict, which may contain the well-known
+``eventfilters`` and ``default_eventfilters`` keys. The specified
+filters are injected into the parser, which is set up to generate the
+final template tree.
+
+
+.. Writing Filters
+.. ~~~~~~~~~~~~~~~
+
+.. .. Warning::
+..    Filters are dealing with raw data and it's easy to mess up the event
+..    stream. You have been warned.
+
+
+.. vim: ft=rest tw=72

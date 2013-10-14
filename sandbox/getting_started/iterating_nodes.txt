@@ -1,0 +1,88 @@
+.. license:
+    Copyright 2009, 2010
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+===========================
+ Lesson 3: Iterating Nodes
+===========================
+
+You know the basic operations now. You can fill content and attributes
+and remove stuff. This lesson focuses on building lists and tables and
+the like.
+
+TDI provides two different mechanisms: :tdi:`|node.repeat()|
+<tdi.nodetree.Node.repeat>` and :tdi:`|node.iterate()|
+<tdi.nodetree.Node.iterate>`. Both methods work basically the same way: you
+throw a set of items and a piece of code at them. TDI then iterates
+over those items, copies the original node for each iteration, places the
+node copies one after another, passes the copied nodes one by one to the
+piece of code, and writes them afterwards to the output stream (if they
+are not hidden etc).
+
+Here's an example using :tdi:`|node.repeat()| <tdi.nodetree.Node.repeat>`:
+
+.. literalinclude:: ../../examples/getting_started/in_repeat.py
+    :language: python
+    :start-after: node.remove()
+    :end-before: render_ok
+
+And the same example using :tdi:`|node.iterate()|
+<tdi.nodetree.Node.iterate>`:
+
+.. literalinclude:: ../../examples/getting_started/in_iterate.py
+    :language: python
+    :start-after: node.remove()
+    :end-before: render_ok
+
+Run against :ref:`the template <the_template>` both result in:
+
+.. literalinclude:: ../../examples/getting_started/out/in_repeat.out
+    :language: html
+    :start-after: <ul>
+    :end-before: </ul>
+
+While both methods give the same result, there are a few syntactic and
+semantic differences, which are explained below.
+
+
+node.repeat() vs. node.iterate()
+--------------------------------
+
+The syntactic differences between those two are more or less obvious:
+
++---------------------------------+-----------------------------------+
+| repeat()                        | iterate()                         |
++=================================+===================================+
+| **repetition code** is expected | **repetition code** is not passed |
+| inside a callable passed        | directly, but usually the code    |
+| together with the items.        | block of a regular python *for*   |
+|                                 | loop.                             |
++---------------------------------+-----------------------------------+
+
+WRITEME.
+
+The set of items is ``[1, 2, 3, 4]``. The piece of code is the callback
+passed as the first argument (``self.repeat_item``). Note that
+``repeat_item`` is in arbitrary name, you can choose whatever name you
+like. It even doesn't need to be a model method. Both the iterated node
+and the particular item are passed to the callback before they are being
+written to the output. :tdi:`|node.repeat()| <tdi.nodetree.Node.repeat>`
+takes an arbitrary number of additional parameters, which are passed
+as given to each callback function call as well. In the example above we
+pass one fixed parameter (``fmt``).
+
+
+.. vim: ft=rest tw=72

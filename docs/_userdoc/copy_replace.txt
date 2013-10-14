@@ -1,0 +1,107 @@
+.. license:
+    Copyright 2010 - 2012
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+================
+ Copy & Replace
+================
+
+These node operations are less frequently used than all the others, but
+nevertheless useful. Common use cases are content picking or building
+trees.
+
+:tdi:`|node.copy()| <tdi.nodetree.Node.copy()>` deep-copies the node in
+its current state for later re-usage. :tdi:`|node.replace()|
+<tdi.nodetree.Node.replace()>` replaces a node with a copy of another
+node.
+
+
+.. _content_picking:
+
+Content Picking With :meth:`node.replace()`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following may look strange, but it's a very elegant method to put
+content of similar frames into one template and pick the one you want to
+display now.
+
+.. literalinclude:: ../examples/copy_replace.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+The principle is simple. A *parent* node is replaced by one of its
+*child* nodes. That way, all the other child nodes simply vanish. This
+is possible, because :tdi:`|node.replace()|
+<tdi.nodetree.Node.replace()>` first copies the replacing node.
+
+.. literalinclude:: ../examples/out/copy_replace.out
+    :language: html
+
+This is just one use case for replacing nodes. There are many others.
+For example, you can replace a node by itself and just place a callback
+function. This is useful for example, if you want to split the logic for
+some reason. Also, these callbacks are executed, even if the node is
+contained in a subtree marked as "done".
+
+Note that you don't need to pass a render callback at all (pass ``None``
+then). :tdi:`|node.replace()| <tdi.nodetree.Node.replace()>` both
+modifies the node in-place and also conveniently returns the node again,
+so you can apply all needed logic within your current function as well.
+
+
+Building Trees With :meth:`node.copy()` And :meth:`node.replace()`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The :tdi:`tdi.nodetree.Node./copy` and :tdi:`tdi.nodetree.Node./replace`
+methods are the basic building blocks for unlimited content nesting,
+like building trees. Here's a simplified example:
+
+.. literalinclude:: ../examples/copy_replace2.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+The tree is defined as nested tuples. Every level is rendered into an
+unordered list (``<ul>``). The prototype of such a list (the ``<ul>``
+node named ``tree``) is initially copied and stored. The children of
+each current level are passed as iterable to the
+:tdi:`tdi.nodetree.Node./repeat` method along with the ``level``
+callback which does the actual work until no more children are
+available. This work consists of filling the currently rendered item and
+placing the prototype at the place of the ``next`` node, along with a
+new :meth:`repeat()` method call. The whole chain is bootstrapped by the
+:meth:`node.item.repeat()` call at the end of the :meth:`render_tree`
+method.
+
+Note that while the definition looks recursive, *the execution is not
+recursive*, because the :meth:`repeat()` method just marks the node for
+repetition. |TDI| picks it up at the time the node is actually rendered.
+Every single repeat operation is executed lazily on demand, so deep
+nesting levels don't hurt in any way.
+
+Finally, here's the result emitted by the script:
+
+.. literalinclude:: ../examples/out/copy_replace2.out
+    :language: html
+
+Since the resulting HTML is not very pretty, here's the result as shown
+by a browser:
+
+.. figure:: ../examples/tree.png
+    :alt: A screenshot of the resulting tree rendered by a browser
+
+    The tree rendered by a browser
+
+.. vim: ft=rest tw=72

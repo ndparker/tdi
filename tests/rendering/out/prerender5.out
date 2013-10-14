@@ -1,0 +1,8 @@
+<anode tdi:scope="=+" tdi="+level1">
+    
+        <xnode tdi:scope="=+" tdi="+a"></xnode>
+    lalala
+        <xnode tdi:scope="=+" tdi="+a"></xnode>
+    
+    
+</anode>

@@ -1,0 +1,210 @@
+.. license:
+    Copyright 2010 - 2013
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+============================
+ Template Loading Revisited
+============================
+
+The template loader provides methods to build template objects from any
+source. Additionally it provides caching and refreshing mechanisms.
+
+From the user's point of view template loading is a two-step process.
+The first step is to create a template *factory* which holds all
+parameters needed to eventually create the actual templates. The second
+step is to call one of the factory's methods to pass in the template
+source and get the template object returned.
+
+|TDI| provides a few default factory instances: :tdi:`tdi.html` (which is
+heavily used in the example scripts as well), :tdi:`tdi.xml` and
+:tdi:`tdi.text`. While these are not configured for advanced features like
+memoizing or autoreload, they serve as reasonable defaults for many cases.
+
+.. comment:
+    This chapter first provides an overview of the different factory methods
+    and goes into detail about the processes and interfaces later. You can
+    skip the latter if you're only interested in how to construct a template
+    right now.
+
+
+Simple Template Loading
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The template factory provides four methods to create a template from
+a single source:
+
+:tdi:`tdi.factory.Factory./from_string()`
+    Takes a simple byte string as template source.
+:tdi:`tdi.factory.Factory./from_file()`
+    Takes a file name as input. The file is opened from the disk and the
+    contents of the file is used as template source.
+:tdi:`tdi.factory.Factory./from_stream()`
+    This method expects an open stream object (that needs a ``read(size)``
+    method). The stream is read chunk by chunk until its end is reached. The
+    read chunks are the template source. Note that the stream is *not*
+    closed by the method. The stream can be anything with a proper
+    ``read(size)`` method: an open file, a byte stream from a socket, a
+    stream from a zipfile, and so on.
+:tdi:`tdi.factory.Factory./from_opener()`
+    This is similar to :meth:`from_stream()`, but takes a stream
+    *opener*. This is a function able to open the desired stream (possibly
+    more than once). This is needed for auto-reloading on source changes.
+
+The following script shows the basic usage in code form:
+
+.. literalinclude:: ../examples/loading.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+Note that :tdi:`tdi.factory.Factory./from_file` is a simple wrapper
+around :tdi:`tdi.factory.Factory./from_opener`\. So the last example is
+effectively the same as the ``from_file`` example. However, for non-file
+streams the :meth:`from_opener` method becomes interesting.
+
+
+Overlayed Template Loading
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The factory offers two methods to load multiple templates at one go and
+overlay them immediately:
+
+:tdi:`tdi.factory.Factory./from_files()`
+    Takes a list of file names as input. Each file name is passed to
+    :tdi:`tdi.factory.Factory./from_file()` to get a template.
+:tdi:`tdi.factory.Factory./from_streams()`
+    This one is more complicated. It takes a list of opaque stream "tokens"
+    and a ``streamopen`` function. The ``streamopen`` function is called with
+    each of the stream tokens and returns either an open stream or a stream
+    opener.
+
+Here's some code:
+
+.. literalinclude:: ../examples/loading2.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+This example creates two template files and loads them with the
+:meth:`from_files()` method. The template from the second file is
+overlayed over the template from the first one. This creates a resulting
+template. Now if there would be a third file, its template would be
+overlayed over the just created overlay result (creating a new overlay
+result) and so forth.
+
+Here's the result:
+
+.. literalinclude:: ../examples/out/loading2.out
+    :language: html
+
+
+Automatic Reloading On Change
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It's often very convenient (for example, during development) if changes
+of the template sources are reflected by the template objects.
+
+Template objects provide methods for recreating themselves from their
+sources (:tdi:`tdi.template.Template./reload()`) and checking themselves
+for up-to-dateness (:tdi:`tdi.template.Template./update_available()`).
+
+The :tdi:`tdi.factory./Factory` can be configured to wrap every template
+into a proxy object that invokes these methods on every access to the
+template object. That way the template is always up-to-date. Here's how:
+
+First of all you need to tell the factory. You can either create a new
+factory directly (by instanciating the :tdi:`tdi.factory./Factory`
+class) or create a derivative factory from an existing one, using the
+factory's :tdi:`tdi.factory.Factory./replace()` method.
+
+The further handling depends on the loading method. Autoupdate is only
+supported by the following methods:
+
+- :tdi:`tdi.factory./Factory.from_file` (based on the file's modification time).
+- :tdi:`tdi.factory./Factory.from_opener` (based on the modification
+  time presented by the opener)
+- :tdi:`tdi.factory./Factory.from_files` (based on the templates loaded
+  by :tdi:`tdi.factory./Factory.from_file`)
+- :tdi:`tdi.factory./Factory.from_streams` (*optional*, only for streams
+  where the ``streamopen`` function returns a stream opener)
+
+Have a look at the following script (the :func:`wait()` function is not
+included here for reasons of clarity):
+
+.. literalinclude:: ../examples/loading3.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+The script emits the current template tree as updated from modification:
+
+.. literalinclude:: ../examples/out/loading3.out
+
+The mechanism works for :doc:`combined templates <overlays>`, too. The whole
+pile of overlayed templates is checked then and changes bubble up to the
+final template object.
+
+
+Memoizing Factory Calls
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The factory can be configured to remember the results of the method
+calls depending on the input (i.e. they return the same template object
+if the arguments are the same). This technique is called memoizing. Of
+course, it's only useful if it's a longer-running script repeating to
+call the same methods again and again.
+
+Usually this happens transparently. However, because of the complexity
+of the input parameters the memoizing needs to be triggered in a more
+explicit way here. In order to make it work there are two conditions to
+be met:
+
+#. The factory needs to be configured with a memoization storage container.
+   Such a container is passed using the memoizer argument of either the
+   factory's :tdi:`|constructor| <tdi.factory.Factory.__init__>` or the
+   factory's :tdi:`tdi.factory.Factory./replace()` method. The container
+   simply needs to provide some of ``dict``\'s methods plus an optional
+   ``lock`` attribute.
+#. In order to actually store and remember stuff the methods themselves
+   would need to determine a unique key from their input parameters. As
+   said, that's pretty complicated and next to impossible to do in a
+   general way. The solution is to do it in a very specific way - the
+   key is simply to be passed to the method (using the ``key`` argument).
+
+Once the memoizer is configured and the particular key is present the
+methods remember their calls. Since it's very inconvenient to pass in an
+extra key every time, you can wrap your factory into a proxy object,
+which provides the keys for you. |TDI| provides such a proxy class:
+:tdi:`tdi./factory_memoize.MemoizedFactory`\. The keys here are
+basically derived from file names and stream tokens. If you need
+something different, take this class as an example or simply inherit
+from it.
+
+Now finally, here's some code visualizing the memoization usage:
+
+.. literalinclude:: ../examples/loading4.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+
+.. comment:
+    Inside The Factory
+    ~~~~~~~~~~~~~~~~~~
+
+    This is the part you can easily skip if you're not interested in the
+    guts of the factory right now. Since this page is long enough already,
+    the factory details are described in a :doc:`separate document
+    <loading_details>`.
+
+
+.. vim: ft=rest tw=72

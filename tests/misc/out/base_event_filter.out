@@ -1,0 +1,6 @@
+OK foo ('bar', 'baz')
+OK handle_blub ('plop', 'poeh')
+OK finalize ()
+OK foo ('bar', 'baz')
+OK handle_blub ('plop', 'poeh')
+OK finalize ()

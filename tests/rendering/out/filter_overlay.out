@@ -1,0 +1,14 @@
+Before Loading
+>>> Between Loading and Rendering
+bnode: 1
+cnode: 1
+
+<bnode>
+<cnode />
+</bnode>
+>>> Between Rendering
+
+<bnode>
+<cnode />
+</bnode>
+>>> After Rendering

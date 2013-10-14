@@ -1,0 +1,4 @@
+u'body{background-color:#fff}'
+'.eacute:after{content:"\xe9"}'
+UnicodeError - OK
+'.eacute:after{content:"\xc3\xa9"}'

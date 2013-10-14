@@ -1,0 +1,278 @@
+.. license:
+    Copyright 2012 - 2013
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+===============
+ Example Index
+===============
+
+This page lists all examples found throughout the documentation, grouped
+by chapter.
+
+
+Basic Templating
+~~~~~~~~~~~~~~~~
+
+
+:doc:`Template Annotations <annotations>`
+-----------------------------------------
+
+- `Basic Annotations <../examples/annotations.py>`_ (`Output
+  <../examples/out/annotations.out>`__)
+
+- `Mock-Up Content <../examples/mockup.py>`_ (`Output
+  <../examples/out/mockup.out>`__)
+
+- `Encoding Detection <../examples/encoding.py>`_ (`Output
+  <../examples/out/encoding.out>`__)
+
+
+:doc:`Simple Content Editing In Python <content>`
+-------------------------------------------------
+
+- `Model Objects <../examples/editing.py>`__ (`Output
+  <../examples/out/editing.out>`__)
+
+- `Removing Content <../examples/removing.py>`__ (`Output
+  <../examples/out/removing.out>`__)
+
+- `Raw Content <../examples/raw.py>`__ (`Output
+  <../examples/out/raw.out>`__)
+
+
+:doc:`Plain Text Templates <plain_text>`
+----------------------------------------
+
+- `Basic Markup <../examples/plain_text.py>`_ (`Output
+  <../examples/out/plain_text.out>`__)
+
+- `Attributes <../examples/plain_text2.py>`_ (`Output
+  <../examples/out/plain_text2.out>`__)
+
+- `Decoding Attributes <../examples/plain_text3.py>`_ (`Output
+  <../examples/out/plain_text3.out>`__)
+
+- `Standalone Tags <../examples/plain_text4.py>`_ (`Output
+  <../examples/out/plain_text4.out>`__)
+
+- `Character Encoding <../examples/plain_text5.py>`_ (`Output
+  <../examples/out/plain_text5.out>`__)
+
+
+:doc:`Node Tree Navigation <navigation>`
+----------------------------------------
+
+- `Adressing Child Nodes <../examples/addressing.py>`__ (`Output
+  <../examples/out/addressing.out>`__)
+
+- `Adressing Child Nodes -- Canonical <../examples/addressing2.py>`__
+  (`Output <../examples/out/addressing2.out>`__)
+
+- `Avoiding Model Calls <../examples/avoiding.py>`__ (`Output
+  <../examples/out/avoiding.out>`__)
+
+- `Avoiding Model Calls (flagged) <../examples/avoiding2.py>`__ (`Output
+  <../examples/out/avoiding2.out>`__)
+
+- `Inspecting Templates <../examples/inspecting.py>`__ (`Output
+  <../examples/out/inspecting.out>`__)
+
+- `Inspecting Templates (verbose) <../examples/inspecting2.py>`__
+  (`Output <../examples/out/inspecting2.out>`__)
+
+
+:doc:`Looping <looping>`
+------------------------
+
+- `Looping (iterate) <../examples/looping.py>`__ (`Output
+  <../examples/out/looping.out>`__)
+
+- `Looping (repeat) <../examples/looping2.py>`__ (`Output
+  <../examples/out/looping2.out>`__)
+
+- `Looping With Separators <../examples/separators.py>`__ (`Output
+  <../examples/out/separators.out>`__)
+
+- `Separator Methods <../examples/looping3.py>`__ (`Output
+  <../examples/out/looping3.out>`__)
+
+
+:doc:`Copy & Replace <copy_replace>`
+------------------------------------
+
+- `Content Picking <../examples/copy_replace.py>`__ (`Output
+  <../examples/out/copy_replace.out>`__)
+
+- `Building Trees <../examples/copy_replace2.py>`__ (`Output
+  <../examples/out/copy_replace2.out>`__, `Screenshot
+  <../examples/tree.png>`__)
+
+
+:doc:`Sub-Rendering <subrendering>`
+-----------------------------------
+
+- `Using Subrendering <../examples/subrender.py>`__ (`Output
+  <../examples/out/subrender.out>`__)
+
+
+Helpful Tools
+~~~~~~~~~~~~~
+
+
+:doc:`Miscellaneous HTML Tools <html_tools>`
+--------------------------------------------
+
+- `Decoding HTML Text <../examples/html_tools_decode.py>`__ (`Output
+  <../examples/out/html_tools_decode.out>`__)
+
+- `Manipulating "class" <../examples/html_tools_class.py>`__ (`Output
+  <../examples/out/html_tools_class.out>`__)
+
+- `Multiline Content <../examples/html_tools_multiline.py>`__ (`Output
+  <../examples/out/html_tools_multiline.out>`__)
+
+- `Minifying HTML <../examples/html_tools_minify.py>`__ (`Output
+  <../examples/out/html_tools_minify.out>`__)
+
+- `Minifying HTML / Controlling Comments
+  <../examples/html_tools_minify_cfilter.py>`__ (`Output
+  <../examples/out/html_tools_minify_cfilter.out>`__)
+
+- `Minifying HTML / Controlling Comments - Filter Configuration
+  <../examples/html_tools_minifyfilter_cfilter.py>`__ (`Output
+  <../examples/out/html_tools_minifyfilter_cfilter.out>`__)
+
+
+:doc:`HTML Form Tools <html_forms>`
+-----------------------------------
+
+- `A Simple Form <../examples/htmlform.py>`__ (`Output
+  <../examples/out/htmlform.out>`__)
+
+- `HTML5 Form Browser Support Test Page <../examples/html5form.html>`__
+  (works best with javascript enabled)
+
+- `TabIndexer As Post Processor <../examples/htmlform2.py>`__ (`Output
+  <../examples/out/htmlform2.out>`__)
+
+- `Error Handler As Pre Processor <../examples/htmlform3.py>`__ (`Output
+  <../examples/out/htmlform3.out>`__)
+
+
+:doc:`Javascript Tools <javascript_tools>`
+------------------------------------------
+
+- `Simple Variable Replacement <../examples/js_tools_replace.py>`__
+  (`Output <../examples/out/js_tools_replace.out>`__)
+
+- `Filling Nodes With Variables <../examples/js_tools_fill.py>`__
+  (`Output <../examples/out/js_tools_fill.out>`__)
+
+- `String Escaping <../examples/js_tools_escape_string.py>`__ (`Output
+  <../examples/out/js_tools_escape_string.out>`__)
+
+- `String Escaping (Inlined) <../examples/js_tools_escape_inlined.py>`__
+  (`Output <../examples/out/js_tools_escape_inlined.out>`__)
+
+- `Minifying Javascript <../examples/js_tools_minify.py>`__ (`Output
+  <../examples/out/js_tools_minify.out>`__)
+
+- `Masking Script Blocks <../examples/js_tools_cdata.py>`__ (`Output
+  <../examples/out/js_tools_cdata.out>`__)
+
+
+:doc:`CSS Tools <css_tools>`
+----------------------------
+
+- `Minifying CSS <../examples/css_tools_minify.py>`__ (`Output
+  <../examples/out/css_tools_minify.out>`__)
+
+- `Masking Style Blocks <../examples/css_tools_cdata.py>`__ (`Output
+  <../examples/out/css_tools_cdata.out>`__)
+
+
+Code Organization
+~~~~~~~~~~~~~~~~~
+
+
+:doc:`Template Combination With Overlays <overlays>`
+----------------------------------------------------
+
+- `Simple Overlay <../examples/overlays.py>`__ (`Output
+  <../examples/out/overlays.out>`__)
+
+- `Overlay Overrides <../examples/overlays2.py>`__ (`Output
+  <../examples/out/overlays2.out>`__)
+
+
+:doc:`Code Partitioning With Scopes <scopes>`
+---------------------------------------------
+
+- `Scopes And Models <../examples/scopes.py>`__ (`Output
+  <../examples/out/scopes.out>`__)
+
+- `Distributed Scopes <../examples/scopes2.py>`__ (`Output
+  <../examples/out/scopes2.out>`__)
+
+- `Parametrized Overlays <../examples/scopes3.py>`__ (`Output
+  <../examples/out/scopes3.out>`__)
+
+
+Advanced Features
+~~~~~~~~~~~~~~~~~
+
+
+:doc:`Partial Rendering <partial>`
+----------------------------------
+
+- `Rendering Only A Node <../examples/partial.py>`__ (`Output
+  <../examples/out/partial.out>`__)
+
+
+:doc:`Pre-Rendering <prerender>`
+--------------------------------
+
+- `Pre-Render Some Nodes <../examples/prerender.py>`__ (`Output
+  <../examples/out/prerender.out>`__)
+
+
+:doc:`Filtering <filtering>`
+----------------------------
+
+- `Applying A Filter <../examples/filters_load.py>`__ (`Output
+  <../examples/out/filters_load.out>`__)
+
+- `Applying Multiple Filters <../examples/filters_load2.py>`__ (`Output
+  <../examples/out/filters_load2.out>`__)
+
+
+:doc:`Template Loading Revisited <loading>`
+-------------------------------------------
+
+- `Different Loaders <../examples/loading.py>`__ (`Output
+  <../examples/out/loading.out>`__)
+
+- `Overlayed Loading <../examples/loading2.py>`__ (`Output
+  <../examples/out/loading2.out>`__)
+
+- `Automatic Update <../examples/loading3.py>`__ (`Output
+  <../examples/out/loading3.out>`__)
+
+- `Memoized Loading <../examples/loading4.py>`__ (`Output
+  <../examples/out/loading4.out>`__)
+
+
+.. vim: ft=rest tw=72

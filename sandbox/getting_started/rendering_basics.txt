@@ -1,0 +1,320 @@
+.. license:
+    Copyright 2009, 2010
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+============================
+ Lesson 2: Rendering Basics
+============================
+
+The :doc:`last lesson <template_objects>` focused on creating and
+inspecting template objects. While this is useful by itself, it's pretty
+dull, actually. Let's finally get to the actual template content.
+``rb_null.py`` renders :ref:`the template <the_template>` without any
+"placeholders" filled in:
+
+.. literalinclude:: ../../examples/getting_started/rb_null.py
+    :language: python
+
+The script is pretty short and the interesting line is the last one,
+where the :tdi:`tdi.template.Template./render` method of the template
+object is called. The passed model object contains all the logic
+necessary to "get the template into shape", hence the name. There's
+obviously no logic here, so when the script is called, the following
+output is produced (the result is rendered to ``sys.stdout`` by
+default):
+
+.. literalinclude:: ../../examples/getting_started/out/rb_null.out
+    :language: html
+
+In comparison to :ref:`the template <the_template>` there are a few
+notable things:
+
+- The ``tdi`` attributes are gone (although TDI can be configured to
+  keep them, but that would be useful for special purposes only)
+- The "placeholders" are still there, i.e. the content of marked
+  elements has not been touched. That's correct and shows very
+  effectively that we're not talking about actual placeholders here, but
+  about *annotations* or *markup* of the content (and if you don't
+  change anything, it will be written to the output stream, you know,
+  unchanged).
+- The dummy node (``tdi="-"``) is stripped from the output as well, as
+  explained in :ref:`lesson 1 <peeking_at_the_tree>`.
+- If you look closely, there are "half" dummy nodes in the template,
+  which are "half" gone as well, for example:
+
+  .. sourcecode:: html
+
+      <span tdi="-title">...</span>
+
+  These nodes are not really stripped. The start and end tags are
+  just hidden from the output, the stuff in between remains. The nodes
+  are also not dummy at all. They are still there and can be manipulated
+  by the python code. Prefixing a tdi name with a hyphen gives you a
+  helper node to touch content where normally no regular element exists.
+
+Additionally interesting: The model object can be anything you want, it
+is just expected to provide certain interfaces, if you want to modify
+nodes. Note the consequences, if they are not obvious already:
+
+- If you really have no desire for rendering logic, you can simply use
+  ``None`` as a model object. Actually this is often a good start when
+  you're going to build a new page. It gives you the chance to check if
+  the rest of your system is working (URL routing, boilerplate code,
+  etc).
+- You can apply different logic on the same template if you want to.
+- More importantly, you can apply the same model class to different
+  templates.
+
+The main interfaces are explained in the next section.
+
+
+The Rendering Mechanism
+-----------------------
+
+The :tdi:`tdi.template.Template./render` method of the template object
+starts walking through the node tree and writes each node to the output
+stream. Before the marked nodes are written, a :samp:`render_{name}`
+method is looked up within the model object and called if it exists.
+:dfn:`name` is here the tdi name of the node (``title``, ``menu``,
+``item``, etc) -- case matters. The node object is passed to the method
+and can be manipulated there in many ways. Text nodes (everything
+between marked nodes) are passed to the output unmodified, except when
+manipulated by surrounding nodes (or rather their :samp:`render_{name}`
+methods).
+
+For better imagination, here's the node tree output from
+:ref:`lesson 1 <peeking_at_the_tree>` again. The renderer walks over the
+nodes strictly from top to bottom, regardless of the indentation:
+
+.. literalinclude:: ../../examples/getting_started/out/to_nodes.out
+
+Each of the nodes (starting with ``title``) triggers a model method call
+like :meth:`render_title`, :meth:`render_menu` and so on. The following
+script actually provides a few of those. We just want to see the methods
+to be called, so we throw away the rendered output by streaming it to a
+:class:`DevNull` class:
+
+.. literalinclude:: ../../examples/getting_started/rb_render.py
+    :language: python
+
+\... and the print statements emit the following:
+
+.. literalinclude:: ../../examples/getting_started/out/rb_render.out
+
+
+Simple Content Manipulations
+----------------------------
+
+Now. We've had enough boring boilerplate stuff. Let's *do* something:
+
+.. literalinclude:: ../../examples/getting_started/rb_car.py
+    :language: python
+
+.. sourcecode:: console
+
+    $ python docs/examples/getting_started/rb_car.py
+
+.. literalinclude:: ../../examples/getting_started/out/rb_car.out
+    :language: html
+
+
+Setting Content And Attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The content of an HTML element (or as presented in python: of a node
+object) is set by assigning it to the ``content`` attribute of the node.
+The content is defined as *everything* between the start tag and the end
+tag of the node's element. It's the same whether the content was simple
+text before or nested elements. It's all wiped and replaced by the
+*text* you assign to it.
+
+HTML attributes are accessed through the subscription operator, i.e.
+using square brackets. The ``render_ok`` method sets the ``class``
+attribute that way.
+
+Note the following mechanisms:
+
+**TDI escapes input automatically**
+
+    It knows how to escape content properly for HTML and applies
+    appropriate escaping by default. That way you are on the safe side
+    except you explicitely instruct TDI otherwise (sometimes it's
+    inevitable to insert literal HTML code, for example).  How to bypass
+    the escape mechanism is beyond the scope of this lesson and
+    explained elsewhere.
+
+**TDI is unicode aware** [#]_
+
+    That means if you pass unicode to content or attributes it will be
+    encoded however the template is encoded (or rather what TDI knows
+    about it). In the example above the template's character encoding is
+    not indicated anywhere, so TDI falls back to ``US-ASCII`` as the
+    least common denominator (that's the reason the ``ü`` (``\xfc``) of
+    ``Glückwunsch`` is encoded as character reference (``&#252;``), because
+    the referenced character does not fit into the ``US-ASCII``
+    character set.
+
+    It is also possible to pass byte strings to TDI (although not
+    recommended). Those byte strings are still escaped [#]_ but not
+    transcoded otherwise. Whether or not they fit into the template
+    encoding is not checked and your responsibility only. You can learn
+    what TDI knows about the template encoding from the template's
+    :attr:`encoding` attribute. Read the :ref:`character encoding
+    <character_encoding>` section of lesson 1 for details.
+
+
+Removing Content
+~~~~~~~~~~~~~~~~
+
+Technically most of the time we don't remove content, but merely prevent
+it from being written to the output stream. The difference is mostly not
+important, it's just that preventing output is a lot faster than
+actually removing content ("removing" nodes for example is just a bit
+flip).
+
+
+Removing Nodes
+++++++++++++++
+
+Removing nodes is a frequent operation. :meth:`render_error` calls
+:tdi:`tdi.nodetree.Node./remove()` with the primary effect that the
+``error`` node and all of its hierarchical subnodes are not passed to
+the output (neither are they passed to the model's render methods).
+
+In a sense shaping a template with TDI often works like etching. We have
+certain nodes available, pick one to render and throw away all the
+others. In this case the secondary effect of removing the ``error`` node
+is that the ``ok`` node is still there, but alone. The model logic can
+flip that if needed and apply a similar mechanism to pick the
+appropriate error message. ``rb_car_error.py`` does that:
+
+.. literalinclude:: ../../examples/getting_started/rb_car_error.py
+    :language: python
+
+
+Removing Tags
++++++++++++++
+
+Instead of removing complete nodes (tags and content), it's possible to
+hide only the tags and pass the content alone to the output. You've seen
+the effect already with hypen-flagged tdi attributes:
+
+.. sourcecode:: html
+
+    <span tdi="-title">...</span>
+
+Nodes provide the attribute :tdi:`tdi.nodetree.Node./hiddenelement`
+which contains the status of the flag. With the hypen it's
+:const:`True`, otherwise (by default) it's :const:`False`. The
+:attr:`hiddenelement` attribute is mutable. So by assigning it a boolean
+value you can toggle the visibility of the tags. ``rb_he.py``
+un-hides the ``-error`` "div" container and hides the ``bad`` "p"
+element that way (still working on :ref:`the template <the_template>`):
+
+.. literalinclude:: ../../examples/getting_started/rb_he.py
+    :language: python
+
+.. sourcecode:: console
+
+    $ python docs/examples/getting_started/rb_he.py
+
+.. literalinclude:: ../../examples/getting_started/out/rb_he.out
+    :language: html
+
+
+Removing Content
+++++++++++++++++
+
+In order to remove (or clear) content inside your node just assign it an
+empty string:
+
+.. sourcecode:: python
+
+    node.content = u''
+
+
+Removing Attributes
++++++++++++++++++++
+
+The script above also shows how to delete attributes - by using the
+:keyword:`del` statement combined with the subscription operator. Note
+that the attributes are not required to exist. Deleting a non-existing
+attribute is not an error (this simplifies generic code a lot).
+
+.. sourcecode:: python
+
+    del node['attributename'] 
+
+
+Addressing Child Nodes
+----------------------
+
+As you certainly have realized already: the :meth:`render_error` method
+of ``rb_car_error.py`` from the section above operates on *child nodes*
+of the ``error`` node:
+
+.. literalinclude:: ../../examples/getting_started/rb_car_error.py
+    :language: python
+    :start-after: def render_error
+    :end-before: model = Model()
+
+This is often more convenient and better readable than spreading the
+logic over different :samp:`render_{name}` methods.
+
+There are two possibilities to retrieve child nodes of a node:
+
+- The convenient way using the dotted notation as seen above
+  (``node.childnode``). This fails if you're using special node names like
+  ``content`` or ``remove`` (and a few more).
+- The canonical way using parentheses (i.e. *calling* the node with the
+  child's name). This is the way that always works, but it's pretty
+  ugly. Here is the :meth:`render_error` method again, but with
+  canonical child node access:
+
+  .. literalinclude:: ../../examples/getting_started/rb_car_error_can.py
+      :language: python
+      :start-after: INCLUDE
+      :end-before: /INCLUDE
+
+If a requested child node does not exist, an error is raised. Depending
+on the method that's an :exc:`AttributeError` (with dotted notation) or
+a :tdi:`tdi._exceptions./NodeNotFoundError` (using the canonical way).
+
+The following node names cannot be addressed using the dotted notation,
+because these attributes are already defined - right now. This list
+*might* change until 1.0, though it's unlikely:
+
+- ``content``
+- ``copy``
+- ``ctx``
+- ``hiddenelement``
+- ``iterate``
+- ``raw``
+- ``remove``
+- ``repeat``
+- ``replace``
+
+----
+
+.. [#] If you don't know about unicode, `start here
+       <http://docs.python.org/howto/unicode.html>`_.
+
+.. [#] Escaping byte strings assumes they're ASCII compatible. For
+       example, escaping UTF-16 encoded stuff that way will produce
+       strange results. If you don't know what UTF-16 is, don't bother.
+       Look up UTF-8 instead ;-).
+
+.. vim: ft=rest tw=72

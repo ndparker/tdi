@@ -1,0 +1,144 @@
+.. license:
+    Copyright 2010 - 2013
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+===============================
+ Code Partitioning With Scopes
+===============================
+
+|TDI| allows you to bind nodes or groups of nodes to :dfn:`scopes`. This
+is the counterpart to overlays on the code side. Scopes add the
+capability to edit the template with different model instances.
+
+It looks like this:
+
+.. literalinclude:: ../examples/scopes.py
+    :language: html
+    :start-after: html.from_string("""
+    :end-before: """)
+
+Everything within the node marked with ``tdi:scope`` (including the node
+itself) belongs to the "menu" scope. Each scope eventually refers to its
+own model object, which is looked up as :samp:`scope_{name}` within the
+current model. Here's the code for our menu example:
+
+.. literalinclude:: ../examples/scopes.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+    :end-before: END INCLUDE
+
+The essence is, that scopes allow you to split your model code into
+logical pieces. Again, which piece of code belongs to which scope is
+part of the logic, not part of the template.
+
+More notes on scopes:
+
+- They can be nested and work cumulative. A scope ``menu`` inside a
+  scope ``left_bar`` is looked up as
+  ``model.scope_left_bar.scope_menu``.
+- dotted scope names are allowed (for example ``header.menu``), which
+  means that two scopes (first ``header`` and then ``menu`` inside the
+  ``header`` model) are looked up (``model.scope_header.scope_menu``)
+- scopes can be combined with overlays, of course (you can specify both
+  ``tdi:scope`` and ``tdi:overlay`` within the same node)
+
+The output of the example:
+
+.. literalinclude:: ../examples/out/scopes.out
+    :language: html
+
+
+Distributed Scopes
+~~~~~~~~~~~~~~~~~~
+
+Simple Scope Scattering
+-----------------------
+
+Scopes do not need to be contained by *one* block. You can easily
+scatter them over the template. If they occur within the same parent
+scope, the same scope model instance will be asked for rendering. That's
+very handy for distributed but logically associated content, for
+example:
+
+.. literalinclude:: ../examples/scopes2.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+Also note, how the repeater code is reused.
+
+.. literalinclude:: ../examples/out/scopes2.out
+    :language: html
+
+
+Parametrized Overlays
+---------------------
+
+There's another, more tricky use case. You can *extend* or *parametrize*
+an existing scope from within the template. That's useful when you have
+:doc:`overlays <overlays>`, which provide standard constructions.
+Examples are layouted boxes, flash embedding code and so on. The idea
+is to place a parameter block near the overlay target (usually before
+it, so it can trigger code, before the overlay is actually rendered).
+The parameter block gets the same scope as the overlay and voilà -- the
+scope model will see it. The following code outlines the priniciple:
+
+.. literalinclude:: ../examples/scopes3.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+.. literalinclude:: ../examples/out/scopes3.out
+    :language: html
+
+This code probably needs some explanations:
+
+- it uses a ``<tdi>`` element as "neutral" container for some stuff. This
+  is often useful if you need such a semantic-less element. It also fits
+  everywhere (which a ``<span>`` cannot contain everything and a
+  ``<div>`` cannot be contained by everything).
+- it uses directly a subscope for the parameters. That's not exactly
+  neccessary, but it's useful sometimes -- in this case, because it
+  separates the parameters and the (flash-)container rendering on the
+  code side. Note how the ``FlashParam`` scope model inherits from
+  ``dict``.
+- ``FlashParam.render_init`` uses a subtle trick to render its children
+  and the remove itself: :doc:`subrendering <subrendering>`. This may seem
+  like a cheap trick, but it's not. The generated result string (which is
+  thrown away) is very small and it keeps the code very clear.
+- However, **we just invented our own parameter language** here. That's
+  not a good thing per se. Keep these things small and restrict them to
+  the absolutely neccessary cases. They are the source of confusion and
+  error.
+
+Now, while it looks like a lot of effort to build such a code --
+remember you're going to create that once and use often. It will save
+time and nerves directly afterwards.
+
+
+Absolute Scopes
+~~~~~~~~~~~~~~~
+
+You can declare :dfn:`absolute` scopes by flagging them with ``=``. This
+means, they break out of the current scope nesting. You should avoid
+using this feature regularily. It is, however, useful for:
+
+- generated templates, in order to ensure a certain structure (it's used by the
+  prerendering-mechanism, for example)
+- truly absolute scopes, which are always located at the root model
+  (like statistics snippets, parametrized layout widgets, or, say,
+  the main navigation)
+
+
+.. vim: ft=rest tw=72

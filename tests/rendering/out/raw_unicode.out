@@ -1,0 +1,3 @@
+<node>
+    <xnode foo='Mal&#243;<>'>Andr&#233; <></xnode>
+</node>

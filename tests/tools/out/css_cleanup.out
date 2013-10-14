@@ -1,0 +1,13 @@
+u'style1'
+'style1'
+'style1 - \xc3\xa9'
+u'style2'
+'style2'
+'style2 - \xc3\xa9'
+u'style3'
+'style3'
+'style3 - \xc3\xa9'
+u'style4'
+'style4'
+'style4 - \xc3\xa9'
+UnicodeError - OK

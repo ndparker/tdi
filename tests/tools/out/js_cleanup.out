@@ -1,0 +1,13 @@
+u'script1'
+'script1'
+'script1 - \xc3\xa9'
+u'script2'
+'script2'
+'script2 - \xc3\xa9'
+u'script3'
+'script3'
+'script3 - \xc3\xa9'
+u'script4'
+'script4'
+'script4 - \xc3\xa9'
+UnicodeError - OK

@@ -1,0 +1,11 @@
+u'<div fixed="">\ncontent 1\n</div>'
+'<div fixed="">\ncontent 2\n</div>'
+u'<div fixed="1 2 a">\ncontent 3\n</div>'
+'<div fixed="3 4 b">\ncontent 4\n</div>'
+<html>
+<body>
+<div>
+content 5
+</div>
+</body>
+</html>

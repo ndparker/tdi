@@ -1,0 +1,4 @@
+<anode tdi:scope="=+" tdi="+level1">
+    <widget tdi:scope="=+foo.bar" tdi="+nested">widget!</widget>
+    
+</anode>

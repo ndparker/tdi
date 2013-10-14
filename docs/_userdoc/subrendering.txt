@@ -1,0 +1,59 @@
+.. license:
+    Copyright 2012
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+===============
+ Sub-Rendering
+===============
+
+Sub-rendering means, that you can prematurely render a node during the
+regular rendering process (i.e. from within a :samp:`render_{name}`
+method). This is useful if you want to process the render result before
+actually emitting it to the output stream. Sub-rendering is implemented
+by the node's :tdi:`tdi.nodetree.Node./render` method.
+
+
+Placing a HTML Node Into a Javascript Block
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+That's a typical use case. Imagine you have a piece of HTML code, that
+only makes sense if javascript is enabled, or just a fragment that you
+need later in your script. |TDI| cannot render HTML within a javascript
+block (because it's just a piece of text from |TDI|\'s point of view).
+
+The following example shows how to render the HTML in the regular
+template context and then remove it (using :ref:`the content picking
+method with node.replace() <content_picking>`) and placing it in the
+javascript content afterwards. It's surprisingly simple, given that this
+explanation takes much more space than the code itself:
+
+.. literalinclude:: ../examples/subrender.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+The example produces the following output:
+
+.. literalinclude:: ../examples/out/subrender.out
+    :language: html
+
+The code uses the :func:`javascript.fill` function, which is part of the
+:doc:`javascript tools <javascript_tools>`.
+
+Also note, how contents of the node is rendered using the model.
+The options of the :meth:`render()` method are :tdi:`described in the API
+documentation <tdi.nodetree.Node.render>`.
+
+.. vim: ft=rest tw=72

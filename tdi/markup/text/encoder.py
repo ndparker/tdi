@@ -1,0 +1,93 @@
+# -*- coding: ascii -*-
+#
+# Copyright 2006 - 2013
+# Andr\xe9 Malo or his licensors, as applicable
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""
+========================
+ Output Encoder Classes
+========================
+
+This module provides output encoding logic.
+"""
+__author__ = u"Andr\xe9 Malo"
+__docformat__ = "restructuredtext en"
+
+from tdi import interfaces as _interfaces
+
+
+class TextEncoder(object):
+    """ Encoder for text output """
+    __implements__ = [_interfaces.EncoderInterface]
+
+    def __init__(self, encoding):
+        """
+        Initialization
+
+        :Parameters:
+          `encoding` : ``str``
+            The target encoding
+        """
+        self.encoding = encoding
+
+    def starttag(self, name, attr, closed):
+        """ :See: `EncoderInterface` """
+        return (closed and "[[%s]]" or "[%s]") % (' '.join([name] + [
+            value is not None and "%s=%s" % (key, value) or key
+            for key, value in attr
+        ]))
+
+    def endtag(self, name):
+        """ :See: `EncoderInterface` """
+        return "[/%s]" % name
+
+    def name(self, name):
+        """ :See: `EncoderInterface` """
+        if isinstance(name, unicode):
+            return name.encode(self.encoding, 'strict')
+        return name
+
+    def attribute(self, value):
+        """ :See: `EncoderInterface` """
+        if isinstance(value, unicode):
+            value = (value
+                .replace(u'"', u'\\"')
+                .encode(self.encoding, 'strict')
+            )
+        else:
+            value = value.replace('"', '\\"')
+        return '"%s"' % value
+
+    def content(self, value):
+        """ :See: `EncoderInterface` """
+        if isinstance(value, unicode):
+            return (value
+                .encode(self.encoding, 'strict')
+            )
+        return value
+
+    def encode(self, value):
+        """ :See: `EncoderInterface` """
+        return value.encode(self.encoding, 'strict')
+
+    def escape(self, value):
+        """ :See: `EncoderInterface` """
+        return value.replace('[', '[]')
+
+
+from tdi import c
+c = c.load('impl')
+if c is not None:
+    TextEncoder = c.TextEncoder
+del c

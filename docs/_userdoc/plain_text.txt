@@ -1,0 +1,172 @@
+.. license:
+    Copyright 2013
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+======================
+ Plain Text Templates
+======================
+
+Plain text -- naturally -- does not provide any markup by itself. |TDI|
+accepts some simple markup, which can be used to annotate your
+text templates. If you're new to |TDI|, please go back two chapters and
+learn about the basics first (:doc:`annotations <annotations>` and
+:doc:`basic content editing <content>`). If you're not interested in
+plain text markup right now, just :doc:`skip this chapter <navigation>`
+for now.
+
+A text template looks like this:
+
+.. literalinclude:: ../examples/plain_text.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+    :end-before: print
+
+:meth:`template.render()` streams the result to ``sys.stdout`` by
+default. In contrast to HTML/XML templates, it is expected, that the
+markup should not be contained in the final output. Therefore, with text
+templates all nodes have the ``'-'`` flag set by default (which means,
+they are stripped).
+
+So the output of this snippet would be:
+
+.. literalinclude:: ../examples/out/plain_text.out
+    :language: text
+
+We have no render logic specified, so the only difference to the original
+template is, that the markup is gone.
+
+
+Basic Syntax
+~~~~~~~~~~~~
+
+The text markup looks similar to HTML. The most obvious difference is,
+that the tags use square brackets (``[`` and ``]``) instead of angle
+brackets (``<`` and ``>``) as delimiters. Standalone tags (self-closing
+tags in HTML) are defined using doubled square-brackets (``[[`` and
+``]]``).
+
+*Literal* square brackets in the template content obviously have to be
+escaped. They are written as ``[]``.
+
+
+Attributes
+~~~~~~~~~~
+
+Attributes are specified using a ``key="value"`` syntax and are separated
+by whitespace. You can also use single quotes or no quotes at all, if
+the value does not contain quotes, backslashes or whitespace. Quotes within
+attributes need to be escaped using a backslash (``\"`` or ``\'``), if
+they match the surrounding quotes.  The backslash itself is also quoted
+using a backslash (``\\``):
+
+.. literalinclude:: ../examples/plain_text2.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+Note that |TDI| is generally very lazy, when it comes to unescaping
+content. So you get the raw output, when you ask for the attributes:
+
+.. literalinclude:: ../examples/out/plain_text2.out
+    :language: text
+
+Use the template's raw attribute decoder explicitly if you need the
+attribute value decoded and unescaped:
+
+.. literalinclude:: ../examples/plain_text3.py
+    :language: python
+    :start-after: """.strip()
+    :end-before: template.render_string
+
+The decoder produces unicode, so for printing we encode it again. And
+there it is:
+
+.. literalinclude:: ../examples/out/plain_text3.out
+    :language: text
+
+
+Node Name
+~~~~~~~~~
+
+Since the markup has no meaning otherwise, the nodes don't have
+meaningful names per se. |TDI| uses that to allow shortening the markup.
+If a tag defines a name, it's the same as defining a "tdi" attribute.
+That's what we did in the initial example:
+
+.. literalinclude:: ../examples/plain_text.py
+    :language: text
+    :start-after: text.from_string
+    :end-before: """.strip()
+
+If you use that feature, note that the endtags must use the same name
+(including flags in the same order). If you do *not* use that feature,
+the nodes simply don't have a name and the endtags have to be empty
+(``[/]``).
+
+
+Standalone Tags
+~~~~~~~~~~~~~~~
+
+Also in the initial example, we used a standalone tag already
+(``[[name]]``). Standalone tags do not have an endtag (in HTML that
+would be, for example, ``<br />``). Any content you set on such a node
+is placed after the tag. The tag itself is removed by default, so
+effectively the tag is replaced by the content assigned later:
+
+.. literalinclude:: ../examples/plain_text4.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+    :end-before: print
+
+.. literalinclude:: ../examples/out/plain_text4.out
+    :language: text
+
+
+Comments And Processing Instructions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+|TDI| allows you to place comments inside your text templates. They
+begin with ``[#`` and end with ``#]``. Comments cannot be nested. They
+are stripped from the output by default.
+
+|TDI| also allows for generic "processing instructions". They are
+delimited by ``[?`` and ``?]`` and cannot be nested either. Processing
+instructions are stripped from the output by default.
+
+Both comments and processing instructions are mechanisms to place some
+meta data in your template. Comments are for humans or external tools
+(e.g. editor tags). Processing instructions are intended for internal
+processing, i.e. template :doc:`filters <filtering>`.
+
+
+Character Encoding
+~~~~~~~~~~~~~~~~~~
+
+|TDI| assumes the UTF-8 encoding for text templates by default. This can
+be changed either by passing a different encoding to the factory method
+or by placing an appropriate processing instruction in the template:
+
+.. literalinclude:: ../examples/plain_text5.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+.. literalinclude:: ../examples/out/plain_text5.out
+    :language: text
+
+If you assign content, which cannot be encoded using the desired
+character encoding, you will get an error.
+
+
+.. vim: ft=rest tw=72

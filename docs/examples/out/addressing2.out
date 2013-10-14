@@ -1,0 +1,10 @@
+
+<html>
+<body>
+    <ul class="menu">
+        <li><a href="menu1">some menu item</a></li>
+        <li>Editing Content &amp; Attributes</li>
+        <li><a href="menu3">Other menu item</a></li>
+    </ul>
+</body>
+</html>

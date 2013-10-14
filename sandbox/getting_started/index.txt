@@ -1,0 +1,53 @@
+.. license:
+    Copyright 2009, 2010
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+=================
+ Getting Started
+=================
+
+In order to use the TDI you need two components: a template (usually a
+file containing the markup) and a piece of python code which models the
+result based on the template.
+
+.. _the_template:
+
+This chapter shows you step by step how to use TDI in general. For this
+purpose there's an HTML file I'm going to refer to from time to time.
+It's located in the source distribution and named
+``docs/examples/getting_started/basic.html``:
+
+.. literalinclude:: ../../examples/getting_started/basic.html
+    :language: html
+
+It might look pretty silly, but it contains typical use cases, we're
+going to cover. The first -- obvious one -- is that the file does not
+contain HTML alone. Certain elements contain attributes named ``tdi``.
+These attributes name the elements (or nodes of the markup tree) which
+are possibly manipulated by the template code later. And that's most of
+TDI you're going to see within the templates themselves.
+
+The following subsections explain the main concepts of TDI:
+
+.. toctree::
+    :maxdepth: 1
+
+    template_objects
+    rendering_basics
+    iterating_nodes
+
+
+.. vim: ft=rest tw=72

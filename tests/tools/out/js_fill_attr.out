@@ -1,0 +1,12 @@
+<a onclick="alert('Andr\xe9'); return false">Click me</a>
+<a onclick="alert('{&quot;name&quot;: &quot;Andr\u00e9]]&gt;&quot;}'); return false">Click me</a>
+<meta charset=utf-8>
+<a onclick="alert('{&quot;name&quot;: &quot;André]]&gt;&quot;}'); return false">Click me</a>
+<meta charset=utf-8>
+<a onclick="alert('{\&quot;name\&quot;: \&quot;Andr\xe9]]&gt;\&quot;}'); return false">Click me</a>
+<meta charset=utf-8>
+<a onclick="alert('{\&quot;name\&quot;: \&quot;Andr\xe9]]&gt;\&quot;}'); return false">Click me</a>
+<meta charset=utf-8>
+<a onclick="alert('{\&quot;name\&quot;: \&quot;Andr\xe9]]&gt;\&quot;}'); return false">Click me</a>
+<meta charset=utf-8>
+<a onclick="alert('{&quot;name&quot;: &quot;André]]&gt;&quot;}'); return false">Click me</a>

@@ -1,0 +1,16 @@
+<html>
+<body>
+    <h1>some flash</h1>
+    
+    
+    <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="400" height="300">
+        <param name="movie" value="flashfile.swf" />
+        <param name="bgcolor" value="#ffffff" /><param name="wmode" value="transparent" /><param name="quality" value="high" />
+        <![if !IE]><object type="application/x-shockwave-flash" data="flashfile.swf" width="400" height="300">
+            <param name="bgcolor" value="#ffffff" /><param name="wmode" value="transparent" /><param name="quality" value="high" />
+        <![endif]>
+        <img src="replacement-image.png" alt="some cool text" />
+    <![if !IE]></object><![endif]></object>
+
+</body>
+</html>

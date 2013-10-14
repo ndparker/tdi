@@ -1,0 +1,13 @@
+/
+  '\n<html>\n<body>\n    '
+  doctitle
+    'doc title goes here'
+  '\n    '
+  intro
+    'Intro goes '
+    where
+      'here'
+    '.'
+  '\n</body>\n</html>\n'
+\
+

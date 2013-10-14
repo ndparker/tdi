@@ -1,0 +1,6 @@
+<html>
+<script src="foo"></script>
+
+<script>var x=1;var y=2;alert(x+y);</script>
+<script></script>
+</html>

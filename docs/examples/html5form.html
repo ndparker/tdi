@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<!--
+ Copyright 2012
+ Andr\xe9 Malo or his licensors, as applicable
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<html>
+<head>
+<meta charset=utf-8>
+<title>HTML5 Form Browser Support Test Page</title>
+<style>
+body {
+    background-color: #fff;
+    color: #222;
+    font-family: sans-serif;
+}
+fieldset {
+    margin: 1em;
+    background-color: #eee;
+    border: 1px solid #000;
+    width: 45%;
+    float: left;
+}
+legend {
+    font-size: 1.2em;
+    padding: 0.2em 0.5em;
+    border: 1px dotted #ccc;
+    background-color: #fff;
+}
+fieldset p {
+    margin: 0.5em;
+}
+fieldset p span {
+    float: right;
+    display: inline-block;
+    font-size: 0.8em;
+}
+fieldset p.comment {
+    font-size: 0.9em;
+    font-style: italic;
+    margin: 0 0 1.5em 10em;
+}
+label, p.tick span.label {
+    display: block;
+    width: 8em;
+    float: left;
+}
+p.tick label {
+    display: inline-block;
+    float: none;
+    width: auto;
+    margin-right: 0.5em;
+}
+input, select, textarea {
+    width: 20em;
+}
+p.tick input, p.buttons input {
+    width: auto;
+}
+p.source {
+    clear: both;
+    border: 1px dashed #ccc;
+    padding: 0.2em;
+}
+p.source code {
+    font-family: sans-serif;
+    font-size: 1.1em;
+}
+fieldset p.source {
+    margin-bottom: 1em;
+    background-color: #FFFFAA;
+}
+fieldset p.source.hidden {
+    display: none;
+}
+textarea {
+    height: 5em;
+}
+ul {
+    list-style-type: none;
+    margin: 0.5em;
+    padding: 0;
+}
+ul.expander {
+    font-size: 0.8em;
+    float: right;
+    margin-bottom: 0;
+}
+nav {
+    display: block;
+}
+nav ul {
+    float: right;
+    font-size: 0.8em;
+}
+h1 {
+    clear: both;
+    font-size: 1.5em;
+    background-color: #FFFFAA;
+    width: 99%;
+    padding: 0.2em;
+    margin: 0;
+    border-top: 1px dotted #222;
+    border-bottom: 1px dotted #222;
+}
+h2 {
+    clear: both;
+    font-size: 1.2em;
+    width: 90%;
+    padding: 0.1em;
+    margin: 1em 0 0 1em;
+    border-bottom: 1px solid #999;
+}
+.closed, .open {
+    cursor: pointer;
+}
+.closed:before {
+    content: '\0021B7\0000A0';
+}
+.open:before {
+    content: '\0021B6\0000A0';
+}
+li {
+    display: inline;
+    padding: 0 0.5em;
+}
+dl {
+    display: block;
+    background-color: #eee;
+    padding: 1em;
+    overflow: hidden;
+    margin: 1em;
+    border: 1px solid #000;
+}
+dt {
+    font-weight: bold;
+    display: block;
+}
+dd {
+    display: inline-block;
+    font-family: monospace;
+    background-color: #FFFFAA;
+    padding: 0.2em;
+}
+footer {
+    border-top: 1px solid #222;
+}
+footer p {
+    font-size: 0.8em;
+    float: left;
+}
+footer p + p {
+    float: right;
+}
+</style>
+</head>
+<body>
+
+<nav>
+<ul>
+<li>TDI:</li>
+<li><a href="../userdoc/html_forms.html">HTML form tools documentation</a></li>
+<li><a href="../userdoc/topics.html">Documentation Topics</a></li>
+<li><a href="../userdoc/index.html">Homepage</a> (<a href="http://opensource.perlig.de/tdi/" target="_blank">online</a>)</li>
+</ul>
+</nav>
+
+<h1>HTML5 Form Browser Support Test Page</h1>
+
+<p>Use this page to check support and appearance of <a
+href="http://www.w3.org/TR/html5/forms.html#forms">HTML5 form
+controls</a> for your browser. Play around with them and submit the form (using the submit or image control in the "buttons" section below) to see how
+the data is handled.</p>
+<p>The form submits to itself using the GET method. So all the data is passed via the query string. A javascript on the page will evaluate the query string and display the submitted data conveniently.</p>
+<p>Feel free to edit the document locally and play more around.</p>
+
+<form method=get action="" autocomplete=off><input type=hidden name=_charset_>
+<p class=source><code>&lt;form method=get action="" autocomplete=off&gt;&lt;input type=hidden
+name=_charset_&gt;</code></p>
+
+<!-- ====================================================================== -->
+
+<fieldset>
+<legend>Common Text controls</legend>
+<p><label for="text">Text:</label> <input id=text name=text dirname=text.dir type=text maxlength=30 placeholder="Placeholder"></p>
+<p class="source hidden"><code>&lt;input name=text dirname=text.dir type=text maxlength=30 placeholder="Placeholder"&gt;</code></p>
+
+<p><label for=textarea>Textarea:</label> <textarea id=textarea name=textarea dirname=textarea.dir placeholder="some multiline text" maxlength=200></textarea></p>
+<p class="source hidden"><code>&lt;textarea name=textarea dirname=textarea.dir placeholder="some multiline text" maxlength=200&gt;&lt;/textarea&gt;</code></p>
+
+<p><label for=password>Password:</label> <input id=password name=password type=password placeholder="your secret" autocomplete=on></p>
+<p class="source hidden"><code>&lt;input name=password type=password placeholder="your secret" autocomplete=on&gt;</code></p>
+</fieldset>
+
+<!-- ====================================================================== -->
+
+<fieldset>
+<legend>More text controls</legend>
+<p><label for=search>Search:</label> <input id=search name=search type=search placeholder="find something" autocomplete=on></p>
+<p class="source hidden"><code>&lt;input name=search type=search placeholder="find something" autocomplete=on&gt;</code></p>
+
+<p><label for=email>Email:</label> <input id=email name=email type=email placeholder="local@netloc" multiple list=emails></p>
+<p class="source hidden"><code>&lt;input name=email type=email placeholder="local@netloc" multiple list=emails&gt;</code></p>
+<p class=comment>multiple accepted (comma separated)</p>
+<datalist id=emails>
+<option value="support@example.com" label="Support">
+<option value="info@example.com" label="Info">
+<option value="m.ployee@example.com" label="John Doe">
+</datalist>
+
+<p><label for=tel>Tel:</label> <input id=tel name=tel type=tel placeholder="phone number" pattern="[ \t\d+*/-]+"></p>
+<p class="source hidden"><code>&lt;input name=tel type=tel placeholder="phone
+number" pattern="[ \t\d+*/-]+"&gt;</code></p>
+<p class=comment>pattern="[ \t\d+*/-]+"</p>
+
+<p><label for=url>URL:</label> <input id=url name=url type=url placeholder="a http(s) URL" pattern="https?://.+"></p>
+<p class="source hidden"><code>&lt;input name=url type=url placeholder="a
+http(s) URL" pattern="https?://.+"&gt;</code></p>
+<p class=comment>pattern="https?://.+"</p>
+</fieldset>
+
+<!-- ====================================================================== -->
+
+<fieldset>
+<legend>Special text controls</legend>
+<p><label for=color>Color:</label> <input id=color name=color type=color value="#FFC400" placeholder="#RRGGBB" list=colors></p>
+<p class="source hidden"><code>&lt;input name=color type=color
+value="#FFC400" placeholder="#RRGGBB" list=colors&gt;</code></p>
+<datalist id="colors">
+<option value="#FF0000">
+<option value="#00FF00">
+<option value="#0000FF">
+</datalist>
+
+<p><label for=number>Number:</label> <input id=number name=number type=number placeholder="1 .. 10" min=1 max=10 pattern="[1-9]|10"></p>
+<p class="source hidden"><code>&lt;input name=number type=number placeholder="1
+.. 10" min=1 max=10 pattern="[1-9]|10"&gt;</code></p>
+<p class=comment>min=1 max=10 pattern="[1-9]|10"</p>
+
+<p><label for=range>Range:</label> <input id=range name=range type=range placeholder="1 .. 10" min=1 max=10 value=3></p>
+<p class="source hidden"><code>&lt;input name=range type=range
+placeholder="1 .. 10" min=1 max=10 value=3&gt;</code></p>
+<p class=comment>min=1 max=10</p>
+</fieldset>
+
+<!-- ====================================================================== -->
+
+<fieldset>
+<legend>Date and time controls</legend>
+
+<p><label for=month>Month:</label> <input id=month name=month type=month value="1970-01" placeholder="YYYY-MM" list=months></p>
+<p class="source hidden"><code>&lt;input name=month type=month value="1970-01" placeholder="YYYY-MM" list=months&gt;</code></p>
+<datalist id="months">
+<option value="1970-01" label="Unix Epoch">
+<option value="1969-07" label="Moon Landing">
+<option value="1957-10" label="Cпутник-1">
+</datalist>
+
+<p><label for=date>Date:</label> <input id=date name=date type=date value="1970-01-01" placeholder="YYYY-MM-DD" list=dates></p>
+<p class="source hidden"><code>&lt;input name=date type=date value="1970-01-01" placeholder="YYYY-MM-DD" list=dates&gt;</code></p>
+<p class=comment>there's a datalist assigned. Browsers don't seem to use it though, if they provide a date picker.</p>
+<datalist id="dates">
+<option value="1970-01-01" label="Unix Epoch">
+<option value="1969-07-21" label="Moon Landing">
+<option value="1957-10-04" label="Cпутник-1">
+</datalist>
+
+<p><label for=datetime>Datetime:</label> <input id=datetime name=datetime type=datetime value="2011-12-31T18:00:00+01:00" placeholder="YYYY-MM-DDTHH:mm:SS+hh:mm" list=datetimes></p>
+<p class="source hidden"><code>&lt;input name=datetime type=datetime value="2011-12-31T18:00:00+01:00" placeholder="YYYY-MM-DDTHH:mm:SS+hh:mm" list=datetimes&gt;</code></p>
+<p class=comment>there's a datalist assigned. Browsers don't seem to use it though, if they provide a date picker.</p>
+<datalist id="datetimes">
+<option value="1970-01-01T00:00:00Z" label="Unix Epoch">
+<option value="2012-11-02T09:00:00+01:00" label="Work begin">
+<option value="2012-11-02T09:30:00+01:00" label="Breakfast">
+</datalist>
+
+<p><label for="datetime-local">Datetime Local:</label> <input id=datetime-local name=datetime-local type=datetime-local value="2011-12-31T18:00:00" placeholder="YYYY-MM-DDTHH:mm:SS"></p>
+<p class="source hidden"><code>&lt;input name=datetime-local type=datetime-local
+value="2011-12-31T18:00:00" placeholder="YYYY-MM-DDTHH:mm:SS"&gt;</code></p>
+
+<p><label for=time>Time:</label> <input id=time name=time type=time value="10:00" placeholder="hh:mm:ss" min="09:00" max="17:00" step=1800></p>
+<p class="source hidden"><code>&lt;input name=time type=time value="10:00" placeholder="hh:mm:ss" min="09:00" max="17:00" step=1800&gt;</code></p>
+<p class=comment>min="09:00" max="17:00" step="1800"</p>
+
+<p><label for=week>Week:</label> <input id=week name=week type=week value="2012-W01" placeholder="YYYY-Wxx" pattern="\d\d\d\d-W\d\d"></p>
+<p class="source hidden"><code>&lt;input name=week type=week value="2012-W01" placeholder="YYYY-Wxx" pattern="\d\d\d\d-W\d\d"&gt;</code></p>
+<p class=comment>pattern="\d\d\d\d-W\d\d"</p>
+</fieldset>
+
+<!-- ====================================================================== -->
+
+<fieldset>
+<legend>Selection controls</legend>
+
+<p><label for=select>Select:</label> <select id=select name=select>
+<optgroup label="Lower Operators">
+<option value="+">Plus</option>
+<option value="-">Minus</option>
+</optgroup>
+<optgroup label="Higher Operators">
+<option value="*">Times</option>
+<option value="/">Divide</option>
+</optgroup>
+</select></p>
+<p class="source hidden"><code>&lt;select name=select&gt;<br>
+&lt;optgroup label="Lower Operators"&gt;<br>
+&lt;option value="+"&gt;Plus&lt;/option&gt;<br>
+&lt;option value="-"&gt;Minus&lt;/option&gt;<br>
+&lt;/optgroup&gt;<br>
+&lt;optgroup label="Higher Operators"&gt;<br>
+&lt;option value="*"&gt;Times&lt;/option&gt;<br>
+&lt;option value="/"&gt;Divide&lt;/option&gt;<br>
+&lt;/optgroup&gt;<br>
+&lt;/select&gt;</code></p>
+<p class=comment>grouped with optgroup</p>
+
+<p class=tick><span class=label>Checkbox:</span>
+    <label><input type=checkbox name=checkbox value=salami> Salami</label>
+    <label><input type=checkbox name=checkbox value=cheese> Cheese</label>
+    <label><input type=checkbox name=checkbox value=tomato> Tomato</label>
+</p>
+<p class="source hidden"><code>&lt;label&gt;&lt;input type=checkbox name=checkbox value=salami&gt; Salami&lt;/label&gt;<br>
+&lt;label&gt;&lt;input type=checkbox name=checkbox value=cheese&gt; Cheese&lt;/label&gt;<br>
+&lt;label&gt;&lt;input type=checkbox name=checkbox value=tomato&gt; Tomato&lt;/label&gt;</code></p>
+
+<p class=tick><span class=label>Radio:</span>
+    <label><input type=radio name=radio value=1> 1</label>
+    <label><input type=radio name=radio value=2> 2</label>
+    <label><input type=radio name=radio value=3> 3</label>
+</p>
+<p class="source hidden"><code>&lt;label&gt;&lt;input type=radio name=radio value=1&gt; 1&lt;/label&gt;<br>
+&lt;label&gt;&lt;input type=radio name=radio value=2&gt; 2&lt;/label&gt;<br>
+&lt;label&gt;&lt;input type=radio name=radio value=3&gt; 3&lt;/label&gt;</code></p>
+</fieldset>
+
+<!-- ====================================================================== -->
+
+<fieldset>
+<legend>Upload controls</legend>
+
+<p><label for=file>File:</label> <input id=file type=file name=file multiple></p>
+<p class="source hidden"><code>&lt;input type=file name=file multiple&gt;</code></p>
+<p class=comment>form method is "get", so only the filename(s) will be
+submitted. "multiple" flag is set.</p>
+
+<!-- different form, so it does not trigger any actions. Browsers are buggy. -->
+<p><label for=keygen>Keygen:</label> <code>&lt;keygen id=keygen name=keygen keytype=rsa&gt;</code></p>
+<p class=comment><code>&lt;keygen&gt;</code> generates a private/public key
+pair, stores the private key in your browser and submits the public key. If you
+want to play with that, modify the html file. <strong>Beware: Browsers are buggy
+here. Sometimes they generate and store even if the control has no name or is
+disabled!</strong></p>
+</fieldset>
+
+<!-- ====================================================================== -->
+
+<fieldset>
+<legend>Buttons</legend>
+<p class=buttons><button type=button>Button element</button>
+<input type=button value="Button">
+<input type=reset value="Reset">
+<input type=submit value="Submit">
+<input type=image src="html5-badge-h-solo.png"
+width=63 height=64 alt="Image" title="Image">
+</p>
+<p class="source hidden"><code>&lt;button type=button&gt;Button
+element&lt;/button&gt;<br>
+&lt;input type=button value="Button"&gt;<br>
+&lt;input type=reset value="Reset"&gt;<br>
+&lt;input type=submit value="Submit"&gt;<br>
+&lt;input type=image src="html5-badge-h-solo.png" width=63 height=64 alt="Image"
+title="Image"&gt;</code></p>
+</fieldset>
+
+<p class="source"><code>&lt;/form&gt;</code></p>
+</form>
+
+<!-- Expander -->
+<script>
+(function(d){
+    var j, f, l, fe, le, fd=[], fs=d.getElementsByTagName('fieldset');
+    // Collect all fieldsets, create empty replacements...
+    for (j=0; f=fs[j]; ++j) {
+        if ((l = f.getElementsByTagName('legend')) && l.length > 0) {
+            l = l[0];
+            fe = d.createElement('fieldset');
+            le = l.cloneNode(true);
+            le.style.cursor = 'pointer';
+            le.title = 'Click to open';
+            le.className = 'closed';
+            fe.appendChild(le);
+            le.onclick = (function(f, fe) {return function() {
+                fe.style.display = 'none';
+                f.style.display = '';
+                return false;
+            }})(f, fe);
+            fe.onclick = le.onclick;
+            l.style.cursor = 'pointer';
+            l.title = 'Click to close';
+            l.className = 'open';
+            l.onclick = (function(f, fe) {return function() {
+                f.style.display = 'none';
+                fe.style.display = '';
+                return false;
+            }})(f, fe);
+            fe.style.display = 'none';
+            fd.push([fe, f, le.onclick, l.onclick]);
+        }
+    }
+    // Insert empty replacements, add links to collapse and expand all.
+    if (fd.length > 0) {
+        for (j=0; l=fd[j]; ++j) {
+            l[1].parentNode.insertBefore(l[0], l[1]);
+            if (fd[j+1]) l[3](); else l[2]();
+        }
+        fe = d.createElement('ul');
+        fe.className = 'expander';
+        f = d.createElement('li');
+        fe.appendChild(f);
+        l = d.createElement('a');
+        l.href = '#';
+        l.appendChild(d.createTextNode('Expand all'));
+        l.onclick = (function(fd) {return function(){
+            var j, l;
+            for (j=0; l=fd[j]; ++j) {
+                l[2]();
+            }
+            return false;
+        }})(fd);
+        f.appendChild(l);
+        f = d.createElement('li');
+        fe.appendChild(f);
+        l = d.createElement('a');
+        l.href = '#';
+        l.appendChild(d.createTextNode('Collapse all'));
+        l.onclick = (function(fd) {return function(){
+            var j, l;
+            for (j=0; l=fd[j]; ++j) {
+                l[3]();
+            }
+            return false;
+        }})(fd);
+        f.appendChild(l);
+        fd[0][0].parentNode.insertBefore(fe, fd[0][0]);
+        fd[0][0].style.clear = 'both';
+        fd[0][1].style.clear = 'both';
+    }
+})(document)
+</script>
+
+<!-- Submission Data -->
+<script>
+(function(w, d) {
+    var y = false, f, fe, j, k, v = {}, p = {}, s = {}, q = w.location.search;
+    if (q) {
+        fe = d.forms[0].elements;
+        for (j=0; f=fe[j]; ++j) {
+            if (f.name) {
+                v[f.name] = true;
+            }
+            if (f.dirName) {
+                v[f.dirName] = true;
+            }
+        }
+        q = q.replace(/^\?/, '').split(/[&;]/);
+        for (j=0; f=q[j]; ++j) {
+            f = f.split('=', 2);
+            if (f.length != 2) continue;
+            if (v[f[0]]) {
+                if (!p[f[0]]) p[f[0]] = [];
+                p[f[0]].push(unescape(f[1]));
+                y = true;
+            }
+        }
+        if (y) {
+            v = d.createElement('dl');
+            for (j=0; f=fe[j]; ++j) {
+                if (f.name && !s[f.name]) {
+                    s[f.name] = true;
+                    if (p[f.name]) {
+                        q = d.createElement('dt');
+                        q.appendChild(d.createTextNode(f.name));
+                        v.appendChild(q);
+                        for (k=0; y=p[f.name][k]; ++k) {
+                            q = d.createElement('dd');
+                            q.appendChild(d.createTextNode(y));
+                            v.appendChild(q);
+                        }
+                    }
+                }
+                if (f.dirName && !s[f.dirName]) {
+                    s[f.dirName] = true;
+                    if (p[f.dirName]) {
+                        q = d.createElement('dt');
+                        q.appendChild(d.createTextNode(f.dirName));
+                        v.appendChild(q);
+                        for (k=0; y=p[f.dirName][k]; ++k) {
+                            q = d.createElement('dd');
+                            q.appendChild(d.createTextNode(y));
+                            v.appendChild(q);
+                        }
+                    }
+                }
+            }
+            q = d.createElement('h2');
+            q.appendChild(d.createTextNode('Submission Data'))
+            q.title = 'Click to hide';
+            q.className = 'open';
+            q.onclick = (function(q, dl) {var s = true; return function() {
+                if ((s = !s)) {
+                    dl.style.display = '';
+                    q.title = 'Click to hide';
+                    q.className = 'open';
+                }
+                else {
+                    dl.style.display = 'none';
+                    q.title = 'Click to show';
+                    q.className = 'closed';
+                }
+            }})(q, v)
+            d.forms[0].parentNode.insertBefore(q, d.forms[0]);
+            d.forms[0].parentNode.insertBefore(v, d.forms[0]);
+            q = d.createElement('h2');
+            q.appendChild(d.createTextNode('Form Controls'));
+            d.forms[0].parentNode.insertBefore(q, d.forms[0]);
+        }
+    }
+})(window, document)
+</script>
+
+<!-- src links -->
+<script>
+(function(d){
+    var t = null, a, s, j, n, f, fe = d.forms[0].elements;
+    for (j=0; f=fe[j]; ++j) {
+        if (f.name || f.tagName.toLowerCase() == 'button') {
+            n = f.parentNode;
+            if (n.tagName.toLowerCase() == 'label') {
+                n = n.parentNode;
+                if (t && n == t) continue;
+                t = n;
+            }
+            else if (n.className && n.className == 'buttons') {
+                if (t && n == t) continue;
+                t = n;
+            }
+            else {
+                t = null;
+            }
+            while (n = n.nextSibling) {
+                if (n.tagName) {
+                    if (n.tagName.toLowerCase() == 'p' && n.className &&
+                            /\bsource\b/.exec(n.className)) {
+                        s = d.createElement('span');
+                        a = d.createElement('a');
+                        a.appendChild(d.createTextNode('[src]'))
+                        a.href = '#';
+                        a.onclick = (function(n) {var s=true; return function() {
+                            if (s = !s) {
+                                n.className = 'source hidden';
+                            }
+                            else {
+                                n.className = 'source';
+                            }
+                            return false;
+                        }})(n)
+                        n.onclick = a.onclick;
+                        n.style.cursor = 'pointer';
+                        s.appendChild(a);
+                        if (t) {
+                            t.appendChild(s);
+                        }
+                        else {
+                            f.parentNode.appendChild(s);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+})(document)
+</script>
+
+<footer>
+<p>Licensed under the <a
+href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version
+2.0</a></p>
+<p>Copyright 2012 Andr&eacute; Malo</p>
+</footer>
+
+</body>
+</html>

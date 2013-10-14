@@ -1,0 +1,154 @@
+.. license:
+    Copyright 2009, 2010
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+============================
+ Lesson 1: Template Objects
+============================
+
+Before we can start rendering stuff, we need a template representation
+in python -- a template object.
+
+
+Creating Template Objects
+-------------------------
+
+Template objects are initialized with the actual template strings. These
+can be passed in directly or loaded from a file or a stream:
+
+.. literalinclude:: ../../examples/getting_started/to_init.py
+    :language: python
+
+These methods are just different wrappers around the same façade, which
+basically runs the template string through an HTML parser and builds a
+node tree out of it [#]_. This node tree contains all the marked nodes.
+Everything in between is stored as literal text.
+
+The parser does not expect a valid document, nor does it have to be
+exactly wellformed. TDI's HTML parser tries hard to leave your HTML
+style alone and works more like the webbrowser in
+`quirks mode <http://en.wikipedia.org/wiki/Quirks_mode>`_. It's mostly enough
+if your template *looks like* HTML.
+
+
+Inspecting Template Objects
+---------------------------
+
+There are two basic properties which are actually worth inspecting. The
+template's node tree and the template's character encoding.
+
+
+.. _peeking_at_the_tree:
+
+Peeking At The Tree
+~~~~~~~~~~~~~~~~~~~
+
+The :tdi:`tdi.template.Template./tree` attribute of the template object
+holds the node tree. It can be visualized using the
+:tdi:`tdi.nodetree.Root./to_string()` method:
+
+.. literalinclude:: ../../examples/getting_started/to_nodes.py
+    :language: python
+
+Running this script...
+
+.. sourcecode:: console
+
+    $ python docs/examples/getting_started/to_nodes.py
+
+\... produces a simple nested node name output:
+
+.. literalinclude::
+    ../../examples/getting_started/out/to_nodes.out
+
+This output is useful for debugging purposes. It can be used for simple
+automated tests if and how the node structure changed after
+modifications of a template, as well.
+
+If you take a closer look and compare with
+:ref:`the template <the_template>`, you can see that the node marked
+with ``-`` (the second ``<li>``) does not appear. That's correct. Nodes
+marked with a simple ``-`` are treated as dummy nodes and stripped
+during the parse process.  This is most useful for building templates
+with mockup stuff kept in place. That way you don't need to change
+your templates (possibly built by someone else) before using them for
+your application. The HTML developer on the other side just needs to
+leave the marks in place during the next development cycle.
+
+:meth:`to_string` can also be more verbose. Here is ``to_nodes_verbose.py``:
+
+.. literalinclude::
+    ../../examples/getting_started/to_nodes_verbose.py
+    :language: python
+
+The verbose output gives more node information (if there is some, which
+is not the case here) and shortened versions of the text between the
+nodes. That way it's easily possible to check if the template was parsed
+correctly (i.e. according to your expectations):
+
+.. literalinclude::
+    ../../examples/getting_started/out/to_nodes_verbose.out
+
+For your convenience the the :meth:`to_string` method is connected to
+the string representations of the template object (nodes only) and the
+:attr:`tree` attribute (verbose variant), so you can just write:
+
+.. sourcecode:: python
+
+    print template
+
+in order to get a quick abstract of the template.
+
+
+.. _character_encoding:
+
+Character Encoding
+~~~~~~~~~~~~~~~~~~
+
+The :tdi:`tdi.template.Template./encoding` property of the template
+object contains information about *what TDI knows* about the template
+encoding. This information is used by TDI itself to encode supplied
+content properly (and for consistency checks when combining templates,
+but more about that elsewhere).
+
+You can use that information for example, for setting the proper HTTP or
+MIME headers.
+
+The ``html`` template factory is configured to look out for two encoding
+indicators within the template:
+
+- An XML prolog
+- An applicable ``<meta>`` element
+
+If it contains both, the last one wins. If it doesn't contain any hint,
+``US-ASCII`` is assumed as the most safe fallback. ``to_encoding.py``
+contains some examples:
+
+.. literalinclude::
+    ../../examples/getting_started/to_encoding.py
+    :language: python
+
+----
+
+.. [#] There's a lot of stuff happening inside of the construction
+       process. For example, the parser events may be filtered or
+       augmented on the way to the builder, the template semantics may
+       be defined and more. In fact all the components are customizable
+       and can be changed or replaced at runtime. They are tied together
+       by a template factory. ``tdi.template.html`` is an instance of
+       this factory provided for your convenience.
+
+.. vim: ft=rest tw=72

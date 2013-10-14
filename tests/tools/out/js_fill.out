@@ -1,0 +1,35 @@
+<script>
+    var count = 10;
+    var name = 'Andr\xe9';
+    var param = {"name": "Andr\u00e9]\]>"};
+</script>
+<meta charset=utf-8>
+<script>
+    var count = 10;
+    var name = 'Andr\xe9';
+    var param = {"name": "André]\]>"};
+</script>
+<meta charset=utf-8>
+<script>
+    var count = 10;
+    var name = 'Andr\xe9';
+    var param = {\"name\": \"Andr\xe9]\]>\"};
+</script>
+<meta charset=utf-8>
+<script>
+    var count = 10;
+    var name = 'Andr\xe9';
+    var param = {"name": "André]\]>"};
+</script>
+<meta charset=utf-8>
+<script>
+    var count = 10;
+    var name = 'Andr\xe9';
+    var param = {"name": "André]\]>"};
+</script>
+<meta charset=utf-8>
+<script>
+    var count = 10;
+    var name = 'Andr\xe9';
+    var param = {\"name\": \"Andr\xe9]\]>\"};
+</script>

@@ -1,0 +1,15 @@
+<node>
+    <node j="1">
+        <node>should be here 1</node>
+    </node>
+    <node j="2">
+        <node>should be here 2</node>
+    </node>
+    <node j="3">
+        <node>should be here 3</node>
+    </node>
+    <node j="4">
+        <node>should be here 4</node>
+    </node>
+    <xnode></xnode>
+</node>

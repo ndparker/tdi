@@ -1,0 +1,16 @@
+/
+  '<html>'
+  body
+    'Yey'
+  '</html>'
+\
+
+...
+
+/
+  '<html>'
+  nobody
+    'Yup!'
+  '</html>'
+\
+

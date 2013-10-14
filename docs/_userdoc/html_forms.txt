@@ -1,0 +1,317 @@
+.. license:
+    Copyright 2011 - 2012
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+=================
+ HTML Form Tools
+=================
+
+Since |TDI| provides you with such neat node objects, it's pretty easy
+to write generic functions to handle certain kinds of nodes. HTML
+forms always require a huge effort to get them right and are such a
+common use case that |TDI| comes with a ready-to-use abstraction of
+those particular (and peculiar) kind of nodes.
+
+The form abstraction is located in the :tdi:`tdi.tools.htmlform` module.
+The :mod:`htmlform` module does *not* provide a form validation
+mechanism. It's merely for displaying HTML forms properly and connecting
+them easily to data sources (databases, web requests, ...) and/or
+validation handlers (e.g. when displaying error messages).
+
+
+HTMLForm Introduction
+~~~~~~~~~~~~~~~~~~~~~
+
+Before you can do fancy things with your form, you need to get your
+hands on the actual form element nodes and pass them to an instance of
+the :tdi:`tdi.tools.htmlform._main./HTMLForm` class. Here's a simple example:
+
+.. literalinclude:: ../examples/htmlform.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+And this is basically it. Since most additional logic is plugged into the
+:class:`HTMLForm` instance, the :meth:`render` methods will usually stay
+easily readable and as clearly laid out as shown in the code above. This
+also gives you a nice overview about the form content when reviewing or
+editing the model later. It's often advisable to put the form even into
+its own :doc:`scope <scopes>`.
+
+The :tdi:`tdi.tools.htmlform._main./HTMLForm` class provides a method for
+each form control type defined in HTML that is besides
+:tdi:`tdi.tools.htmlform._main.HTMLForm./form` itself:
+
+Common text controls
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./text`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./textarea`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./password`
+
+More text controls
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./search`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./email`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./tel`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./url`
+
+Special text controls
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./color`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./number`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./range`
+
+Date and time controls
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./date`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./datetime`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./datetime_local`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./month`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./time`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./week`
+
+Selection controls
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./select`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./datalist`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./option`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./checkbox`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./radio`
+
+Upload controls
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./file`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./keygen`
+
+Hidden controls
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./hidden`
+
+Buttons
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./button`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./image`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./reset`,
+  :tdi:`tdi.tools.htmlform._main.HTMLForm./submit`
+
+
+These methods implement the particular semantics of the accompanying
+form elements, hence they all have individual signatures. For example
+the :meth:`image` method accepts ``src`` and ``alt`` parameters, while the
+:meth:`option` method doesn't take a ``name`` argument. The only argument
+common to all methods is ``node`` which acts as the link between the
+template and the ``HTMLForm`` class.
+
+Also for pragmatical reasons some of the methods (optionally) provide to
+control related nodes. That is:
+
+- :tdi:`tdi.tools.htmlform._main.HTMLForm./form` accepts a list of hidden
+  fields.
+- :tdi:`tdi.tools.htmlform._main.HTMLForm./select` accepts a list of options.
+- :tdi:`tdi.tools.htmlform._main.HTMLForm./datalist` accepts a list of
+  options. In fact, the :meth:`datalist` method exists more or less
+  only to conveniently setup those options.
+
+.. Note::
+    Not all these form controls (especially the new HTML5 features) are
+    already implemented everywhere. Furthermore existing implementations
+    still suffer from growing pains. Try out what your browser platforms
+    support with this `HTML5 Form Browser Support Test Page
+    <../examples/html5form.html>`_\. Use libraries like
+    `Modernizr <http://modernizr.com/>`_ for runtime analysis and
+    provide a graceful degradation strategy.
+
+Now. So far, we simply got control over the form elements. We defined form
+element types, names and values. While this is not that much, it's already
+handy:
+
+.. literalinclude:: ../examples/out/htmlform.out
+    :language: html
+
+
+Configuring The Form
+~~~~~~~~~~~~~~~~~~~~
+
+All configuration happens during the initialization of the
+:tdi:`tdi.tools.htmlform._main./HTMLForm` class.
+
+The following parameters are more or less directly related to HTML and the
+HTTP submission (`W3C <http://www.w3.org/TR/html5/>`_ and `IETF
+<http://www.ietf.org/rfc/rfc1867.txt>`_):
+
++--------------------+------------------------------------------------------+
+| Name               | Description                                          |
++====================+======================================================+
+| ``action``         | The form action URL. If omitted or ``None``, the     |
+|                    | action is not touched (i.e. taken from the template) |
++--------------------+------------------------------------------------------+
+| ``method``         | Form submission method (``'get'`` or ``'post'``)     |
++--------------------+------------------------------------------------------+
+| ``upload``         | Is this an file upload form? This forces the         |
+|                    | ``method`` to ``'post'``, sets the ``enctype``       |
+|                    | attribute of the form element properly and unlocks   |
+|                    | the :meth:`file` method (calling :meth:`file` on a   |
+|                    | instance without upload enabled raises an error).    |
++--------------------+------------------------------------------------------+
+| ``accept_charset`` | Defines the ``accept-charset`` attribute of the form |
+|                    | element. By default it's ``'utf-8'``. If you set     |
+|                    | it to ``None``, the attribute won't be touched       |
+|                    | (similar to ``action``).                             |
++--------------------+------------------------------------------------------+
+| ``xhtml``          | If true, boolean attributes are emitted in XHTML     |
+|                    | syntax (``selected="selected"``), otherwise short    |
+|                    | attribute syntax is used (``selected``). Defaults    |
+|                    | to ``True``.                                         |
++--------------------+------------------------------------------------------+
+
+There are three parameters left, which are finally responsible for any
+magic you may want to perform:
+
++---------------+------------------------------------------------------------------+
+| Name          | Description                                                      |
++===============+==================================================================+
+| ``param``     | The object used to fill the form fields automatically.           |
+|               | It has to implement the                                          |
+|               | :tdi:`tdi.tools.htmlform._interfaces./ParameterAdapterInterface` |
+|               | If omitted or ``None``, the                                      |
+|               | :tdi:`tdi.tools.htmlform._adapters./NullParameterAdapter`        |
+|               | is applied, which simply doesn't return anything and thus        |
+|               | creates empty text fields and leaves everything                  |
+|               | unselected.                                                      |
++---------------+------------------------------------------------------------------+
+| ``pre_proc``  | Callable used to process the |TDI| nodes *before* the            |
+|               | ``HTMLForm`` method semantics are applied. The                   |
+|               | function has to implement the                                    |
+|               | :tdi:`tdi.tools.htmlform._interfaces./PreProcInterface`.         |
++---------------+------------------------------------------------------------------+
+| ``post_proc`` | Callable used to process the |TDI| nodes *after* the             |
+|               | ``HTMLForm`` method semantics have been applied. The             |
+|               | function has to implement the                                    |
+|               | :tdi:`tdi.tools.htmlform._interfaces./PostProcInterface`.        |
++---------------+------------------------------------------------------------------+
+
+
+Filling The Form Fields
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Filling a form field means setting the value or selection of the form
+control which is displayed when the HTML page is loaded by the browser.
+When the user has finished manipulating the form, he submits it back. The
+browser transforms both values and selections into a (by definition)
+unordered list of name/value pairs and sends it to the server.
+
+It's common practice to use this list to fill the form and present it
+again (for example in case of erroneous or incomplete input). The
+``HTMLForm`` class expects such a list (via the parameter adapter passed
+during initialization) and implements the semantics typcially associated
+with it. In the rare case of actually needing different semantics,
+doublecheck that it's really the case and then just override the
+particular method (or simply don't use it...).
+
+Depending on the semantics of the particular field type the adapter is
+queried for single values (via ``getfirst`` or multiple values (via
+``getlist``). Have a look into API documentation of the particular
+:tdi:`tdi.tools.htmlform._main./HTMLForm` methods about how the values and
+selections are picked automatically.
+
+.. note::
+
+    You can always override the logic of picking values or
+    selections from the parameter adapter by passing the value or
+    selection information directly to the method.
+
+Another typical use case for filling forms is to show some records from
+a database (or another resource) for manipulation.
+
+The ``htmlform`` module provides a few ready-to-use parameter adapters:
+
+:tdi:`tdi.tools.htmlform._adapters./DictParameterAdapter`
+    Takes a simple dict as input
+:tdi:`tdi.tools.htmlform._adapters./ListDictParameterAdapter`
+    Takes a dict of sequences as input.
+:tdi:`tdi.tools.htmlform._adapters./MultiDictParameterAdapter`
+    Takes a multidict as input (it queries the ``getall`` method for
+    values)
+:tdi:`tdi.tools.htmlform._adapters./NullParameterAdapter`
+    The adapter provides empty values. It's the default adapter.
+
+The ``cgi.FieldStorage`` class provides a similar interface - it does
+not return unicode, however.
+
+
+Post-processing Nodes
+~~~~~~~~~~~~~~~~~~~~~
+
+``HTMLForm`` provides the possibility to attach some automatic action
+after applying its own. That's what the post processor is for. A
+typical task, perfectly suitable for automation is to set the
+``tabindex`` attribute for form fields. This allows the user to switch
+more easily between the fields using his ``tab`` key.
+
+The post processor is a function (or more general: a callable) which
+takes as arguments:
+
+- the name of the calling ``HTMLForm`` method.
+- the |TDI| node.
+- the ``HTMLForm`` method arguments as dict
+
+There's actually a :tdi:`tdi.tools.htmlform._main./TabIndexer` implementation
+available, which can be plugged as a post processor. Here's the same form
+we've seen in the introduction chapter, but with the tab indexer
+enabled:
+
+.. literalinclude:: ../examples/htmlform2.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+And here's the result:
+
+.. literalinclude:: ../examples/out/htmlform2.out
+    :language: html
+
+
+Pre-Processing Nodes
+~~~~~~~~~~~~~~~~~~~~
+
+``HTMLForm`` also provides the possibility to attach some automatic action
+*before* applying its own. That's the pre processor. A pre processor
+can do everything a post processor can do. However, because it's running
+before the actual ``HTMLForm`` logic, it has the ability to modify the
+arguments of the calling methods, which apparently is also the main use
+case.
+
+The pre processor is a callable which takes the same arguments as the
+post processor:
+
+- the name of the calling ``HTMLForm`` method.
+- the |TDI| node.
+- the ``HTMLForm`` method arguments as dict
+
+Additionally the pre processor must return a tuple consisting of:
+
+- the |TDI| node. This does not need to be the same node as passed
+  originally.
+- a dict with replacements for the original ``HTMLForm`` arguments.
+  Missing keys are not replaced and unrecognized keys are simply ignored.
+
+The following example uses a pre processor in order to display error
+messages. We're still using the same form, again with the tab indexer,
+but now additionally with error handling:
+
+.. literalinclude:: ../examples/htmlform3.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+This pre processor sets the error message and then replaces the node
+with the real field node, which both ``HTMLForm`` and the post processor
+work on.
+
+.. literalinclude:: ../examples/out/htmlform3.out
+    :language: html
+
+
+.. vim: ft=rest tw=72 nowrap

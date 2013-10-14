@@ -1,0 +1,171 @@
+.. license:
+    Copyright 2009 - 2013
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+=================================
+ Template Data Interface (|TDI|)
+=================================
+
+**TDI** (`/ʹtedɪ/ <http://m-w.com/dictionary/teddy>`_ [#]_) is a
+markup templating system written in python with (optional but
+recommended) speedup code written in C.
+
+Unlike most templating systems |TDI| does not invent its own language to
+provide functionality [#]_. Instead you simply mark the nodes you want to
+manipulate within the template document. The template is parsed and the
+marked nodes are presented to your python code, where they can be
+modified in any way you want.
+
+|TDI| is currently available for python2 versions only (starting with
+python 2.4). Python 3 is not supported yet. The following
+alternative implementations are supported:
+
+- PyPy (1.9, 2.0) (Python only)
+- Jython (2.5, 2.7) (Python only)
+
+
+Documentation
+~~~~~~~~~~~~~
+
+.. toctree::
+    :hidden:
+
+    topics
+
+- :doc:`Documentation Topics <topics>`
+- :doc:`Example Index <examples>`
+- :ref:`Documentation Search <search>` (needs javascript)
+- :tdi:`API Documentation </>` (generated)
+
+`Kess <http://www.kess-net.de/>`_ held an introductory talk about |TDI| at
+`PyCon DE 2011 <http://2011.de.pycon.org/2011/home/>`_, which is `available
+on youtube <http://www.youtube.com/watch?v=49ERjKlpY10>`_ (German, about 30
+minutes).
+
+
+Development Status
+~~~~~~~~~~~~~~~~~~
+
+|TDI| has proven its performance and stability in high load production
+environments, which means, it *works* and it's *stable*. There are still
+some kinks to solve and a few missing minor features to add until |TDI|
+reaches version 1.0. So, development wise it's effectively a beta
+release right now.
+
+
+.. placeholder: Download
+
+
+Rationale, Advocacy, Key Features
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the short variant why you should consider reading on:
+
+    |TDI| is pure, simple, :doc:`fast <benchmark>` and powerful.
+
+And here's a bit more (for the long variant have a look at the
+documentation_):
+
+**Pure**
+
+- Template and Logic are strictly separated. |TDI| is the bridge
+  between template and rendering logic.
+- There is no templating language at all, just your markup language
+  (e.g. HTML) and python. (There's a markup language for plain text
+  templates, though).
+- |TDI| is non-intrusive - it blends in, both on template and
+  python side.
+
+**Simple**
+
+- |TDI| has a steep learning curve. It's easy to learn and easy to
+  master.
+- Knowing about your programming language (Python) and knowing about
+  your template language (like HTML) is entirely sufficient.
+- You can even use your usual tools to document and validate your code
+  (like pylint, epydoc or an HTML validator).
+- |TDI| escapes your content automatically - you are safe by default.
+- |TDI| comes as a stand-alone package. Don't worry about dependencies.
+
+**Fast**
+
+- Use |TDI| for rapid development. It's easy to parallelize the work on
+  layout and logic. You can even use mock-ups as templates.
+- |TDI| runs with :doc:`ludicrous speed <benchmark>`.
+- Pre-rendering the less dynamic parts makes it even faster.
+
+**Powerful**
+
+- Semantically partition your code both on template and logic side using
+  overlays and scopes.
+- Partial rendering is supported (useful for dynamic web sites).
+- Process your templates during loading time with parser filters.
+- |TDI| is unicode aware and automatically emits the desired encoding.
+- |TDI| is designed to be highly customizable and extendable. Nearly every
+  component can be modified or replaced.
+
+
+License
+~~~~~~~
+
+|TDI| is available under the terms and conditions of the "Apache License,
+Version 2.0." You'll find the detailed licensing terms in the root
+directory of the source distribution package or online at
+`http://www.apache.org/licenses/LICENSE-2.0
+<http://www.apache.org/licenses/LICENSE-2.0>`_.
+
+
+Author Information
+~~~~~~~~~~~~~~~~~~
+
+|TDI| was written and is maintained by André Malo.
+
+
+Acknowledgements
+----------------
+
+First of all I'd like to thank the author of `HTMLTemplate
+<http://py-templates.sourceforge.net/>`_. At the time I started
+experimenting with document tree based template systems, *HTMLTemplate*
+was short-listed. However, it had a different license back then, which
+was unacceptable for my purposes and also missing some features, so
+|TDI| was grown in the first place.
+
+Various people helped developing and improving |TDI| itself. They are
+listed in alphabetical order:
+
+- Lumes
+- Sebastian Dauß
+- Astrid 'Kess' Malo
+- Jens Michlo
+- Javier 'Jay' Rodriguez-Stegmaier
+- Roland Sommer
+
+----
+
+.. [#] The pronunciation came up while discussing |TDI| at the breakfast
+       table. Once our little daughter picked it up and asked for her
+       "teddy...?". [#]_
+
+.. [#] It *does* invent some markup, though. Especially for plain text
+       templates, because they naturally do not provide their own markup
+       system.
+
+.. [#] Well, the joke is easier to understand, if you're speaking German
+       at your breakfast table.
+
+
+.. vim: ft=rest tw=72

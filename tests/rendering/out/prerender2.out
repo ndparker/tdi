@@ -1,0 +1,8 @@
+<anode tdi:scope="=+">
+    <node tdi:scope="=-" tdi="-nested">
+        <xnode>
+            <znode tdi:scope="=-" tdi="-b">hey</znode>
+        </xnode>
+    </node><ynode tdi:scope="=-" tdi="-:nested">lalala</ynode>
+    
+</anode>

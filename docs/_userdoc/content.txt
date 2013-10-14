@@ -1,0 +1,177 @@
+.. license:
+    Copyright 2010 - 2013
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+==================================
+ Simple Content Editing In Python
+==================================
+
+The counterpart of the template is the rendering logic written in
+python. |TDI| expects a so-called "model" object here, which provides
+callback methods for the modifiable nodes.
+
+.. literalinclude:: ../examples/editing.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+The model object can be anything you want, it is just expected to
+provide certain interfaces, if you want to modify nodes. It is not an
+error (by default) if a :samp:`render_{name}` method is missing. That
+way you can build up your logic step by step (or leave out methods
+intentionally).
+
+Being so independent from the template source itself has interesting
+consequences:
+
+- You can apply different logic on the same template if you want to.
+- More importantly, you can apply the same model class to different
+  templates.
+
+Both of these items provide great flexibility and will influence the way
+how you reuse code -- both on template and logic side.
+
+Before we go on, here's the output of the example above:
+
+.. literalinclude:: ../examples/out/editing.out
+    :language: html
+
+The content of an HTML element (or as presented in python: of a node
+object) is set by assigning it to the ``content`` attribute of the node.
+The content is defined as *everything* between the start tag and the end
+tag of the node's element. It's the same whether the content was simple
+text before or nested elements. It's all wiped and replaced by the
+*text* you assign to it.
+
+HTML attributes are accessed through the subscription operator, i.e.
+using square brackets. The ``render_intro`` method sets the ``class``
+attribute that way.
+
+Note the following mechanisms:
+
+|**TDI**| **escapes input automatically**
+
+    It knows how to escape content properly for HTML and applies
+    appropriate escaping by default. That way you are on the safe side
+    except you explicitely instruct |TDI| otherwise (sometimes it's
+    inevitable to insert literal HTML code, for example). How to bypass
+    the escape mechanism is described in the :ref:`section further down
+    below <bypassing>`.
+
+|**TDI**| **is unicode aware** [#]_
+
+    That means if you pass unicode to content or attributes it will be
+    encoded however the template is encoded (or rather :ref:`what TDI
+    knows about it <character_encoding>`). In the example above the
+    template's character encoding is not indicated anywhere, so |TDI|
+    falls back to ``US-ASCII`` as the least common denominator.
+
+    It is also possible to pass byte strings to |TDI| (although not
+    recommended). Those byte strings are still escaped [#]_ but not
+    transcoded otherwise. Whether they do or do not fit into the template
+    encoding is not checked and your responsibility only. You can learn
+    what |TDI| knows about the template encoding from the template's
+    :attr:`encoding` attribute. Read the :ref:`character encoding
+    <character_encoding>` section for details.
+
+
+Removing Content
+~~~~~~~~~~~~~~~~
+
+In a sense shaping a template with |TDI| often works like etching. Often
+you have certain nodes available, pick one to render and throw away all the
+others.
+
+Technically most of the time the content isn't actually removed, but
+merely prevented from being written to the output stream. The difference
+is mostly not important, it's just that preventing output is a lot
+faster than actually removing content ("removing" nodes for example is
+just a bit flip).
+
+There are three to four ways to remove content:
+
+1) Complete subtrees with :tdi:`|node.remove()| <tdi.nodetree.Node.remove>`
+2) Attributes with the ``del`` statement
+3) A node's markup by assigning to the node's
+   :tdi:`tdi.nodetree.Node./hiddenelement` attribute. The initial value
+   of this attribute reflects the ``-`` / ``+`` :ref:`node flags
+   <flags>`.
+4) In case it's not obvious, you can empty a node by assigning an empty
+   string to :tdi:`|node.content| <tdi.nodetree.Node.content>`
+
+.. literalinclude:: ../examples/removing.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+The example shows the possibilities (1), (2) and (3):
+
+- the :samp:`render_menu{<number>}` methods hide the link in case the
+  particular menu item is active. (Granted, the code is crappy, but we're
+  going without loops in this chapter).
+- ``render_intro`` removes an attribute
+- ``render_list`` (conditionally) removes a complete node
+
+.. literalinclude:: ../examples/out/removing.out
+    :language: html
+
+
+.. _bypassing:
+
+Bypassing Automatic Escaping
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. Warning:: Be careful. Only bypass automatic escaping with content you
+             trust.
+
+There are certain use cases for pasting ready-to-use HTML into the
+output. Examples are (elsewhere) generated code, banner code etc.
+You need to circumvent |TDI|'s automatic escaping mechanism in order to
+insert content literally.
+
+.. literalinclude:: ../examples/raw.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+The ``render_banner2`` method passes the content in raw form to the
+output. The :attr:`raw` attribute is a small proxy object to the real
+node object and behaves as such (in a limited way), but assignments are just
+passed through.  So you can assign ``content`` or attributes in raw form.
+That means:
+
+- they should be encoded properly (according to the template)
+- (raw attribute assignments need to include the attribute quotes)
+- well, you should make sure that the content doesn't open the output
+  for `XSS attacks <http://en.wikipedia.org/wiki/Cross-site_scripting>`_
+- avoid raw content assignment whenever you can
+
+``render_banner1`` assigns the same content to the regular node, and
+it's properly escaped (just to show the difference):
+
+.. literalinclude:: ../examples/out/raw.out
+    :language: html
+
+
+----
+
+.. [#] If you don't know about unicode, `start here
+       <http://docs.python.org/howto/unicode.html>`_.
+
+.. [#] Escaping byte strings assumes they're ASCII compatible. For
+       example, escaping UTF-16 encoded stuff that way will produce
+       strange results. If you don't know what UTF-16 is, don't bother.
+       Look up UTF-8 instead ;-).
+
+
+.. vim: ft=rest tw=72

@@ -1,0 +1,164 @@
+.. license:
+    Copyright 2010 - 2013
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+======================
+ Template Annotations
+======================
+
+|TDI| strictly keeps the template and the rendering logic apart. That
+way you can write your, say, HTML template in HTML and your logic in a
+real language -- python in this case. There is no template language
+in-between. You just need to label the locations in the template which
+should be modified later.
+
+For |TDI| this looks like the following:
+
+.. literalinclude:: ../examples/annotations.py
+    :language: html
+    :start-after: html.from_string
+    :end-before: """)
+
+When you pass that to |TDI|, it will be parsed into a document tree
+essentially containing the two nodes (``doctitle`` and ``intro``).
+Everything in between is passed through literally (except when your
+template logic changes it, of course). The tree is stuffed into a
+template object which you can handle in python. For example:
+
+.. literalinclude:: ../examples/annotations.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+:meth:`template.render()` streams the result to ``sys.stdout`` by
+default. So the output of this snippet would be:
+
+.. literalinclude:: ../examples/out/annotations.out
+    :language: html
+
+We have no render logic specified, so the only difference to the original
+template is, that the annotations (:samp:`tdi={...}`) are gone.
+
+
+Annotation Syntax
+~~~~~~~~~~~~~~~~~
+
+All annotations recognized by |TDI| follow the same pattern. They
+are defined as markup attribute and consist of a name optionally
+prepended by flags. Names are limited to the usual US-ASCII word
+alphabet (``a-z``, ``A-Z``, ``0-9``, ``_``) and must start with a
+letter. Flags are represented by single "special" characters, which are
+not member of the name alphabet (like ``-`` or ``*``).
+
+The following annotation attributes are recognized (and removed
+automatically) by the parser:
+
+.. _flags:
+
++-----------------------------------+-------+-----------------+
+| Attribute / Description           | Flag  | Description     |
++===================================+=======+=================+
+| :samp:`tdi="{[flags]}{name}"`                               |
++-----------------------------------+-------+-----------------+
+| Main attribute for labeling       | ``-`` | Hide the markup |
+| modifiable nodes                  +-------+-----------------+
+|                                   | ``+`` | Show the markup |
+|                                   +-------+-----------------+
+|                                   | ``:`` | Separator node  |
+|                                   +-------+-----------------+
+|                                   | ``*`` | Silent node     |
++-----------------------------------+-------+-----------------+
+| :samp:`tdi:overlay="{[flags]}{name}"`                       |
++-----------------------------------+-------+-----------------+
+| Mark :doc:`overlay <overlays>`    | ``-`` | Hide the markup |
+| source or target                  +-------+-----------------+
+|                                   | ``+`` | Show the markup |
+|                                   +-------+-----------------+
+|                                   | ``<`` | Source overlay  |
+|                                   +-------+-----------------+
+|                                   | ``>`` | Target overlay  |
++-----------------------------------+-------+-----------------+
+| :samp:`tdi:scope="{[flags]}{name}"`                         |
++-----------------------------------+-------+-----------------+
+| Enter a logical :doc:`scope       | ``-`` | Hide the markup |
+| <scopes>`. Empty names and dotted +-------+-----------------+
+| names allowed                     | ``+`` | Show the markup |
+|                                   +-------+-----------------+
+|                                   | ``=`` | Absolute scope  |
++-----------------------------------+-------+-----------------+
+
+Note that the ``+`` and ``-`` flags are mutually exclusive per
+attribute. If they are mixed across attributes of the same node, ``-``
+takes precedence. You only need to set them, if the desired flag differs
+from the template parser/builder default. For example, |TDI|'s HTML
+template factory defaults to ``+``.
+
+
+Mock-Up Content
+~~~~~~~~~~~~~~~
+
+When editing or presenting the template it's often useful to fake parts
+that are actually generated later. That's called mock-up content. |TDI|
+provides a special annotation for this very purpose:
+
+.. literalinclude:: ../examples/mockup.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+All nodes annotated with ``tdi="-"`` are handled as mock-up content and
+simply stripped by the template builder. Here's the output of the
+snippet above:
+
+.. literalinclude:: ../examples/out/mockup.out
+    :language: html
+
+Note that the builder strips the mock-up nodes (not the renderer).
+Consequently once the template object is ready, there is no performance
+penalty at all.
+
+
+.. _character_encoding:
+
+Character Encoding
+~~~~~~~~~~~~~~~~~~
+
+The :tdi:`tdi.template.Template./encoding` property of the template
+object contains information about what |TDI| knows about the template
+encoding. This information is used by |TDI| itself to encode supplied
+content properly (and for consistency checks when combining templates,
+but more about that elsewhere).
+
+You can use that information for example, for setting the proper HTTP or
+MIME headers.
+
+The ``html`` template factory is configured to look out for two encoding
+indicators within the template:
+
+- An XML prolog
+- An applicable ``<meta>`` element
+
+If it contains more than one encoding hint, the last one wins. If it
+doesn't contain any hint, ``US-ASCII`` is assumed as the most safe
+fallback. The following code shows examples:
+
+.. literalinclude:: ../examples/encoding.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+The script produces the following output:
+
+.. literalinclude:: ../examples/out/encoding.out
+
+.. vim: ft=rest tw=72

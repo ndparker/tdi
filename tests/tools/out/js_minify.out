@@ -1,0 +1,4 @@
+u'var x=1;var y=2;\xe9\nalert(x+y);'
+'var x=1;var y=2;\xe9\nalert(x+y);'
+UnicodeError - OK
+'var x=1;var y=2;\xc3\xa9\nalert(x+y);'

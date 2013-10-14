@@ -1,0 +1,48 @@
+unicode
+var count = 10;
+var name = '__c__';
+var param = {"name": "Andr\u00e9"};
+var notreplaced = '__d__';
+var with_ = 'Andr\xe9';
+unicode
+var count = 10;
+var name = '__c__';
+var param = {"name": "AndrÃ©"};
+var notreplaced = '__d__';
+var with_ = 'Andr\xe9';
+str
+var count = 10;
+var name = '__c__';
+var param = {"name": "Andr\u00e9"};
+str
+var count = 10;
+var name = '__c__';
+var param = {"name": "André"};
+str
+var count = 10;
+var name = '__c__';
+var param = {"name": "André - \u20ac"};
+str
+var count = 10;
+var name = '__c__';
+var param = {"name": "Andr\u00e9 - \u20ac"};
+var notreplaced = '__d__';
+var with_ = 'Andr\xe9';
+unicode
+var name = '__c__';
+var param = {"name": "Andr\u00e9 <\/script>]\]>"};
+unicode
+var name = '__<\/script>-\-]\]>__';
+var param = {"name": "Andr\u00e9 <\/script>]\]>"};
+unicode
+var name = '__</script>--]]>__';
+var param = {"name": "Andr\u00e9 </script>]]>"};
+unicode
+var name = '__</script>--]]>__';
+var param = {\"name\": \"Andr\xc3\xa9 </script>]]>\"};
+unicode
+var name = '@c@';
+var param = {"name": "Andr\u00e9 <\/script>]\]>"};
+unicode
+var name = '@c@';
+var param = {"name": "Andr\u00e9 <\/script>]\]>"};

@@ -1,0 +1,114 @@
+.. license:
+    Copyright 2010 - 2012
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+=========
+ Looping
+=========
+
+Looping is basically about repeating a template block and filling each
+repeated item differently. There are two ways of looping:
+:tdi:`|node.iterate()| <tdi.nodetree.Node.iterate()>` and
+:tdi:`|node.repeat()| <tdi.nodetree.Node.repeat()>`. Looping with
+:tdi:`|node.iterate()| <tdi.nodetree.Node.iterate()>` looks like
+this:
+
+.. literalinclude:: ../examples/looping.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+The :tdi:`tdi.nodetree.Node./repeat()` method uses a callback function
+instead of the loop body for the logic:
+
+.. literalinclude:: ../examples/looping2.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+    :end-before: END INCLUDE
+
+The output is the same:
+
+.. literalinclude:: ../examples/out/looping2.out
+    :language: html
+
+The main differences between those methods are:
+
+- The result of :meth:`iterate()` needs to be buffered until the
+  :samp:`render_{name}` method is done. :meth:`repeat()` is not
+  buffered. Thus for huge loops :meth:`repeat()` is the preferred
+  method.
+- If you're using :meth:`iterate()`, you should handle all child nodes
+  within the loop, as they are marked as "done", i.e. no render methods are
+  called for them. :meth:`repeat()` has no such effect.
+
+:meth:`repeat()` also fills the :attr:`ctx` attribute of the node (and
+all of its child nodes), which is a tuple containing:
+
+0) The number of the repetition (starting with zero)
+1) The current item
+2) The custom parameter tuple (the "fixed" argument in the
+   :tdi:`tdi.nodetree.Node./repeat()` function signature.)
+
+
+Looping With Separators
+~~~~~~~~~~~~~~~~~~~~~~~
+
+It's often needed to also put blocks *between* repeated items. |TDI|
+calls these blocks :dfn:`separators`. A common case is to just put a
+static piece of template code between, without doing anything special
+with the separator block itself.
+
+.. literalinclude:: ../examples/separators.py
+    :language: html
+    :start-after: html.from_string("""
+    :end-before: """)
+
+The separator node has to be defined on the same level as the
+(potential) list item node. It has to get the same name, but is decorated
+with the ``:`` flag. Separator nodes are special, they are attached to
+the accompanying "real" node and are used only if this "real" node is
+repeated (with more than one resulting item). Otherwise the separators
+just vanish from the output.
+
+In the case above the separator simply adds some space characters, since
+the element is hidden (because of the ``-`` flag). The rest of the
+example (the python code) is stolen from the looping example above. The
+output is, of course, different:
+
+.. literalinclude:: ../examples/out/separators.out
+    :language: html
+
+If you want to modify separator nodes you can:
+
+- define a :samp:`separate_{name}` method, which will be called
+  automatically if a separator is needed.
+- Pass a callback function to the :tdi:`tdi.nodetree.Node./iterate()` or
+  :tdi:`tdi.nodetree.Node./repeat()` methods.
+
+Inside a separator function you can access the context information
+(``node.ctx``) as well. In this case the current item is actually a
+tuple containing both the last and the next iterated item.
+
+Here's an example modifying the last separator:
+
+.. literalinclude:: ../examples/looping3.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+.. literalinclude:: ../examples/out/looping3.out
+    :language: html
+
+
+.. vim: ft=rest tw=72

@@ -1,0 +1,211 @@
+.. license:
+    Copyright 2012
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+==========================
+ Miscellaneous HTML tools
+==========================
+
+The tools described here can be found in the :tdi:`tdi.tools.html`
+module. It contains node manipulation helpers and tools for encoding,
+decoding and minifying HTML.
+
+
+Decoding HTML Text
+~~~~~~~~~~~~~~~~~~
+
+Text in HTML documents is encoded in two ways: First of all, the
+document itself with all the markup is presented in a particular
+character encoding, for example, ``UTF-8`` or ``Windows-1252`` or
+``EUC-KR``.
+
+Now, text characters not fitting into the document encoding's character
+set or conflicting with the markup itself can be encoded using character
+references (e.g. ``&#x20ac;`` -- the € character).
+
+To make things more easy (from the user's point of view) and more
+complicated (from the implementor's point of view) at the same time,
+certain characters can be referenced using *named* character entities
+(e.g. ``&euro;`` -- the € character again, or ``&amp;`` -- the ``&``
+character, which obviously conflicts with the markup and always needs to
+be referenced like this).
+
+|TDI| encodes unicode input using only the first two options (except for
+the basic named references ``&lt;``, ``&gt;``, ``&amp;`` and ``&quot;``.
+However, in order to manipulate existing HTML text, it needs to
+understand all three when decoding it.
+
+
+Named Character Entities
+------------------------
+
+|TDI| ships with the mapping of named character entities:
+:tdi:`tdi.tools.html.entities`\. The mapping is directly generated from
+`the HTML5 specification
+<http://www.w3.org/TR/html5/syntax.html#named-character-references>`_.
+It's a superset of the entities defined in HTML 4 / XHTML 1.0 and below,
+so it can be applied safely for such documents as well.
+
+Python's standard library provides a similar mapping starting with
+version 3.3.
+
+The mapping is used by default for the decode function described below.
+
+
+decode
+------
+
+:tdi:`tdi.tools.html.decode` takes some HTML encoded text and returns
+the equivalent unicode string. The input can be unicode itself or a byte
+string. In this case, the encoding should be passed, too.
+
+Here's a simple example:
+
+.. literalinclude:: ../examples/html_tools_decode.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+... that produces the following output (if the output medium accepts
+UTF-8):
+
+.. literalinclude:: ../examples/out/html_tools_decode.out
+
+The decode function is used by |TDI| itself whenever it needs to
+interprete HTML text (usually attributes), for example when examining
+the parser events for ``tdi``-attributes or with the class-functions
+described next.
+
+
+class_add, class_del
+~~~~~~~~~~~~~~~~~~~~
+
+:tdi:`tdi.tools.html.class_add` and :tdi:`tdi.tools.html.class_del` are
+simple functions to modify the class attribute of a node. This has been
+proven to be such a common task - and ugly to implement, that |TDI|
+ships with these tiny helpers. Both functions take a node and a variable
+list of class names; either to add or to remove:
+
+.. literalinclude:: ../examples/html_tools_class.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+This examples removes the "open" class from ``div1`` and adds the "open"
+and "highlight" classes to ``div2``:
+
+.. literalinclude:: ../examples/out/html_tools_class.out
+    :language: html
+
+
+Formatted Multiline Content
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Formatted multiline content is text with indentations and newlines,
+typically displayed using a monospaced font. There's already an HTML
+element for displaying such content: ``pre``. However, ``pre`` may not
+work very well if the content should be part of a paragraph or is
+allowed to line-wrap.
+
+The :tdi:`tdi.tools.html.multiline` function encodes such text to
+regular HTML, using ``<br>`` (or ``<br />``) for line breaks and
+combinations of ``&nbsp;`` and spaces for indentations. It also expands
+tab characters. The input (unicode) will also be escaped and character
+encoded. The result can be assigned directly as raw content.
+
+Simple code example:
+
+.. literalinclude:: ../examples/html_tools_multiline.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+Output:
+
+.. literalinclude:: ../examples/out/html_tools_multiline.out
+    :language: html
+
+
+Minifying HTML
+~~~~~~~~~~~~~~
+
+Minifying reduces the size of a document by removing redundant or
+irrelevant content. Typically this includes whitespace and comments.
+Minifying HTML is hard, though, because it's sometimes white space
+sensitive, sometimes not, browsers are buggy, specifications changed
+over time, and so on.
+
+|TDI| ships with a HTML minifier, which carefully removes spaces and
+comments. Additionally, in order to improve the ratio of a possible
+transport compression (like gzip), it sorts attributes alphabetically.
+
+There are two use cases here:
+
+#. Minify the HTML templates during the loading phase
+#. Minify some standalone HTML (maybe from a CMS)
+
+The first case is handled by hooking the
+:tdi:`tdi.tools.html.MinifyFilter` into the template loader. See the
+:doc:`filters documentation <filtering>` for a description how to do that.
+
+For the second case there's the :tdi:`tdi.tools.html.minify` function.
+
+The ``MinifyFilter`` only minifies HTML content. The ``minify`` function
+also minifies enclosed style and script blocks (by adding more filters
+from the :doc:`javascript <javascript_tools>` and :doc:`css tools
+<css_tools>`). So the following code:
+
+.. literalinclude:: ../examples/html_tools_minify.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+emits:
+
+.. literalinclude:: ../examples/out/html_tools_minify.out
+    :language: html
+
+
+Controlling Comment Stripping
+-----------------------------
+
+By default both :tdi:`tdi.tools.html./MinifyFilter` and
+:tdi:`tdi.tools.html./minify` strip *all* comments. Sometimes it's
+inevitable to keep certain comments (for example for easier debugging or
+marking stuff for other tools). |TDI|'s minifiers accept a
+``comment_filter`` parameter -- a function, which decides whether a
+comment is stripped or passed through. The function can also modify the
+comment before passing it through. Here's an example:
+
+.. literalinclude:: ../examples/html_tools_minify_cfilter.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+.. literalinclude:: ../examples/out/html_tools_minify_cfilter.out
+    :language: html
+
+If you have a factory filter setup, here's how you pass your comment
+filter:
+
+#. Write the filter function
+#. Write a new filter factory function
+#. Pass the filter factory function to the template factory instead of
+   ``tdi.tools.html.MinifyFilter``
+
+Sounds complicated. It's not:
+
+.. literalinclude:: ../examples/html_tools_minifyfilter_cfilter.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+
+.. vim: ft=rest tw=72

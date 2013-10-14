@@ -1,0 +1,144 @@
+Changes with version 0.9.9.7
+
+ *) Removed some deprecated code and/or wrappers:
+    tdi.template.FactoryCache, tdi.dtd.SoupDTD, tdi.dtd.TDIDTDWrapper,
+    tdi.template.Loader, tdi.template.file_opener, tdi.template.Factory,
+    tdi.template.OverlayFactory, tdi.template.html, tdi.util.decode_html,
+    tdi.filters.HTMLCommentStripFilter, tdi.filters.HTMLWhiteSpaceStripFilter.
+
+ *) The "-" node flag got a "+" counterpart. Depending on the template type
+    one or the other may be useful. For example, text templates have a "-"
+    set by default (specified by the template builder).
+
+ *) TDI now provides 3 default template factories: tdi.html, tdi.xml and
+    tdi.text. Since it's more complicated now to create those, it's
+    recommended to adapt these factories to your needs by using their
+    "replace" method.
+
+ *) Added plain text markup (tdi.markup.text)
+
+ *) Markup specific code moved into its own subpackage (tdi.markup):
+    tdi.soup_parser, tdi.dtd, tdi.encoder, tdi.builder,
+    tdi.filters.EncodingDetectFilter
+
+ *) Attribute handling during rendering now respects the markup specific
+    normalizer (case-sensitive for XML and text).
+
+ *) ModelAdapterInterface: Added "emit_escaped" attribute. Prerender
+    adapters should set that to a true value, render adapters to false.
+
+ *) EncoderInterface: got a new "encode" method.
+
+ *) TemplateNode: got a new "append_escape" method.
+
+ *) EncoderInterface: got a new "escape" method.
+
+ *) ListenerInterface: Must accept new "handle_escaped" events.
+
+ *) EncoderInterface: "starttag" method's "closed" parameter is a bool now.
+
+ *) ListenerInterface: "handle_starttag" got a new "closed" parameter. The
+    self-closing slash (in HTML/XML) is not passed via the "attr" parameter
+    anymore. This is mostly relevant, if you have written your own parser
+    filters. Those need to be adjusted.
+
+ *) TemplateNode: "append_node" accepts a "closed" parameter now. If true,
+    the node must not receive an endtag.
+
+ *) Node: Added a boolean read-only "closedelement" attribute.
+
+ *) RawNode: now provides a "decoder" attribute (See DecoderInterface). So
+    does the template tree root.
+
+ *) DTDInterface: "normalize" and "closed" methods are gone.
+
+ *) Factories (and builders) no longer accept a dtd query class, but a
+    decoder class instead. Appropriate decoders can be found in the
+    tdi.markup subpackage. They are also initialized with markup specific
+    default filters.
+
+ *) Implemented attribute analyzer in C.
+
+ *) Implemented soup.markup.filters.EncodingDetectFilter in C.
+
+ *) Implemented the BaseEventFilter in C, speeding up filter chain delegation
+    for all filters inheriting from this class.
+
+ *) Implemented the HTML entity decoder in C.
+
+ *) Implemented the (X)HTML parser in C.
+
+ *) The template factory now can be initialized with a default encoding.
+
+ *) Added "cdata_containers" option to HTML minifier, in order to allow
+    adding proper CDATA containers around embedded scripts and styles
+
+ *) Exposed wtf.response.load_* functions via wtf_service.Middleware
+
+ *) Fixed overwriting of the getlist method in
+    wtf_service.RequestParameterAdapter.
+
+ *) Added "comment_filter" option to HTML minifier, in order to allow
+    conditional comment stripping.
+
+ *) Improved scope documentation
+
+ *) Removed <select> from HTML minifier's "block elements" list
+
+ *) Removed Support for Python 2.3
+
+ *) Added support for PyPy (Python only, 1.9, 2.0)
+
+ *) Added support for Jython (Python only, 2.5, 2.7)
+
+ *) Improved encoding handling for tdi.tools.javascript.SimpleJSON
+
+
+Changes with version 0.9.9.6
+
+ *) Added compat option to setup.py supporting the pip installer
+
+ *) Fixed inconsistency between python and C regarding separator counters
+
+ *) Added example for separator methods
+
+
+Changes with version 0.9.9.5
+
+ *) Raw nodes accept unicode now. It's automatically encoded using the
+    document's charset. The EncoderInterface got a new method for that.
+
+ *) Node objects grew a new method "render" for subrendering. Consequently,
+    child nodes named "render" cannot be addressed anymore using the dotted
+    notation.
+
+ *) Improved HTML5 support:
+    - Relax the parser to accept any nesting, except if it's actually forbidden
+      by HTML5. The query classes SoupDTD and TDIDTDWrapper are deprecated in
+      favor of HTMLDTD.
+
+    - Encoding detector accepts <meta charset=xxx>
+
+    - Ship with HTML5 named character entity mapping (generated from spec)
+
+    - Extend HTMLForm tool with new methods for HTML5 input types (added a
+      testpage for those types as well, see HTML Form Tools documentation).
+      HTMLForm.multiselect is deprecated. Use HTMLform.select(multiple=True)
+      instead.
+
+ *) Deprecated some APIs, all of them emit a tdi.DeprecationWarning now
+    instead of python's own, because the latter is ignored by default.
+
+ *) Cleaned up tools and added some new ones (especially for html and
+    javascript). The tools.escape module is completely deprecated.
+
+ *) Various miscellaneous fixes and improvements
+
+ *) Added tons of documentation. Added an example index.
+
+ *) Added more tests. The test runner is now a separate script and distributed.
+
+
+Changes with version 0.9.9.0
+
+ *) First beta release

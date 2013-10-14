@@ -1,0 +1,77 @@
+.. license:
+    Copyright 2010, 2011
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+:orphan:
+
+
+=========================================
+ Template Factory Implementation Details
+=========================================
+
+The :tdi:`factory parameters <tdi.factory.Factory.__init__>` determine,
+which parser to use, which tree builder, if and how the templates should
+be filtered and so on. Some of the parameters depend on others. The list
+of parameters represents a comprehensive mix of interfaces which are
+expected in order to combine all the components properly.
+
+Before explaining those interfaces, let's see what actually
+happens with the stuff passed in. When loading a template using a
+factory's method (e.g. :tdi:`tdi.factory.Factory./from_file`) the
+following actions are taken:
+
+#. The filters are initialized.
+#. The tree builder is initialized with the filters.
+#. The parser is initialized with the tree builder.
+#. The file is opened and the stream is fed to the parser.
+#. The parser emits events to the tree builder (possibly modified by the
+   filters).
+#. The stream is finished.
+#. The parser is finished.
+#. The tree builder is finished and asked for the generated node tree.
+#. The tree is stuffed into a fresh template object (among other
+   things).
+#. If autoloading is requested, the template is wrapped into the autoloader
+   proxy object.
+#. The template object is returned.
+
+If memoization is enabled, the whole chain of actions is prepended by a
+check if the key is already stored in which case only the template
+object is returned. If the key is not found in the memoization storage
+container, all actions are taken and the template object returned in the
+last step is stored for the next call.
+
+
+Basic Data Flow
+---------------
+
+WRITEME.
+
+
+Main Interfaces
+---------------
+
+
+Stream Opener
+~~~~~~~~~~~~~
+
+
+Stream Open
+~~~~~~~~~~~
+
+
+
+.. vim: ft=rest tw=72

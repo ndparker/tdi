@@ -1,0 +1,86 @@
+Download
+~~~~~~~~
+
+Change Log
+----------
+
+`CHANGES file <http://storage.perlig.de/tdi/CHANGES-@@VERSION@@>`_
+
+
+Source Packages
+---------------
+
+.. begin stable
+
+Current Stable Version
+''''''''''''''''''''''
+
+- `tdi-@@VERSION@@.tar.lzma <http://storage.perlig.de/tdi/tdi-@@VERSION@@.tar.lzma>`_
+- `tdi-@@VERSION@@.tar.bz2 <http://storage.perlig.de/tdi/tdi-@@VERSION@@.tar.bz2>`_
+- `tdi-@@VERSION@@.tar.gz <http://storage.perlig.de/tdi/tdi-@@VERSION@@.tar.gz>`_
+- `tdi-@@VERSION@@.zip <http://storage.perlig.de/tdi/tdi-@@VERSION@@.zip>`_
+- `tdi-@@VERSION@@.digests <http://storage.perlig.de/tdi/tdi-@@VERSION@@.digests>`_
+
+.. end stable
+
+
+.. begin dev
+
+Current Development Version
+'''''''''''''''''''''''''''
+
+- `tdi-@@DEVVERSION@@.tar.lzma <http://storage.perlig.de/tdi/@@PATH@@tdi-@@DEVVERSION@@.tar.lzma>`_
+- `tdi-@@DEVVERSION@@.tar.bz2 <http://storage.perlig.de/tdi/@@PATH@@tdi-@@DEVVERSION@@.tar.bz2>`_
+- `tdi-@@DEVVERSION@@.tar.gz <http://storage.perlig.de/tdi/@@PATH@@tdi-@@DEVVERSION@@.tar.gz>`_
+- `tdi-@@DEVVERSION@@.zip <http://storage.perlig.de/tdi/@@PATH@@tdi-@@DEVVERSION@@.zip>`_
+- `tdi-@@DEVVERSION@@.digests <http://storage.perlig.de/tdi/@@PATH@@tdi-@@DEVVERSION@@.digests>`_
+
+.. end dev
+
+
+Integrity Check
+---------------
+
+There are hashes (MD5, SHA1 and SHA256) of the download packages stored
+in the `digests file
+<http://storage.perlig.de/tdi/@@PATH@@tdi-@@VERSION@@.digests>`_\. In order to
+check the integrity of the downloaded file, use a tool like md5sum (or
+sha1sum, sha256sum accordingly), e.g.:
+
+.. sourcecode:: console
+
+    $ md5sum -c tdi-@@VERSION@@.digests
+    tdi-@@VERSION@@.tar.bz2: OK
+    tdi-@@VERSION@@.tar.gz: OK
+    tdi-@@VERSION@@.tar.lzma: OK
+    tdi-@@VERSION@@.zip: OK
+
+In order to check the integrity of the digest file itself, you can check
+the PGP signature of that file. The file is signed by André Malo, Key-ID
+0x8103A37E:
+
+.. sourcecode:: console
+
+    $ gpg --verify tdi-@@VERSION@@.digests
+    gpg: Signature made Fri May 10 17:35:10 2013 CEST using DSA key ID 8103A37E
+    gpg: Good signature from "Andre Malo <nd@apache.org>"
+    gpg:                 aka "Andr\xe9\x20Malo <nd@perlig.de>"
+    gpg:                 aka "Andre Malo <ndparker@gmx.net>"
+
+
+Vendor Packages
+---------------
+
+There's a `Gentoo Linux Ebuild
+<http://storage.perlig.de/tdi/tdi-@@VERSION@@.ebuild>`_ available.
+
+
+Get Informed About New Releases
+-------------------------------
+
+If you want to get informed about new releases of the TDI, you may
+use the subscription service `provided by freecode.com
+<http://freecode.com/projects/template-data-interface-tdi>`_.
+
+
+.. vim: ft=rest tw=72

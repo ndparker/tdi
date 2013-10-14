@@ -1,0 +1,226 @@
+.. license:
+    Copyright 2010 - 2013
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+======================
+ Documentation Topics
+======================
+
+The example code described in the following chapters can be found in the
+source distribution in the :file:`docs/examples/` folder. It's also
+available online and listed in the :doc:`example index <examples>`.
+
+.. toctree::
+    :hidden:
+
+    annotations
+    content
+    plain_text
+    navigation
+    looping
+    copy_replace
+    subrendering
+    html_tools
+    html_forms
+    javascript_tools
+    css_tools
+    overlays
+    scopes
+    partial
+    prerender
+    filtering
+    loading
+    examples
+
+
+Basic Templating
+~~~~~~~~~~~~~~~~
+
+Template Annotations
+--------------------
+
+|TDI| strictly keeps the template and the rendering logic apart. That
+way you can write your, say, HTML template in HTML and your logic in a
+real language - python in this case. There is no template language
+in-between. You just need to label the locations in the template which
+should be modified later. :doc:`More... <annotations>`
+
+Simple Content Editing In Python
+--------------------------------
+
+The counterpart of the template is the rendering logic written in
+python. |TDI| expects a so-called "model" object here, which provides
+callback methods for the modifiable nodes. Content manipulations are
+**escaped automatically** and **unicode-aware**. :doc:`More... <content>`
+
+
+Plain Text Templates
+--------------------
+
+Plain text -- naturally -- does not provide any markup by itself. |TDI|
+accepts some simple markup, which can be used to annotate your
+text templates. :doc:`More... <plain_text>`
+
+
+Node Tree Navigation
+--------------------
+
+It's often much more practical to modify child nodes directly instead of
+giving each its own :samp:`render_{name}` method. Conveniently you can
+access child nodes of a node directly as attribute using the child
+node's name. :doc:`More... <navigation>`
+
+
+Looping
+-------
+
+Looping is basically about repeating a template block and filling each
+repeated item differently. There are two ways of looping:
+:tdi:`|node.iterate()| <tdi.nodetree.Node.iterate()>` and
+:tdi:`|node.repeat()| <tdi.nodetree.Node.repeat()>`. :doc:`More... <looping>`
+
+
+Copy & Replace
+--------------
+
+These node operations are less frequently used than all the others, but
+nevertheless useful. Common use cases are content picking or building
+trees. :doc:`More... <copy_replace>`
+
+
+Sub-Rendering
+-------------
+
+Sub-rendering means, that you can prematurely render a node during the
+regular rendering process (i.e. from within a :samp:`render_{name}`
+method). :doc:`More... <subrendering>`
+
+
+Helpful Tools
+~~~~~~~~~~~~~
+
+|TDI| comes with a set of tools that provide solutions for various common
+tasks and have been proven useful in practice.
+
+
+Miscellaneous HTML Tools
+------------------------
+
+The tools described here can be found in the :tdi:`tdi.tools.html`
+module. It contains node manipulation helpers and tools for encoding,
+decoding and minifying HTML. :doc:`More... <html_tools>`
+
+
+HTML Form Tools
+---------------
+
+Since |TDI| provides you with such neat node objects, it's pretty easy
+to write generic functions to handle certain kinds of nodes. HTML
+forms always require a huge effort to get them right and are such a
+common use case that |TDI| comes with a ready-to-use abstraction of
+those particular (and peculiar) kind of nodes. :doc:`More... <html_forms>`
+
+
+Javascript Tools
+----------------
+
+The tools described here can be found in the :tdi:`tdi.tools.javascript`
+module. The module deals a lot with safe javascript manipulation and
+provides also a minifier. :doc:`More... <javascript_tools>`
+
+
+CSS Tools
+---------
+
+The tools described here can be found in the :tdi:`tdi.tools.css`
+module. The CSS tools mainly provide a minifier for now. :doc:`More...
+<css_tools>`
+
+
+Code Organization
+~~~~~~~~~~~~~~~~~~
+
+Template Combination With Overlays
+----------------------------------
+
+Usually there's more than one template in a project and there are certainly
+the same or similar elements on the different pages. In order to avoid
+code duplication move the common elements into an extra file and load
+them where they are needed. |TDI| provides the concept of
+:dfn:`overlays` for this purpose. :doc:`More... <overlays>`
+
+
+Code Partitioning With Scopes
+-----------------------------
+
+|TDI| allows you to bind nodes or groups of nodes to :dfn:`scopes`. This
+is the counterpart to overlays on the code side. Scopes add the
+capability to edit the template with different model instances.
+:doc:`More ...  <scopes>`
+
+
+Advanced Features
+~~~~~~~~~~~~~~~~~
+
+Partial Rendering
+-----------------
+
+Modern websites often (re-)load parts of the page using javascript.
+|TDI| attempts to help you somewhat with such demands. It provides the
+possibility to render only a subnode of the template. :doc:`More...
+<partial>`
+
+
+Pre-Rendering
+-------------
+
+Often some parts of a webpage are more dynamic than others. |TDI| lets
+you render the less dynamic parts independently from the hot stuff.
+:doc:`More... <prerender>`
+
+
+Filtering
+---------
+
+|TDI| allows modifying and extending its parser events before they reach
+the tree builder. Since these filters are applied at loading time, they
+have no performance impact during rendering. :doc:`More... <filtering>`
+
+
+Template Loading Revisited
+--------------------------
+
+The template loader provides methods to build template objects from any
+source. Additionally it provides caching and refreshing mechanisms.
+:doc:`More... <loading>`
+
+
+.. comment:
+    Framework Integration
+    ~~~~~~~~~~~~~~~~~~~~~
+
+    WRITEME.
+
+
+    Customizing And Extending |TDI|
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This documentation still needs to be written. For now, you have to use
+    the source and/or the generated :tdi:`API documentation </>`. Sorry for
+    that.
+
+
+.. vim: ft=rest tw=72

@@ -1,0 +1,46 @@
+.. license:
+    Copyright 2010
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+===================
+ Partial Rendering
+===================
+
+Modern websites often (re-)load parts of the page using javascript.
+|TDI| attempts to help you somewhat with such demands. It provides the
+possibility to render only a subnode of the template. Imagine a menu
+which is reloaded dynamically. Imagine further that you don't need to
+change a thing (compared to loading the whole page) except to say, which
+node should be rendered now. Here it comes:
+
+.. literalinclude:: ../examples/partial.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+    :end-before: END INCLUDE
+
+The "partial rendering" feature is triggered by the ``startnode``
+argument, which addresses the node symbolically. A dotted notation
+is allowed in order to specify a specificly nested node. See the
+:tdi:`tdi.nodetree.Root./render()` method API documentation for more
+details.
+
+The output now contains the desired node only:
+
+.. literalinclude:: ../examples/out/partial.out
+    :language: html
+
+
+.. vim: ft=rest tw=72

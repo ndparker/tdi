@@ -1,0 +1,13 @@
+#0  0x0812ac1c in PyBaseString_Type ()
+#1  0x080ea382 in ?? ()
+#2  0xb75f2276 in TemplateNodeType_traverse (self=0xaba638c, visit=0x80ea360, arg=0x0) at tdi/c/tdi.c:4830
+#3  0x080eacd4 in ?? ()
+#4  0x080eb7b3 in _PyObject_GC_New ()
+#5  0x08072a05 in ?? ()
+#6  0x0805cc24 in PyObject_GetIter ()
+#7  0xb75f4b16 in tdi_overlay_stack_push (next=0xbfff7084, target=0x8137a08, source=0xc6f274c, in_overlay=0)     at tdi/c/tdi.c:3462
+#8  0xb75f69cd in overlay_do__transfer (self=0xc6d368c, args=0x9e5df8c, kwds=0x0) at tdi/c/tdi.c:3592
+#9  overlay_do (self=0xc6d368c, args=0x9e5df8c, kwds=0x0) at tdi/c/tdi.c:3638
+#10 RootType_overlay (self=0xc6d368c, args=0x9e5df8c, kwds=0x0) at tdi/c/tdi.c:5275
+#11 0x080be272 in PyEval_EvalFrame ()
+#12 0x080bed96 in PyEval_EvalCodeEx ()

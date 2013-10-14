@@ -1,0 +1,208 @@
+.. license:
+    Copyright 2010 - 2013
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+:orphan:
+
+
+===========
+ Benchmark
+===========
+
+A few simple benchmarks can be found in the `Genshi
+<http://pypi.python.org/pypi/Genshi>`_ 0.6 release. I've written some
+|TDI| code for :file:`bench/basic.py` and :file:`bench/bigtable.py`. See
+the chapters below for the code itself. Here are the results (CPython
+2.7.3 on my box):
+
+.. rst-class:: benchmark
+
++---------------------------+-------------+--------------+
+| Name                      |    Basic    |   Bigtable   |
++===========================+=============+==============+
+| Kid (+ cElementTree)      |     4.29 ms |    759.89 ms |
++---------------------------+-------------+--------------+
+| Genshi Template           |     2.05 ms |    205.52 ms |
++---------------------------+-------------+--------------+
+| Django template           |     1.53 ms |    461.24 ms |
++---------------------------+-------------+--------------+
+| cElementTree              |          \- |    139.74 ms |
++---------------------------+-------------+--------------+
+| Clearsilver               |     0.16 ms |     54.27 ms |
++---------------------------+-------------+--------------+
+| Mako                      |     0.18 ms |     35.94 ms |
++---------------------------+-------------+--------------+
+| |TDI|                     | **0.06 ms** |     20.05 ms |
++---------------------------+-------------+--------------+
+| |TDI| (less readable)     |          \- | **14.69 ms** |
++---------------------------+-------------+--------------+
+
+.. comment
+    | |TDI| (cheating)          |          \- |      8.33 ms |
+    +---------------------------+-------------+--------------+
+
+
+Basic code
+~~~~~~~~~~
+
+The following code was entered into basic.py:
+
+    .. sourcecode:: python
+
+        def tdi(dirname, verbose=False):
+            from tdi import html
+            template = html.from_files(['base.html', 'template.html'], basedir=dirname)
+            class Model(dict):
+                def render_title(self, node):
+                    node.content = self['title']
+                def render_hello1(self, node):
+                    node.content = 'hello %s' % self['user']
+                def render_hello2(self, node):
+                    node.content = 'hello me'
+                def render_hello3(self, node):
+                    node.content = 'hello world'
+                def render_items(self, node):
+                    items = self['items']
+                    if not items:
+                        return node.remove()
+                    for subnode, item in node.item.iterate(items):
+                        subnode.content = item
+                    subnode['class'] = 'last'
+
+            def render():
+                return template.render_string(Model(
+                    title='Just a test', user='joe',
+                    items=['Number %d' % num for num in range(1, 15)]
+                ))
+            if verbose:
+                print render()
+            return render
+
+
+The templates are:
+
+:file:`tdi/base.html`:
+
+    .. sourcecode:: html
+
+        <!DOCTYPE html
+            PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+            "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+        <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+          <head>
+            <title tdi="title"></title>
+          </head>
+          <body>
+            <div id="header">
+              <h1 tdi="title">...</h1>
+            </div>
+
+            <tdi tdi:overlay="->content" />
+
+            <div id="footer">
+            </div>
+          </body>
+        </html>
+
+and :file:`tdi/template.html`:
+
+    .. sourcecode:: html
+
+        <!DOCTYPE html
+            PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+            "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+        <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+          <body>
+            <tdi tdi:overlay="<-content">
+            <p tdi="hello1">hello</p>
+            <p tdi="hello2">hello</p>
+            <p tdi="hello3">hello</p>
+
+            <h2>Loop</h2>
+              <ul tdi="items">
+                  <li tdi="item">...</li><li tdi=":-item">
+                  </li>
+              </ul>
+            </tdi>
+          </body>
+        </html>
+
+
+Bigtable code
+~~~~~~~~~~~~~
+
+.. sourcecode:: python
+
+    try:
+        from tdi import html as tdi
+    except ImportError:
+        tdi = None
+
+    if tdi:
+        tdi_tmpl = tdi.from_string("""
+    <table>
+        <tr tdi="row">
+            <td tdi="col"></td>
+        </tr>
+    </table>
+    """)
+        class tdimodel(dict):
+            def render_row(self, node):
+                for rownode, row in node.iterate(self['table']):
+                    for colnode, col in rownode.col.iterate(row.itervalues()):
+                        colnode.content = col
+
+        def test_tdi(tdimodel=tdimodel):
+            """TDI template"""
+            tdi_tmpl.render_string(tdimodel(table=table))
+
+        class tdimodel_fast(dict):
+            def render_row(self, node):
+                def row_repeater(node, row):
+                    def col_repeater(node, col):
+                        node.content = col
+                    node.col.repeat(col_repeater, row.itervalues())
+                    return True
+                node.repeat(row_repeater, self['table'])
+
+        def test_tdi_fast(tdimodel=tdimodel_fast):
+            """TDI template (faster) """
+            tdi_tmpl.render_string(tdimodel(table=table))
+
+        class tdimodel_cheat(dict):
+            def render_row(self, node):
+                for colnode, col in \
+                        node.col.iterate(self['table'][0].itervalues()):
+                    colnode.content = col
+                node.repeat(None, self['table'])
+
+        def test_tdi_cheat(tdimodel=tdimodel_cheat):
+            """TDI template (cheated)"""
+            tdi_tmpl.render_string(tdimodel(table=table))
+
+
+``test_tdi``, ``test_tdi_fast`` and ``test_tdi_cheat`` were added to the
+:func:`run` function as well.
+
+The cheating code (``test_tdi_cheat``) variant is incredibly fast
+(8.33 ms in the benchmark run above) and generates the correct HTML,
+but, well, it just generates the columns once and copies the whole row a
+thousand times. It effectively loops 1010 times instead of the 10000
+times. I made it just for fun and because it's possible, of course ;-)
+
+The ``test_tdi`` and ``test_tdi_fast`` variants however do the right thing.
+
+
+.. vim: ft=rest tw=72

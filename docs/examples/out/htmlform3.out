@@ -1,0 +1,13 @@
+
+<html>
+<body>
+    <p>Type your name:</p>
+    <form accept-charset="utf-8" method="get">
+        
+            <p class="error">Please do enter a name!</p>
+            <input tabindex="1" type="text" id="name" value="" name="name" />
+        
+        <input type="submit" name="send" value="Submit form" tabindex="2" />
+    </form>
+</body>
+</html>

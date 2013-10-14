@@ -1,0 +1,6 @@
+<anode tdi:scope="=+" tdi="+level1">
+    <node tdi:scope="=-foo.bar" tdi="-nested">
+        <xnode tdi:scope="=+foo.bar.baz" tdi="+a"></xnode>
+    </node><ynode tdi:scope="=-foo.bar" tdi="-:nested">lalala</ynode>
+    
+</anode>

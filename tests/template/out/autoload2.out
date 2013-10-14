@@ -1,0 +1,14 @@
+/
+  '<html>'
+  body (<<< foo)
+    'blub'
+  '</html>'
+\
+
+/
+  '<xhtml>'
+  nobody (<<< foo)
+    'blub'
+  '</xhtml>'
+\
+

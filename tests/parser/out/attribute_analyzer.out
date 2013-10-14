@@ -1,0 +1,364 @@
+[], tdi=None, scope=None, overlay=None
+[], tdi=None, scope=None, overlay=None
+[], tdi=None, scope=None, overlay=None
+[], tdi=None, scope=None, overlay=None
+TemplateAttributeError: Invalid short tdi:scope attribute
+TemplateAttributeError: Invalid short tdi:scope attribute
+TemplateAttributeError: Invalid short tdi:scope attribute
+TemplateAttributeError: Invalid short tdi:scope attribute
+TemplateAttributeEmptyError: Empty tdi:scope attribute
+TemplateAttributeEmptyError: Empty tdi:scope attribute
+TemplateAttributeEmptyError: Empty tdi:scope attribute
+TemplateAttributeEmptyError: Empty tdi:scope attribute
+TemplateAttributeEmptyError: Empty tdi:scope attribute
+TemplateAttributeEmptyError: Empty tdi:scope attribute
+TemplateAttributeEmptyError: Empty tdi:scope attribute
+TemplateAttributeEmptyError: Empty tdi:scope attribute
+[('tdi:scope', '"x"')], tdi=None, scope=('', 'x'), overlay=None
+[], tdi=None, scope=('', 'x'), overlay=None
+[('tdi:scope', '"x"')], tdi=None, scope=('-', 'x'), overlay=None
+[], tdi=None, scope=('-', 'x'), overlay=None
+TemplateAttributeError: Invalid tdi:scope attribute u'9'
+TemplateAttributeError: Invalid tdi:scope attribute u'9'
+TemplateAttributeError: Invalid tdi:scope attribute u'9'
+TemplateAttributeError: Invalid tdi:scope attribute u'9'
+[('tdi:scope', '"x9"')], tdi=None, scope=('', 'x9'), overlay=None
+[], tdi=None, scope=('', 'x9'), overlay=None
+[('tdi:scope', '"x9"')], tdi=None, scope=('-', 'x9'), overlay=None
+[], tdi=None, scope=('-', 'x9'), overlay=None
+TemplateAttributeError: Invalid tdi:scope attribute u'.x9'
+TemplateAttributeError: Invalid tdi:scope attribute u'.x9'
+TemplateAttributeError: Invalid tdi:scope attribute u'.x9'
+TemplateAttributeError: Invalid tdi:scope attribute u'.x9'
+TemplateAttributeError: Invalid tdi:scope attribute u'x9.0'
+TemplateAttributeError: Invalid tdi:scope attribute u'x9.0'
+TemplateAttributeError: Invalid tdi:scope attribute u'x9.0'
+TemplateAttributeError: Invalid tdi:scope attribute u'x9.0'
+[('tdi:scope', '"x9.y"')], tdi=None, scope=('', 'x9.y'), overlay=None
+[], tdi=None, scope=('', 'x9.y'), overlay=None
+[('tdi:scope', '"x9.y"')], tdi=None, scope=('-', 'x9.y'), overlay=None
+[], tdi=None, scope=('-', 'x9.y'), overlay=None
+[('tdi:scope', '"x9.A"')], tdi=None, scope=('', 'x9.A'), overlay=None
+[], tdi=None, scope=('', 'x9.A'), overlay=None
+[('tdi:scope', '"x9.A"')], tdi=None, scope=('-', 'x9.A'), overlay=None
+[], tdi=None, scope=('-', 'x9.A'), overlay=None
+[('tdi:scope', '"x9.A0"')], tdi=None, scope=('', 'x9.A0'), overlay=None
+[], tdi=None, scope=('', 'x9.A0'), overlay=None
+[('tdi:scope', '"x9.A0"')], tdi=None, scope=('-', 'x9.A0'), overlay=None
+[], tdi=None, scope=('-', 'x9.A0'), overlay=None
+TemplateAttributeError: Invalid tdi:scope attribute u'x9.A0.'
+TemplateAttributeError: Invalid tdi:scope attribute u'x9.A0.'
+TemplateAttributeError: Invalid tdi:scope attribute u'x9.A0.'
+TemplateAttributeError: Invalid tdi:scope attribute u'x9.A0.'
+[('tdi:scope', '"=x9.A0"')], tdi=None, scope=('=', 'x9.A0'), overlay=None
+[], tdi=None, scope=('=', 'x9.A0'), overlay=None
+[('tdi:scope', '"=x9.A0"')], tdi=None, scope=('=-', 'x9.A0'), overlay=None
+[], tdi=None, scope=('=-', 'x9.A0'), overlay=None
+[('tdi:scope', '"=+x9.A0"')], tdi=None, scope=('=', 'x9.A0'), overlay=None
+[], tdi=None, scope=('=', 'x9.A0'), overlay=None
+[('tdi:scope', '"=+x9.A0"')], tdi=None, scope=('=', 'x9.A0'), overlay=None
+[], tdi=None, scope=('=', 'x9.A0'), overlay=None
+[('tdi:scope', '"=-x9.A0"')], tdi=None, scope=('=-', 'x9.A0'), overlay=None
+[], tdi=None, scope=('=-', 'x9.A0'), overlay=None
+[('tdi:scope', '"=-x9.A0"')], tdi=None, scope=('=-', 'x9.A0'), overlay=None
+[], tdi=None, scope=('=-', 'x9.A0'), overlay=None
+TemplateAttributeError: Invalid tdi:scope attribute u'==-x9.A0'
+TemplateAttributeError: Invalid tdi:scope attribute u'==-x9.A0'
+TemplateAttributeError: Invalid tdi:scope attribute u'==-x9.A0'
+TemplateAttributeError: Invalid tdi:scope attribute u'==-x9.A0'
+TemplateAttributeError: Invalid tdi:scope attribute u'=-+x9.A0'
+TemplateAttributeError: Invalid tdi:scope attribute u'=-+x9.A0'
+TemplateAttributeError: Invalid tdi:scope attribute u'=-+x9.A0'
+TemplateAttributeError: Invalid tdi:scope attribute u'=-+x9.A0'
+[('tdi:scope', '"="')], tdi=None, scope=('=', ''), overlay=None
+[], tdi=None, scope=('=', ''), overlay=None
+[('tdi:scope', '"="')], tdi=None, scope=('=-', ''), overlay=None
+[], tdi=None, scope=('=-', ''), overlay=None
+TemplateAttributeError: Invalid short tdi:overlay attribute
+TemplateAttributeError: Invalid short tdi:overlay attribute
+TemplateAttributeError: Invalid short tdi:overlay attribute
+TemplateAttributeError: Invalid short tdi:overlay attribute
+TemplateAttributeEmptyError: Empty tdi:overlay attribute
+TemplateAttributeEmptyError: Empty tdi:overlay attribute
+TemplateAttributeEmptyError: Empty tdi:overlay attribute
+TemplateAttributeEmptyError: Empty tdi:overlay attribute
+TemplateAttributeEmptyError: Empty tdi:overlay attribute
+TemplateAttributeEmptyError: Empty tdi:overlay attribute
+TemplateAttributeEmptyError: Empty tdi:overlay attribute
+TemplateAttributeEmptyError: Empty tdi:overlay attribute
+[('tdi:overlay', '"x"')], tdi=None, scope=None, overlay=('', 'x')
+[], tdi=None, scope=None, overlay=('', 'x')
+[('tdi:overlay', '"x"')], tdi=None, scope=None, overlay=('-', 'x')
+[], tdi=None, scope=None, overlay=('-', 'x')
+TemplateAttributeError: Invalid tdi:overlay attribute u'9'
+TemplateAttributeError: Invalid tdi:overlay attribute u'9'
+TemplateAttributeError: Invalid tdi:overlay attribute u'9'
+TemplateAttributeError: Invalid tdi:overlay attribute u'9'
+[('tdi:overlay', '"x9"')], tdi=None, scope=None, overlay=('', 'x9')
+[], tdi=None, scope=None, overlay=('', 'x9')
+[('tdi:overlay', '"x9"')], tdi=None, scope=None, overlay=('-', 'x9')
+[], tdi=None, scope=None, overlay=('-', 'x9')
+TemplateAttributeError: Invalid tdi:overlay attribute u'x9.0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'x9.0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'x9.0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'x9.0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'x9.y'
+TemplateAttributeError: Invalid tdi:overlay attribute u'x9.y'
+TemplateAttributeError: Invalid tdi:overlay attribute u'x9.y'
+TemplateAttributeError: Invalid tdi:overlay attribute u'x9.y'
+[('tdi:overlay', '"x9_A"')], tdi=None, scope=None, overlay=('', 'x9_A')
+[], tdi=None, scope=None, overlay=('', 'x9_A')
+[('tdi:overlay', '"x9_A"')], tdi=None, scope=None, overlay=('-', 'x9_A')
+[], tdi=None, scope=None, overlay=('-', 'x9_A')
+[('tdi:overlay', '"x9_A0"')], tdi=None, scope=None, overlay=('', 'x9_A0')
+[], tdi=None, scope=None, overlay=('', 'x9_A0')
+[('tdi:overlay', '"x9_A0"')], tdi=None, scope=None, overlay=('-', 'x9_A0')
+[], tdi=None, scope=None, overlay=('-', 'x9_A0')
+[('tdi:overlay', '"x9_A0_"')], tdi=None, scope=None, overlay=('', 'x9_A0_')
+[], tdi=None, scope=None, overlay=('', 'x9_A0_')
+[('tdi:overlay', '"x9_A0_"')], tdi=None, scope=None, overlay=('-', 'x9_A0_')
+[], tdi=None, scope=None, overlay=('-', 'x9_A0_')
+TemplateAttributeError: Invalid tdi:overlay attribute u'=x9_A0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'=x9_A0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'=x9_A0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'=x9_A0'
+[('tdi:overlay', '"<x9_A0"')], tdi=None, scope=None, overlay=('<', 'x9_A0')
+[], tdi=None, scope=None, overlay=('<', 'x9_A0')
+[('tdi:overlay', '"<x9_A0"')], tdi=None, scope=None, overlay=('<-', 'x9_A0')
+[], tdi=None, scope=None, overlay=('<-', 'x9_A0')
+[('tdi:overlay', '">x9_A0"')], tdi=None, scope=None, overlay=('>', 'x9_A0')
+[], tdi=None, scope=None, overlay=('>', 'x9_A0')
+[('tdi:overlay', '">x9_A0"')], tdi=None, scope=None, overlay=('>-', 'x9_A0')
+[], tdi=None, scope=None, overlay=('>-', 'x9_A0')
+TemplateAttributeError: Invalid tdi:overlay attribute u'<>x9_A0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'<>x9_A0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'<>x9_A0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'<>x9_A0'
+[('tdi:overlay', '"+X9_A0"')], tdi=None, scope=None, overlay=('', 'X9_A0')
+[], tdi=None, scope=None, overlay=('', 'X9_A0')
+[('tdi:overlay', '"+X9_A0"')], tdi=None, scope=None, overlay=('', 'X9_A0')
+[], tdi=None, scope=None, overlay=('', 'X9_A0')
+[('tdi:overlay', '"<-x9_A0"')], tdi=None, scope=None, overlay=('<-', 'x9_A0')
+[], tdi=None, scope=None, overlay=('<-', 'x9_A0')
+[('tdi:overlay', '"<-x9_A0"')], tdi=None, scope=None, overlay=('<-', 'x9_A0')
+[], tdi=None, scope=None, overlay=('<-', 'x9_A0')
+TemplateAttributeError: Invalid tdi:overlay attribute u'<<-x9_A0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'<<-x9_A0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'<<-x9_A0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'<<-x9_A0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'<-+x9_A0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'<-+x9_A0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'<-+x9_A0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'<-+x9_A0'
+TemplateAttributeError: Invalid tdi:overlay attribute u'<'
+TemplateAttributeError: Invalid tdi:overlay attribute u'<'
+TemplateAttributeError: Invalid tdi:overlay attribute u'<'
+TemplateAttributeError: Invalid tdi:overlay attribute u'<'
+[('tdi:overlay', '"&lt;x"')], tdi=None, scope=None, overlay=('<', 'x')
+[], tdi=None, scope=None, overlay=('<', 'x')
+[('tdi:overlay', '"&lt;x"')], tdi=None, scope=None, overlay=('<-', 'x')
+[], tdi=None, scope=None, overlay=('<-', 'x')
+TemplateAttributeError: Invalid short tdi attribute
+TemplateAttributeError: Invalid short tdi attribute
+TemplateAttributeError: Invalid short tdi attribute
+TemplateAttributeError: Invalid short tdi attribute
+TemplateAttributeEmptyError: Empty tdi attribute
+TemplateAttributeEmptyError: Empty tdi attribute
+TemplateAttributeEmptyError: Empty tdi attribute
+TemplateAttributeEmptyError: Empty tdi attribute
+TemplateAttributeEmptyError: Empty tdi attribute
+TemplateAttributeEmptyError: Empty tdi attribute
+TemplateAttributeEmptyError: Empty tdi attribute
+TemplateAttributeEmptyError: Empty tdi attribute
+[('tdi', '"x"')], tdi=('', 'x'), scope=None, overlay=None
+[], tdi=('', 'x'), scope=None, overlay=None
+[('tdi', '"x"')], tdi=('-', 'x'), scope=None, overlay=None
+[], tdi=('-', 'x'), scope=None, overlay=None
+[('tdi', '"-"')], tdi=('-', None), scope=None, overlay=None
+[], tdi=('-', None), scope=None, overlay=None
+[('tdi', '"-"')], tdi=('-', None), scope=None, overlay=None
+[], tdi=('-', None), scope=None, overlay=None
+TemplateAttributeError: Invalid tdi attribute u'9'
+TemplateAttributeError: Invalid tdi attribute u'9'
+TemplateAttributeError: Invalid tdi attribute u'9'
+TemplateAttributeError: Invalid tdi attribute u'9'
+[('tdi', '"x9"')], tdi=('', 'x9'), scope=None, overlay=None
+[], tdi=('', 'x9'), scope=None, overlay=None
+[('tdi', '"x9"')], tdi=('-', 'x9'), scope=None, overlay=None
+[], tdi=('-', 'x9'), scope=None, overlay=None
+TemplateAttributeError: Invalid tdi attribute u'x9.0'
+TemplateAttributeError: Invalid tdi attribute u'x9.0'
+TemplateAttributeError: Invalid tdi attribute u'x9.0'
+TemplateAttributeError: Invalid tdi attribute u'x9.0'
+TemplateAttributeError: Invalid tdi attribute u'x9.y'
+TemplateAttributeError: Invalid tdi attribute u'x9.y'
+TemplateAttributeError: Invalid tdi attribute u'x9.y'
+TemplateAttributeError: Invalid tdi attribute u'x9.y'
+[('tdi', '"x9_A"')], tdi=('', 'x9_A'), scope=None, overlay=None
+[], tdi=('', 'x9_A'), scope=None, overlay=None
+[('tdi', '"x9_A"')], tdi=('-', 'x9_A'), scope=None, overlay=None
+[], tdi=('-', 'x9_A'), scope=None, overlay=None
+[('tdi', '"x9_A0"')], tdi=('', 'x9_A0'), scope=None, overlay=None
+[], tdi=('', 'x9_A0'), scope=None, overlay=None
+[('tdi', '"x9_A0"')], tdi=('-', 'x9_A0'), scope=None, overlay=None
+[], tdi=('-', 'x9_A0'), scope=None, overlay=None
+[('tdi', '"x9_A0_"')], tdi=('', 'x9_A0_'), scope=None, overlay=None
+[], tdi=('', 'x9_A0_'), scope=None, overlay=None
+[('tdi', '"x9_A0_"')], tdi=('-', 'x9_A0_'), scope=None, overlay=None
+[], tdi=('-', 'x9_A0_'), scope=None, overlay=None
+TemplateAttributeError: Invalid tdi attribute u'=x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'=x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'=x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'=x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'<x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'<x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'<x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'<x9_A0'
+[('tdi', '"*x9_A0"')], tdi=('*', 'x9_A0'), scope=None, overlay=None
+[], tdi=('*', 'x9_A0'), scope=None, overlay=None
+[('tdi', '"*x9_A0"')], tdi=('*-', 'x9_A0'), scope=None, overlay=None
+[], tdi=('*-', 'x9_A0'), scope=None, overlay=None
+[('tdi', '":x9_A0"')], tdi=(':', 'x9_A0'), scope=None, overlay=None
+[], tdi=(':', 'x9_A0'), scope=None, overlay=None
+[('tdi', '":x9_A0"')], tdi=(':-', 'x9_A0'), scope=None, overlay=None
+[], tdi=(':-', 'x9_A0'), scope=None, overlay=None
+[('tdi', '":*x9_A0"')], tdi=(':*', 'x9_A0'), scope=None, overlay=None
+[], tdi=(':*', 'x9_A0'), scope=None, overlay=None
+[('tdi', '":*x9_A0"')], tdi=(':*-', 'x9_A0'), scope=None, overlay=None
+[], tdi=(':*-', 'x9_A0'), scope=None, overlay=None
+[('tdi', '"+X9_A0"')], tdi=('', 'X9_A0'), scope=None, overlay=None
+[], tdi=('', 'X9_A0'), scope=None, overlay=None
+[('tdi', '"+X9_A0"')], tdi=('', 'X9_A0'), scope=None, overlay=None
+[], tdi=('', 'X9_A0'), scope=None, overlay=None
+[('tdi', '"*:-x9_A0"')], tdi=('*:-', 'x9_A0'), scope=None, overlay=None
+[], tdi=('*:-', 'x9_A0'), scope=None, overlay=None
+[('tdi', '"*:-x9_A0"')], tdi=('*:-', 'x9_A0'), scope=None, overlay=None
+[], tdi=('*:-', 'x9_A0'), scope=None, overlay=None
+TemplateAttributeError: Invalid tdi attribute u'**-x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'**-x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'**-x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'**-x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'::-x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'::-x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'::-x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'::-x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'*-+x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'*-+x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'*-+x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'*-+x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'*'
+TemplateAttributeError: Invalid tdi attribute u'*'
+TemplateAttributeError: Invalid tdi attribute u'*'
+TemplateAttributeError: Invalid tdi attribute u'*'
+[('tdi', '"&#42;x"')], tdi=('*', 'x'), scope=None, overlay=None
+[], tdi=('*', 'x'), scope=None, overlay=None
+[('tdi', '"&#42;x"')], tdi=('*-', 'x'), scope=None, overlay=None
+[], tdi=('*-', 'x'), scope=None, overlay=None
+[], tdi=None, scope=None, overlay=None
+[], tdi=None, scope=None, overlay=None
+[], tdi=None, scope=None, overlay=None
+[], tdi=None, scope=None, overlay=None
+[], tdi=('', 'x'), scope=None, overlay=None
+[], tdi=('', 'x'), scope=None, overlay=None
+[], tdi=('-', 'x'), scope=None, overlay=None
+[], tdi=('-', 'x'), scope=None, overlay=None
+[], tdi=('-', None), scope=None, overlay=None
+[], tdi=('-', None), scope=None, overlay=None
+[], tdi=('-', None), scope=None, overlay=None
+[], tdi=('-', None), scope=None, overlay=None
+TemplateAttributeError: Invalid tdi attribute u'9'
+TemplateAttributeError: Invalid tdi attribute u'9'
+TemplateAttributeError: Invalid tdi attribute u'9'
+TemplateAttributeError: Invalid tdi attribute u'9'
+[], tdi=('', 'x9'), scope=None, overlay=None
+[], tdi=('', 'x9'), scope=None, overlay=None
+[], tdi=('-', 'x9'), scope=None, overlay=None
+[], tdi=('-', 'x9'), scope=None, overlay=None
+TemplateAttributeError: Invalid tdi attribute u'x9.0'
+TemplateAttributeError: Invalid tdi attribute u'x9.0'
+TemplateAttributeError: Invalid tdi attribute u'x9.0'
+TemplateAttributeError: Invalid tdi attribute u'x9.0'
+TemplateAttributeError: Invalid tdi attribute u'x9.y'
+TemplateAttributeError: Invalid tdi attribute u'x9.y'
+TemplateAttributeError: Invalid tdi attribute u'x9.y'
+TemplateAttributeError: Invalid tdi attribute u'x9.y'
+[], tdi=('', 'x9_A'), scope=None, overlay=None
+[], tdi=('', 'x9_A'), scope=None, overlay=None
+[], tdi=('-', 'x9_A'), scope=None, overlay=None
+[], tdi=('-', 'x9_A'), scope=None, overlay=None
+[], tdi=('', 'x9_A0'), scope=None, overlay=None
+[], tdi=('', 'x9_A0'), scope=None, overlay=None
+[], tdi=('-', 'x9_A0'), scope=None, overlay=None
+[], tdi=('-', 'x9_A0'), scope=None, overlay=None
+[], tdi=('', 'x9_A0_'), scope=None, overlay=None
+[], tdi=('', 'x9_A0_'), scope=None, overlay=None
+[], tdi=('-', 'x9_A0_'), scope=None, overlay=None
+[], tdi=('-', 'x9_A0_'), scope=None, overlay=None
+TemplateAttributeError: Invalid tdi attribute u'=x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'=x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'=x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'=x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'<x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'<x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'<x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'<x9_A0'
+[], tdi=('*', 'x9_A0'), scope=None, overlay=None
+[], tdi=('*', 'x9_A0'), scope=None, overlay=None
+[], tdi=('*-', 'x9_A0'), scope=None, overlay=None
+[], tdi=('*-', 'x9_A0'), scope=None, overlay=None
+[], tdi=(':', 'x9_A0'), scope=None, overlay=None
+[], tdi=(':', 'x9_A0'), scope=None, overlay=None
+[], tdi=(':-', 'x9_A0'), scope=None, overlay=None
+[], tdi=(':-', 'x9_A0'), scope=None, overlay=None
+[], tdi=(':*', 'x9_A0'), scope=None, overlay=None
+[], tdi=(':*', 'x9_A0'), scope=None, overlay=None
+[], tdi=(':*-', 'x9_A0'), scope=None, overlay=None
+[], tdi=(':*-', 'x9_A0'), scope=None, overlay=None
+[], tdi=('', 'X9_A0'), scope=None, overlay=None
+[], tdi=('', 'X9_A0'), scope=None, overlay=None
+[], tdi=('', 'X9_A0'), scope=None, overlay=None
+[], tdi=('', 'X9_A0'), scope=None, overlay=None
+[], tdi=('*:-', 'x9_A0'), scope=None, overlay=None
+[], tdi=('*:-', 'x9_A0'), scope=None, overlay=None
+[], tdi=('*:-', 'x9_A0'), scope=None, overlay=None
+[], tdi=('*:-', 'x9_A0'), scope=None, overlay=None
+TemplateAttributeError: Invalid tdi attribute u'**-x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'**-x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'**-x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'**-x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'::-x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'::-x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'::-x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'::-x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'*-+x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'*-+x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'*-+x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'*-+x9_A0'
+TemplateAttributeError: Invalid tdi attribute u'*'
+TemplateAttributeError: Invalid tdi attribute u'*'
+TemplateAttributeError: Invalid tdi attribute u'*'
+TemplateAttributeError: Invalid tdi attribute u'*'
+[], tdi=('*', 'x'), scope=None, overlay=None
+[], tdi=('*', 'x'), scope=None, overlay=None
+[], tdi=('*-', 'x'), scope=None, overlay=None
+[], tdi=('*-', 'x'), scope=None, overlay=None
+[('tdi', 'aa')], tdi=('', 'aa'), scope=None, overlay=None
+[], tdi=('', 'aa'), scope=None, overlay=None
+[('tdi', 'aa')], tdi=('-', 'aa'), scope=None, overlay=None
+[], tdi=('-', 'aa'), scope=None, overlay=None
+[('tdi', '+aa')], tdi=('', 'aa'), scope=None, overlay=None
+[], tdi=('', 'aa'), scope=None, overlay=None
+TemplateAttributeError: tdi attribute value 'aa' must equal name
+TemplateAttributeError: tdi attribute value 'aa' must equal name
+[('tdi', '+aa')], tdi=('', 'aa'), scope=None, overlay=None
+[], tdi=('', 'aa'), scope=None, overlay=None
+[('tdi', '+aa')], tdi=('', 'aa'), scope=None, overlay=None
+[], tdi=('', 'aa'), scope=None, overlay=None
+TemplateAttributeError: tdi attribute value 'aa' must equal name
+TemplateAttributeError: tdi attribute value 'aa' must equal name
+[('tdi', '-aa')], tdi=('-', 'aa'), scope=None, overlay=None
+[], tdi=('-', 'aa'), scope=None, overlay=None
+TemplateAttributeError: tdi attribute value 'aa' must equal name
+TemplateAttributeError: tdi attribute value 'aa' must equal name
+TemplateAttributeError: tdi attribute value 'aa' must equal name
+TemplateAttributeError: tdi attribute value 'aa' must equal name

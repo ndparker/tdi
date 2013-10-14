@@ -1,0 +1,36 @@
+LiteralJSON(u'Andr\xe9 \u2028\u2029</---]]>', inlined=False, encoding=None)
+'Andr\xc3\xa9 \\u2028\\u2029</---]]>'
+u'Andr\xe9 \\u2028\\u2029</---]]>'
+u'Andr\xe9 \\u2028\\u2029</---]]>'
+u'Andr\xe9 \\u2028\\u2029<\\/-\\-\\-]\\]>'
+u'Andr\xe9 \\u2028\\u2029</---]]>'
+LiteralJSON(u'Andr\xe9 \u2028\u2029</---]]>', inlined=True, encoding=None)
+'Andr\xc3\xa9 \\u2028\\u2029<\\/-\\-\\-]\\]>'
+u'Andr\xe9 \\u2028\\u2029<\\/-\\-\\-]\\]>'
+u'Andr\xe9 \\u2028\\u2029<\\/-\\-\\-]\\]>'
+u'Andr\xe9 \\u2028\\u2029<\\/-\\-\\-]\\]>'
+u'Andr\xe9 \\u2028\\u2029</---]]>'
+LiteralJSON('Andr\xc3\xa9 \xe2\x80\xa8\xe2\x80\xa9</---]]>', inlined=False, encoding='utf-8')
+'Andr\xc3\xa9 \\u2028\\u2029</---]]>'
+u'Andr\xe9 \\u2028\\u2029</---]]>'
+u'Andr\xe9 \\u2028\\u2029</---]]>'
+u'Andr\xe9 \\u2028\\u2029<\\/-\\-\\-]\\]>'
+u'Andr\xe9 \\u2028\\u2029</---]]>'
+LiteralJSON('Andr\xc3\xa9 \xe2\x80\xa8\xe2\x80\xa9</---]]>', inlined=True, encoding='utf-8')
+'Andr\xc3\xa9 \\u2028\\u2029<\\/-\\-\\-]\\]>'
+u'Andr\xe9 \\u2028\\u2029<\\/-\\-\\-]\\]>'
+u'Andr\xe9 \\u2028\\u2029<\\/-\\-\\-]\\]>'
+u'Andr\xe9 \\u2028\\u2029<\\/-\\-\\-]\\]>'
+u'Andr\xe9 \\u2028\\u2029</---]]>'
+LiteralJSON('Andr\xe9 \xe2\x80\xa8\xe2\x80\xa9</---]]>', inlined=False, encoding='utf-8')
+UnicodeError - OK
+UnicodeError - OK
+UnicodeError - OK
+UnicodeError - OK
+UnicodeError - OK
+LiteralJSON('Andr\xe9 \xe2\x80\xa8\xe2\x80\xa9</---]]>', inlined=True, encoding='utf-8')
+UnicodeError - OK
+UnicodeError - OK
+UnicodeError - OK
+UnicodeError - OK
+UnicodeError - OK

@@ -1,0 +1,14 @@
+<html>
+<body>
+    <ul>
+        <li><a href="/">Hompage</a></li>
+        <li>Editing Content &amp; Attributes</li>
+    </ul>
+    ...
+    <ul>
+        <li><a href="/some/">Some Menu Item</a></li>
+        <li>Editing Content &amp; Attributes</li>
+        <li><a href="/third.html">Another Menu Item</a></li>
+    </ul>
+</body>
+</html>

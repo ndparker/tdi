@@ -1,0 +1,139 @@
+.. license:
+    Copyright 2012
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+===========
+ CSS Tools
+===========
+
+The tools described here can be found in the :tdi:`tdi.tools.css`
+module. The CSS tools mainly provide a minifier for now.
+
+
+Minifying CSS
+~~~~~~~~~~~~~
+
+Minifying reduces the size of a document by removing redundant or
+irrelevant content. Typically this includes whitespace and comments.
+Some minifiers also try semantic reduction by collapsing rules,
+modifying color notations and so on.
+
+|TDI| ships with the latest version of the rCSSmin_ minifier, which only
+removes spaces, comments and finishing semicolons -- but does that very fast.
+
+.. _rCSSmin: http://opensource.perlig.de/rcssmin/
+
+There are two use cases here:
+
+#. Minify style blocks within HTML templates during the loading phase
+#. Minify some standalone piece of CSS
+
+The first case is handled by hooking the
+:tdi:`tdi.tools.css.MinifyFilter` into the template loader. See the
+:doc:`filters documentation <filtering>` for a description how to do that.
+
+For the second case there's the :tdi:`tdi.tools.css.minify` function:
+
+.. literalinclude:: ../examples/css_tools_minify.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+.. literalinclude:: ../examples/out/css_tools_minify.out
+    :language: css
+
+
+Masking Style Blocks
+~~~~~~~~~~~~~~~~~~~~
+
+HTML has a long history of adding new elements all the time.
+Conceptually this is possible, because browsers simply ignore the
+tags of unknown elements and apply no semantics. That's forward
+compatibility. Now if you place something inside these new elements,
+which is not HTML content, you get a backwards compatibility problem.
+
+
+.. _css_cdata:
+
+cdata and cleanup
+-----------------
+
+Style elements (and :ref:`script elements <javascript_cdata>` for that
+matter) suffer from this problem since they were invented. The first
+solution was to enclose them with comment markers, but add special rules
+for browsers to accept these markers as part of the content:
+
+.. code-block:: html
+
+    <style><!--
+       body {background-color: #fff; color: #000;}
+    --></style>
+
+Then XHTML was invented. The XML parser cannot be tricked into such
+special rules. It would start throwing away the comment again, so people
+gave up backwards compliance and wrote:
+
+.. code-block:: html
+
+    <style><![CDATA[
+       body {background-color: #fff; color: #000;}
+    ]]></style>
+
+and then, to be compatible with HTML again:
+
+.. code-block:: html
+
+    <style>/*<![CDATA[*/
+       body {background-color: #fff; color: #000;}
+    /*]]>*/</style>
+
+Then someone finally figured out [#]_ a mix of CDATA and comments
+completely compatible with all HTML/TagSoup parsers, and it looks like
+this:
+
+.. [#] http://lists.w3.org/Archives/Public/www-html/2002Apr/0053.html
+
+.. code-block:: html
+
+    <style><!--/*--><![CDATA[/*><!--*/ 
+      body {background-color: #fff; color: #000;}
+    /*]]>*/--></style>
+
+This is funny stuff, but you wouldn't want to write it all the time. You
+should consider applying that, however, because browsers are typically
+not the *only* applications parsing your HTML.
+
+The functions :tdi:`tdi.tools./css.cdata` and
+:tdi:`tdi.tools./css.cleanup` can do that for you.  :func:`cdata()`
+takes a style block and encloses it in such an all-compatible
+CDATA/comment-mix-container. :func:`cleanup()` does the reverse. It
+looks for common containers (like the ones described above) and *strips*
+them. In fact, the :func:`cdata()` function calls :func:`cleanup()`
+itself in order to avoid doubling itself:
+
+.. literalinclude:: ../examples/css_tools_cdata.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+.. literalinclude:: ../examples/out/css_tools_cdata.out
+
+The :func:`cdata` function can be applied automatically to all style
+blocks of a template by hooking the
+:tdi:`tdi.tools.css.CDATAFilter` into the template loader. See
+the :doc:`filters documentation <filtering>` for a description how to do
+that.
+
+
+.. vim: ft=rest tw=72

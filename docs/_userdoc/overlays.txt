@@ -1,0 +1,116 @@
+.. license:
+    Copyright 2010 - 2012
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+====================================
+ Template Combination With Overlays
+====================================
+
+Usually there's more than one template in a project and there are certainly
+the same or similar elements on the different pages. In order to avoid
+code duplication, move the common elements into an extra file and load
+them where they are needed. |TDI| provides the concept of
+:dfn:`overlays` for this purpose:
+
+1) Name the nodes you want to replace with a ``tdi:overlay`` attribute.
+   These are the overlay targets.
+2) Name the replacement nodes (usually in a different template) as well.
+   These are the overlay sources.
+3) The python code now decides which template is which and overlays them.
+   The result is a new template (which can be overlayed again...)
+
+Especially the last item gives more flexibility than common include or
+inheritance mechanisms, because the final templates are explicitly
+picked at runtime (and not at template definition time). This allows for
+theming, localization, widgets and probably more use cases all at once.
+
+As this may still sound complicated, here's a picture:
+
+.. figure:: overlay.png
+    :alt: The basic overlay mechanism
+
+    Basic Overlay Mechanism
+
+Note that the figure is simplified:
+
+- It's possible to overlay more than one block at the same time
+- If the same target block occurs more than once, it will be replaced more
+  than once as well. (If the same source block occurs more than once,
+  you'll get an error.)
+
+Here's some example code:
+
+.. literalinclude:: ../examples/overlays.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+The code deals with three different templates objects:
+
+1) The content template, which contains just a small "placeholder" for
+   the menu to mark where it should go.
+2) The menu widget template, which contains the whole menu template
+3) The finally rendered template (the result of
+   ``content.overlay(menu_widget)``)
+
+If it's clear whether a ``tdi:overlay`` node is an overlay source or a
+target, it's recommended to flag them as such:
+
+- target-only overlays can be flagged with the ``>`` character (the
+  content flows into the overlay node) (example: ``tdi:overlay=">menu"``)
+- source-only overlays can be flagged with the ``<`` character (the
+  content flows away from the overlay node) (example: ``tdi:overlay="<menu"``)
+
+Flagging properly is generally recommended, because the overlay result
+is likely to be part of a bigger overlay chain (like
+``t1.overlay(t2).overlay(t3)`` ...). If you flag the nodes, there are no
+ambiguities about the purpose of the particular node.
+
+.. Note::
+
+    If your editor doesn't like the ``<`` and ``>`` characters inside an
+    HTML attribute, you can write them as ``&lt;`` and ``&gt;`` as well.
+
+The example code emits the following:
+
+.. literalinclude:: ../examples/out/overlays.out
+    :language: html
+
+
+Overlay Overrides
+~~~~~~~~~~~~~~~~~
+
+By default a source overlay replaces the target node completely. But
+there are exceptions: If the target overlay specifies ``tdi`` or
+``tdi:scope`` attributes, these are kept and override the ones specified
+in the source overlay.
+
+While this probably doesn't make much sense for navigational elements
+like the menu widget above, it has been proven useful for widgets
+included more than once in a page, because it allows to put the overlay
+into a different context.
+
+The following (meaningless) example shows the principle:
+
+.. literalinclude:: ../examples/overlays2.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+And that's the output:
+
+.. literalinclude:: ../examples/out/overlays2.out
+
+
+.. vim: ft=rest tw=72

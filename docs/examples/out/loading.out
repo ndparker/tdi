@@ -1,0 +1,28 @@
+/
+  '\n<html>\n'
+  body
+    '\n    some template\n'
+  '\n</html>\n'
+\
+
+/
+  '<html>\n'
+  body
+    '\n    some template\n'
+  '\n</html>\n'
+\
+
+/
+  '<html>\n'
+  body
+    '\n    some template\n'
+  '\n</html>\n'
+\
+
+/
+  '<html>\n'
+  body
+    '\n    some template\n'
+  '\n</html>\n'
+\
+

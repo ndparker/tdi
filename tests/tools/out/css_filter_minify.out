@@ -1,0 +1,5 @@
+<html>
+
+<style>a b c{foo:bar;baz:blub}</style>
+<style></style>
+</html>

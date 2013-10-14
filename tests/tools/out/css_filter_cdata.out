@@ -1,0 +1,10 @@
+<html>
+
+<style><!--/*--><![CDATA[/*><!--*/
+a b c{
+    foo: bar;
+    baz: blub;
+}
+/*]]>*/--></style>
+<style></style>
+</html>

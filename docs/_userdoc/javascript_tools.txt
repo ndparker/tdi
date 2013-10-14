@@ -1,0 +1,366 @@
+.. license:
+    Copyright 2012
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+==================
+ Javascript Tools
+==================
+
+The tools described here can be found in the :tdi:`tdi.tools.javascript`
+module. The module deals a lot with safe javascript manipulation and
+provides also a minifier.
+
+
+Escaping Javascript Variables
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Escaping is important. And it's easy to get wrong. Whenever you modify
+script blocks or attributes, the placed variables need to be properly
+escaped. Otherwise the result is open to `XSS attacks
+<http://en.wikipedia.org/wiki/Cross-site_scripting>`_\. A large part of
+the javascript tools deals with this problem. When escaping stuff for
+javascript, there are various levels of context which need to be taken
+care of:
+
+- Javascript quotes (``"``, ``'`` -- double and single) and escapes
+  (``\``), of course.
+- Unicode, and various issues with encoded characters
+- The surrounding HTML (for example, the sequence ``]]>`` is harmless in
+  javascript, but ends the CDATA block, which possibly contains the
+  script itself)
+- The replacement implementation. The naïve way to replace multiple
+  placeholders is to call ``str.replace`` for each of them. However, if
+  a malicious or unaware user puts a placeholder into the content,
+  you're getting a mess.
+
+|TDI| provides two high-level functions,
+:tdi:`tdi.tools./javascript.fill` and
+:tdi:`tdi.tools./javascript.fill_attr`, which handle *all* these issues.
+Both are based on the more generic :tdi:`tdi.tools./javascript.replace`
+function, which itself uses more basic escape functions:
+:tdi:`tdi.tools./javascript.escape_string` and
+:tdi:`tdi.tools./javascript.escape_inlined`\.
+
+When placing complex structures (more complex than simple strings) into
+a script, `JSON`_ is the way to go. There are two classes available,
+which connect your structures or already available JSON input with the
+``fill`` and ``replace`` functions:
+:tdi:`tdi.tools.javascript./SimpleJSON` and
+:tdi:`tdi.tools.javascript./LiteralJSON`.
+
+.. _JSON: http://www.ietf.org/rfc/rfc4627.txt
+
+
+.. _javascript_replace:
+
+replace
+-------
+
+The :tdi:`tdi.tools.javascript./replace` function basically takes a
+script (as a string) and a mapping of placeholders and returns a new
+string with placeholders replaced. The :ref:`"fill" functions
+<javascript_fill>` described below modify a node in-place. Use those for
+node manipulations.
+
+The function scans for and replaces the placeholders in a single pass.
+If a placeholder found that way is not in the mapping, it's simply left
+as is. The default placeholder pattern looks like :samp:`__{name}__`\.
+You can pass a different pattern if you like. Note however, that the
+default pattern makes placeholders typically look like javascript
+identifiers, which might be helpful, if you run a minifier on the
+original script. On the other hand, the pattern does not allow for names
+containing double underscores.
+
+The placeholder values are passed to :ref:`escape_string
+<javascript_escape>` before being used for replacement -- except when
+those objects provide an ``as_json([inlined])`` method (a feature
+that be turned off using the ``as_json`` parameter of the
+:ref:`replace <javascript_replace>` and :ref:`fill <javascript_fill>`
+functions). If the :meth:`as_json()` method exists and is allowed to be
+called, it's used instead of ``escape_string``. Afterwards the result
+is possibly transcoded to the document's character set. If the
+``inlined`` parameter is true, the intermediate result is piped through
+:ref:`escape_inlined <javascript_escape>` before eventually being used
+as replacement value.
+
+|TDI| ships with two container classes that already provide appropriate
+:meth:`as_json()` methods: :ref:`LiteralJSON and SimpleJSON
+<javascript_json>`\. The former is a simple (more or less) pass-through
+container for a JSON string you already have available. The latter takes
+a python object which is passed through the ``json`` module before being
+emitted by :meth:`as_json()`\.
+
+.. Warning::
+    When writing your own :meth:`as_json()` methods, make sure,
+    the result is at least syntactically valid javascript code.
+
+Here's a simple example:
+
+.. literalinclude:: ../examples/js_tools_replace.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+``SimpleJSON`` only works if a JSON library is installed: (The
+`json module`_ as part of the standard library starting with python 2.6
+or `simplejson`_ for versions below). However, the output of this little
+script will be:
+
+.. _json module: http://docs.python.org/2.7/library/json.html
+.. _simplejson: http://pypi.python.org/pypi/simplejson/
+
+.. literalinclude:: ../examples/out/js_tools_replace.out
+
+
+.. _javascript_fill:
+
+fill, fill_attr
+---------------
+
+In contrast to :ref:`the replace function <javascript_replace>`,
+:tdi:`tdi.tools.javascript./fill` and
+:tdi:`tdi.tools.javascript./fill_attr` modifiy a node in-place. Both
+actually call ``replace``, but use different options. The function
+signatures are also simpler than ``replace``'s, because some options are
+implicit or can be determined directly from the node. Here is how it's
+used:
+
+.. literalinclude:: ../examples/js_tools_fill.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+And here's the result:
+
+.. literalinclude:: ../examples/out/js_tools_fill.out
+    :language: html
+
+Note how the data is escaped for different levels of presentation and
+escaping varies depending on the context:
+
+- Quotes are escaped for javascript using a backslash
+- The same quotes are escaped for HTML using ``&quot;``, but only in
+  attribute context. The same goes for the ``>`` character.
+- potentially dangerous sequences like multiple dashes or ``]]>`` are
+  hidden from the containing HTML by applying harmless backslashes. This
+  is not needed for attributes - and applied to blocks only.
+- the ``é`` of ``André`` is escaped to ``\xe9``, which is an
+  encoding-independent representation of the character (JSON-content is
+  encoded to the document encoding though; only characters not fitting
+  into this encoding are transformed to ``\uxxxx`` escapes).
+
+
+.. _javascript_escape:
+
+escape_string, escape_inlined
+-----------------------------
+
+:tdi:`tdi.tools./javascript.escape_string` and
+:tdi:`tdi.tools./javascript.escape_inlined` are the building blocks of
+the :ref:`fill <javascript_fill>` and :ref:`replace
+<javascript_replace>` functions described above. Use those for regular
+placeholder handling.
+
+``escape_string`` takes a string (or calls ``str()`` on the passed
+object) and:
+
+- escapes ``\``, ``"`` and ``'`` (by prepending them with ``\``)
+- encodes non-ASCII and non-printable characters to escape sequences,
+  understandable by javascript.
+- passes the result (by default) through ``escape_inlined``
+
+Here's a little example:
+
+.. literalinclude:: ../examples/js_tools_escape_string.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+.. literalinclude:: ../examples/out/js_tools_escape_string.out
+
+Now, ``escape_inlined`` prepares a string for inclusion in a HTML
+script block by mangeling certain character sequences. These are:
+
+- multiple consecutive dashes (``---``) -- two dashes mark the end of an
+  HTML comment (in XHTML they are not allowed in comments at all, but
+  XHTML has different problems, see the :ref:`cdata <javascript_cdata>`
+  function).
+- ``</`` - this is the endtag opener (ETAGO), which by HTML's rules
+  may end the script block.
+- ``]]>`` - this ends a CDATA markup, which possibly contains the
+  script.
+
+``escape_inlined`` destroys these sequences by scattering harmless ``\``
+characters inside them. Javascript just strips those backslashes since
+the characters "escaped" that way simply represent themselves:
+
+.. literalinclude:: ../examples/js_tools_escape_inlined.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+.. literalinclude:: ../examples/out/js_tools_escape_inlined.out
+
+
+.. _javascript_json:
+
+LiteralJSON and SimpleJSON
+--------------------------
+
+The classes :tdi:`tdi.tools.javascript./SimpleJSON` and
+:tdi:`tdi.tools.javascript./LiteralJSON` are designed as data connectors
+for the :ref:`fill <javascript_fill>` and :ref:`replace
+<javascript_replace>` functions. They are initialized with some data
+object and emit this data object via their :meth:`as_json` method.
+
+:class:`SimpleJSON` pipes the input through the simplejson library
+(available as ``json`` in the standard library since python 2.6). If
+there's neither ``json`` nor ``simplejson`` available, :meth:`as_json`
+raises an :exc:`ImportError`\. The JSON encoder is configured to emit
+the smallest output possible but not modified otherwise. If you need
+something more fancy, like custom data type support, you need to create
+your own class; or simply generate the JSON yourself and pass it to
+:class:`LiteralJSON`\.
+
+:class:`LiteralJSON` takes some JSON string as input and passes it
+through to the :meth:`as_json` method. That's needed to avoid
+double-escaping when passing JSON strings to :ref:`replace
+<javascript_replace>`\.
+
+.. Note::
+    When writing your own classes, note the following:
+
+    - :meth:`as_json()` is expected to return unicode
+    - :meth:`as_json()` is more or less inserted literally (modulo some
+      encoding stuff and inline escaping)
+    - the signature of :meth:`as_json` expects an optional boolean
+      ``inlined`` argument, indicating whether :meth:`as_json()` itself
+      should do inline escaping. However, :ref:`replace
+      <javascript_replace>` will always set that to ``False`` and do
+      that work by itself.
+
+
+Minifying Javascript
+~~~~~~~~~~~~~~~~~~~~
+
+Minifying reduces the size of a document by removing redundant or
+irrelevant content. Typically this includes whitespace and comments.
+Some minifiers also rename variables and functions and remove unneeded
+braces and so on.
+
+|TDI| ships with the latest version of the rJSmin_ minifier, which only
+removes spaces and comments -- but does that very fast.
+
+.. _rJSmin: http://opensource.perlig.de/rjsmin/
+
+There are two use cases here:
+
+#. Minify script blocks within HTML templates during the loading phase
+#. Minify some standalone javascript
+
+The first case is handled by hooking the
+:tdi:`tdi.tools.javascript.MinifyFilter` into the template loader. See the
+:doc:`filters documentation <filtering>` for a description how to do that.
+
+For the second case there's the :tdi:`tdi.tools.javascript.minify`
+function:
+
+.. literalinclude:: ../examples/js_tools_minify.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+.. literalinclude:: ../examples/out/js_tools_minify.out
+    :language: javascript
+
+
+Masking Script Blocks
+~~~~~~~~~~~~~~~~~~~~~
+
+HTML has a long history of adding new elements all the time.
+Conceptually this is possible, because browsers simply ignore the
+tags of unknown elements and apply no semantics. That's forward
+compatibility. Now if you place something inside these new elements,
+which is not HTML content, you get a backwards compatibility problem.
+
+
+.. _javascript_cdata:
+
+cdata and cleanup
+-----------------
+
+Script elements (and :ref:`style elements <css_cdata>` for that matter)
+suffer from this problem since they were invented. The first solution
+was to enclose them with comment markers, but add special rules for
+browsers to accept these markers as part of the content:
+
+.. code-block:: html
+
+    <script><!--
+        the script.
+    //--></script>
+
+Then XHTML was invented. The XML parser cannot be tricked into such
+special rules. It would start throwing away the comment again, so people
+gave up backwards compliance and wrote:
+
+.. code-block:: html
+
+    <script><![CDATA[
+        the script.
+    ]]></script>
+
+and then, to be compatible with HTML again:
+
+.. code-block:: html
+
+    <script>//<![CDATA[
+        the script.
+    //]]></script>
+
+Then someone finally figured out [#]_ a mix of CDATA and comments
+completely compatible with all HTML/TagSoup parsers, and it looks like
+this:
+
+.. [#] http://lists.w3.org/Archives/Public/www-html/2002Apr/0053.html
+
+.. code-block:: html
+
+    <script><!--//--><![CDATA[//><!--
+        the script.
+    //--><!]]></script>
+
+This is funny stuff, but you wouldn't want to write it all the time. You
+should consider applying that, however, because browsers are typically
+not the *only* applications parsing your HTML.
+
+The functions :tdi:`tdi.tools./javascript.cdata` and
+:tdi:`tdi.tools./javascript.cleanup` can do that for you.
+:func:`cdata()` takes a script and encloses it in such an all-compatible
+CDATA/comment-mix-container. :func:`cleanup()` does the reverse. It
+looks for common containers (like the ones described above) and *strips*
+them. In fact, the :func:`cdata()` function calls :func:`cleanup()`
+itself in order to avoid doubling itself:
+
+.. literalinclude:: ../examples/js_tools_cdata.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+.. literalinclude:: ../examples/out/js_tools_cdata.out
+
+The :func:`cdata` function can be applied automatically to all script
+blocks of a template by hooking the
+:tdi:`tdi.tools.javascript.CDATAFilter` into the template loader. See
+the :doc:`filters documentation <filtering>` for a description how to do
+that.
+
+
+.. vim: ft=rest tw=72

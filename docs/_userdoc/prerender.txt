@@ -1,0 +1,94 @@
+.. license:
+    Copyright 2010, 2011
+    André Malo or his licensors, as applicable
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+===============
+ Pre-Rendering
+===============
+
+Often some parts of a webpage are more dynamic than others. |TDI| lets
+you render the less dynamic parts independently from the hot stuff.
+Let's start with an example:
+
+.. literalinclude:: ../examples/prerender.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+The logic is split into two parts, which are in fact rendered
+independently. First the prerender model is asked. Every node not handled
+there will be kept in the template and can be manipulated by the "real"
+model object in the second pass. The second time the template is
+rendered the prerender model won't be asked again. Of course, the whole
+thing only makes sense if you intend to keep the template object around
+for the next request.
+
+.. figure:: prerender.png
+
+    Pre-rendering Schema
+
+The figure above show the main objects when using the pre-rendering
+feature. The original template is the starting point, but becomes
+pretty unimportant after the first pre-rendering pass.
+
+.. Warning::
+
+    Do not pre-render request specific (or worse: user specific)
+    data.
+
+By default the pre-rendered template is cached forever. This may be too
+long for some data. The solution for this problem is to version the
+prerendered state. |TDI| checks the prerender model for a method called
+:meth:`prerender_version`, which takes the current version (starting
+with ``None``) and returns a tuple containing (a) if the version
+is outdated (bool) and (b) the new version object. The version object
+can be anything. |TDI| doesn't even look at it. It's just stored
+together with the prerendered state and passed to the
+:meth:`prerender_version` method. Here's a simplified example (just to
+visualize the method's signature):
+
+.. sourcecode:: python
+
+    class PreModel(object):
+        def __init__(self, version):
+            self._version = version
+
+        def prerender_version(self, version):
+            return self._version != version, self._version
+
+
+Implementation Notes
+~~~~~~~~~~~~~~~~~~~~
+
+The pre-rendering mechanism exploits the fact that |TDI|\'s template
+syntax is so simple and non-intrusive. Instead of generating output, you
+just generate a new template (which is fed to the parser again and then
+stored for the "real" rendering later).
+
+The template-generation process works semi-automatically by using a
+different adapter between the rendering engine and your model. Actually
+it's a wrapper around the regular rendering-adapter. The wrapper asks
+your model for each :samp:`render_{name}` method and if it doesn't
+provide one, it generates its own, which simply restores the ``tdi`` and
+``tdi:scope`` attributes. See the source code of
+:tdi:`tdi./model_adapters.PreRenderWrapper` and
+:tdi:`tdi./model_adapters.RenderAdapter` for details.
+
+If you need a different mechanism, you can supply another adapter via
+the ``preadapter`` parameter of the
+:tdi:`tdi.template./Template.render()` method.
+
+
+.. vim: ft=rest tw=72

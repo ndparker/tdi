@@ -1,0 +1,15 @@
+
+<html>
+<body>
+    <h1>doc title goes here</h1>
+    <ul>
+        <li><a href="/some/">Some Menu Item</a></li>
+        <li>Editing Content &amp; Attributes</li>
+        <li><a href="/third.html">Another Menu Item</a></li>
+    </ul>
+    <p class="edit-intro">Intro goes here.</p>
+    <div class="list">
+        ...
+    </div>
+</body>
+</html>

@@ -1,0 +1,1 @@
+if(n.tagName.toLowerCase()=='label'){n=n.parentNode;if(t&&n==t)continue;t=n;}

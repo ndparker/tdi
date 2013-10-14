@@ -1,0 +1,10 @@
+
+<html>
+<body>
+    <p>Type your name:</p>
+    <form accept-charset="utf-8" method="get">
+        <input type="text" name="name" value="" tabindex="1" />
+        <input type="submit" name="send" value="Submit form" tabindex="2" />
+    </form>
+</body>
+</html>

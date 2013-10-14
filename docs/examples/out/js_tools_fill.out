@@ -1,0 +1,7 @@
+<button onclick="alert('\&quot;Hey Andr\xe9! ---]]&gt;\&quot;')">
+    Click me!
+</button>
+<script>
+var a = [1,2,3,4];
+var b = '\"Hey Andr\xe9! -\-\-]\]>\"';
+</script>
