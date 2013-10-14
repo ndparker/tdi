@@ -34,6 +34,8 @@ Configuration
   # locations is a ResourceService location
   locations = templates_site
   #autoreload = False
+  #require_scopes = False
+  #require_methods = False
   #filters.html.load =
   #filters.html.overlay =
   #filters.html.template =
@@ -131,9 +133,19 @@ class GlobalTemplate(object):
     :IVariables:
       `_dirs` : ``list``
         Template locations resolved to directories
+
+      `autoreload` : ``bool``
+        Automatically reload templates?
+
+      `require_scopes` : ``bool``
+        Require all scopes?
+
+      `require_methods` : ``bool``
+        Require all render methods?
     """
 
-    def __init__(self, locations, autoreload=False, filters=None):
+    def __init__(self, locations, autoreload=False, require_scopes=False,
+                 require_methods=False, filters=None):
         """
         Initialization
 
@@ -144,11 +156,20 @@ class GlobalTemplate(object):
           `autoreload` : ``bool``
             Automatically reload templates?
 
+          `require_scopes` : ``bool``
+            Require all scopes?
+
+          `require_methods` : ``bool``
+            Require all render methods?
+
           `filters` : ``dict``
             Filter factories to apply
         """
         self._dirs = list(_it.chain(*[_resource()[location]
             for location in locations]))
+        self.autoreload = autoreload
+        self.require_scopes = require_scopes
+        self.require_methods = require_methods
 
         def streamopen(name):
             """ Stream opener """
@@ -264,6 +285,16 @@ class ResponseFactory(object):
           `global_template` : `GlobalTemplate`
             The global template service
         """
+        # pylint: disable = R0912
+        # (too many branches)
+
+        def adapter(model):
+            """ Adapter factory """
+            return _model_adapters.RenderAdapter(model,
+                requiremethods=global_template.require_methods,
+                requirescopes=global_template.require_scopes,
+            )
+
         def load_html(response):
             """ Response factory for ``load_html`` """
             # pylint: disable = W0613
@@ -281,16 +312,17 @@ class ResponseFactory(object):
                 """
                 return global_template.html(names)
             return load_html
-        def render_html(response, content_type='text/html'):
+        def render_html(response):
             """ Response factory for ``render_html`` """
             return self._render_factory(
-                response, global_template.html, "render_html", content_type
+                response, global_template.html, adapter,
+                "render_html", 'text/html'
             )
-        def pre_render_html(response, content_type='text/html'):
+        def pre_render_html(response):
             """ Response factory for ``pre_render_html`` """
             return self._render_factory(
-                response, global_template.html, "pre_render_html",
-                content_type, pre=True
+                response, global_template.html, adapter,
+                "pre_render_html", 'text/html', pre=True
             )
 
         def load_xml(response):
@@ -310,16 +342,17 @@ class ResponseFactory(object):
                 """
                 return global_template.xml(names)
             return load_xml
-        def render_xml(response, content_type='text/xml'):
+        def render_xml(response):
             """ Response factory for ``render_xml`` """
             return self._render_factory(
-                response, global_template.xml, "render_xml", content_type
+                response, global_template.xml, adapter,
+                "render_xml", 'text/xml'
             )
-        def pre_render_xml(response, content_type='text/xml'):
+        def pre_render_xml(response):
             """ Response factory for ``pre_render_xml`` """
             return self._render_factory(
-                response, global_template.xml, "pre_render_xml",
-                content_type, pre=True,
+                response, global_template.xml, adapter,
+                "pre_render_xml", 'text/xml', pre=True,
             )
 
         def load_text(response):
@@ -339,16 +372,17 @@ class ResponseFactory(object):
                 """
                 return global_template.text(names)
             return load_text
-        def render_text(response, content_type='text/plain'):
+        def render_text(response):
             """ Response factory for ``render_text`` """
             return self._render_factory(
-                response, global_template.text, "render_text", content_type
+                response, global_template.text, adapter,
+                "render_text", 'text/plain'
             )
-        def pre_render_text(response, content_type='text/plain'):
+        def pre_render_text(response):
             """ Response factory for ``pre_render_text`` """
             return self._render_factory(
-                response, global_template.text, "pre_render_text",
-                content_type, pre=True,
+                response, global_template.text, adapter,
+                "pre_render_text", 'text/plain', pre=True,
             )
 
         self.env = {
@@ -363,8 +397,8 @@ class ResponseFactory(object):
             'wtf.response.pre_render_text': pre_render_text,
         }
 
-    def _render_factory(self, response, template_loader, func_name,
-                        content_type, pre=False):
+    def _render_factory(self, response, template_loader, adapter, func_name,
+                        content_type_, pre=False):
         """
         Response factory for ``render_html/xml/text``
 
@@ -375,11 +409,14 @@ class ResponseFactory(object):
           `template_loader` : ``callable``
             Template loader function
 
+          `adapter` : ``callable``
+            render adapter factory
+
           `func_name` : ``str``
             Name of the render function (only for introspection)
 
-          `content_type` : ``str``
-            Content type
+          `content_type_` : ``str``
+            Default content type
 
           `pre` : ``bool``
             Prerender only?
@@ -398,6 +435,9 @@ class ResponseFactory(object):
                 template is rendered.
             ``prerender`` : any
                 Prerender-Model to apply
+            ``content_type`` : ``str``
+                Content type to set. If omitted, the default content type
+                will be set. If ``None``, the content type won't be set.
 
             :Parameters:
               `model` : any
@@ -418,19 +458,21 @@ class ResponseFactory(object):
             """
             startnode = kwargs.pop('startnode', None)
             prerender = kwargs.pop('prerender', None)
+            content_type = kwargs.pop('content_type', content_type_)
             if kwargs:
                 raise TypeError("Unrecognized kwargs: %r" % kwargs.keys())
 
             tpl = template_loader(names)
-            encoding = tpl.encoding
-            response.content_type(content_type, charset=encoding)
+            if content_type is not None:
+                encoding = tpl.encoding
+                response.content_type(content_type, charset=encoding)
             if pre and prerender is not None:
                 return [tpl.render_string(
                     prerender, startnode=startnode,
                     adapter=_model_adapters.RenderAdapter.for_prerender,
                 )]
-            return [tpl.render_string(
-                model, startnode=startnode, prerender=prerender,
+            return [tpl.render_string(model, adapter=adapter,
+                startnode=startnode, prerender=prerender,
             )]
         try:
             render_func.__name__ = func_name # pylint: disable = W0622
@@ -500,6 +542,8 @@ class TDIService(object):
         self._global =  GlobalTemplate(
             config.tdi.locations,
             config.tdi('autoreload', False),
+            config.tdi('require_scopes', False),
+            config.tdi('require_methods', False),
             config.tdi('filters', None),
         )
 

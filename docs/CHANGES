@@ -8,15 +8,19 @@ Changes with version
     overlay filters
 
  *) Explicitly ignore ModelMissingError exceptions in the prerender wrapper,
-    when calling the user adapter.
+    when calling the user model adapter.
 
  *) Minor interface change: render methods and scopes can be explicitly set
     to None, which avoids triggering errors, if they are required.
 
+ *) integration.wtf_service: added "require_scopes" and "require_methods"
+    configurations
+
  *) Added option to model adapters to not silently ignore missing scopes
 
  *) integration.wtf_service: added "content_type" parameter to render
-    functions
+    functions. Explicitly passing "None" disables automatic content type
+    setting.
 
  *) integration.wtf_service: added text template load/render functions
 
