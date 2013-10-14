@@ -478,6 +478,7 @@ class AutoUpdate(object):
             The template to autoupdate
         """
         self._template = template.template()
+        self._cb = []
 
     def __getattr__(self, name):
         """
@@ -495,15 +496,22 @@ class AutoUpdate(object):
         :Exceptions:
           - `AttributeError` : not found
         """
-        template = self._template
-        if template.update_available():
-            try:
-                self._template = template.reload()
-            except TemplateReloadError, e:
-                AutoUpdateWarning.emit(
-                    'Template autoupdate failed: %s' % str(e)
-                )
-        return getattr(self._template, name)
+        # pylint: disable = W0212
+        return getattr(self.reload()._template, name)
+
+    def register_autoupdate_callback(self, callback):
+        """
+        Register an autoupdate callback function
+
+        The function will be called, every time a template is reloaded
+        automatically. The template is passed as only argument to the callback
+        function.
+
+        :Parameters:
+          `callback` : ``callable``
+            The callback function.
+        """
+        self._cb.append(callback)
 
     def overlay(self, other):
         """
@@ -517,3 +525,32 @@ class AutoUpdate(object):
         :Rtype: `Template`
         """
         return self.__class__(OverlayTemplate(self, other, keep=True))
+
+    def update_available(self):
+        """
+        Check for update
+
+        :Return: Update available?
+        :Rtype: ``bool``
+        """
+        return self._template.update_available()
+
+    def reload(self):
+        """
+        Reload template(s) if possible and needed
+
+        :Return: The reloaded (new) template or self
+        :Rtype: `Template`
+        """
+        template = self._template
+        if template.update_available():
+            try:
+                self._template = template.reload()
+            except TemplateReloadError, e:
+                AutoUpdateWarning.emit(
+                    'Template autoupdate failed: %s' % str(e)
+                )
+            for func in list(self._cb):
+                func(self)
+
+        return self
