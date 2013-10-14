@@ -1,5 +1,7 @@
 Changes with version
 
+ *) Fixed a memory leak in tree building code (one list object per node)
+
  *) Updated rJSmin to version 1.0.7
 
  *) Added new tool collection: tdi.tools.template. It contains functions for
@@ -16,8 +18,8 @@ Changes with version
 
  *) Template: Added "force" argument to .reload() method
 
- *) AutoUpdate: Added reload callback registry and factory method for installing
-    new template wrappers (.autoupdate_register_callback() and
+ *) AutoUpdate: Added reload callback registry and factory method for
+    installing new template wrappers (.autoupdate_register_callback() and
     .autoupdate_factory())
 
  *) Fixed a few APIs of the AutoUpdate wrapper to not check for reload

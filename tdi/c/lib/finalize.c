@@ -444,7 +444,7 @@ finalize_do__finish_level(tdi_finalize_stack_t **stack,
     }
 
     if (finalize_do__finish_level__checkseps(seps) == -1)
-        return -1;
+        goto error_nameless;
 
     /*
      * Now add nameless node's children to our namedict (if the names do not
@@ -477,6 +477,7 @@ finalize_do__finish_level(tdi_finalize_stack_t **stack,
             goto error_nameless;
     };
 
+    Py_DECREF(nameless);
     return 0;
 
 error_modelscope:
