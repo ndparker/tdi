@@ -20,8 +20,8 @@
 ================
 
 The tools described here can be found in the :tdi:`tdi.tools.template`
-module. The module provides tools for automatic based on overlay
-dependencies.
+module. The module provides tools for automatic template discovery based
+on overlay dependencies.
 
 
 .. vim: ft=rest tw=72
