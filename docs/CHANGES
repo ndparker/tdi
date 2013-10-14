@@ -1,5 +1,7 @@
 Changes with version
 
+ *) Updated rJSmin to version 1.0.7
+
  *) Added new tool collection: tdi.tools.template. It contains functions for
     automatic template discovery and ordering by inspecting overlay
     information (check out the "discover" function and the "Layout" class)
