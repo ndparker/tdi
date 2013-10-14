@@ -469,7 +469,7 @@ class OverlayTemplate(Template):
 class AutoUpdate(object):
     """ Autoupdate wrapper """
 
-    def __init__(self, template):
+    def __init__(self, template, _cb=None):
         """
         Initialization
 
@@ -478,7 +478,10 @@ class AutoUpdate(object):
             The template to autoupdate
         """
         self._template = template.template()
-        self._cb = []
+        if _cb is None:
+            self._cb = []
+        else:
+            self._cb = list(_cb)
 
     def __getattr__(self, name):
         """
@@ -524,7 +527,13 @@ class AutoUpdate(object):
         :Return: The combined template
         :Rtype: `Template`
         """
-        return self.__class__(OverlayTemplate(self, other, keep=True))
+        return self.__class__(
+            OverlayTemplate(self, other, keep=True), _cb=self._cb
+        )
+
+    def template(self):
+        """ Return a clean template (without any wrapper) """
+        return self._template.template()
 
     def update_available(self):
         """

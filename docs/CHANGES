@@ -3,8 +3,8 @@ Changes with version
  *) Added autoupdate callback registry
     (AutoUpdate.register_autoupdate_callback())
 
- *) Fixed reload APIs of the AutoUpdate wrapper (updated_available() and
-    reload())
+ *) Fixed a few APIs of the AutoUpdate wrapper to not check for reload
+    (.template(), .updated_available() and .reload())
 
  *) Explicitly pass encoding to prerender and overlay filter processing.
     This is mostly relevant for templates, which remove the encoding marker
