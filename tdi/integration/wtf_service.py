@@ -192,13 +192,18 @@ class GlobalTemplate(object):
             factory = _factory_memoize.MemoizedFactory(
                 getattr(_markup_factory, which).replace(**kwargs)
             )
+            sfactory = factory.replace(overlay_eventfilters=[])
             def load(names):
                 """ Actual loader """
                 res = factory.from_streams(names, streamopen=streamopen)
                 for item in post_load or ():
                     res = item(res)
                 return res
-            return load
+
+            def single(name):
+                """ Single file loader """
+                return sfactory.from_opener(*streamopen(name)[0])
+            return load, single
 
         def opt(option, args):
             """ Find opt """
@@ -215,17 +220,17 @@ class GlobalTemplate(object):
                 _util.load_dotted, filter(None, opt(filters, args) or ())
             ) or None
 
-        self.html = loader('html',
+        self.html, self.single_html = loader('html',
             post_load=load('html', 'template'),
             eventfilters=load('html', 'load'),
             overlay_eventfilters=load('html', 'overlay'),
         )
-        self.xml = loader('xml',
+        self.xml, self.single_xml = loader('xml',
             post_load=load('xml', 'template'),
             eventfilters=load('xml', 'load'),
             overlay_eventfilters=load('xml', 'overlay'),
         )
-        self.text = loader('text',
+        self.text, self.single_text = loader('text',
             post_load=load('text', 'template'),
             eventfilters=load('text', 'load'),
             overlay_eventfilters=load('text', 'overlay'),
