@@ -84,6 +84,17 @@ class LexerFinalizedError(LexerStateError):
     """ Lexer was already finalized """
 
 
+class DependencyError(Error):
+    """ A dependency error occured """
+
+class DependencyCycle(DependencyError):
+    """
+    Dependencies created a cycle
+
+    The exception argument contains the cycling nodes as a list
+    """
+
+
 class Warning(Warning): # pylint: disable = W0622
     """ Base warning for this package """
 
