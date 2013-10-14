@@ -56,6 +56,11 @@ class RenderAdapter(object):
 
         require = bool(requiremethods)
         models = {'': model}
+
+        def new(model):
+            """ Create adapter for a new model """
+            return cls(model, requiremethods=require)
+
         def modelmethod(prefix, name, scope, noauto):
             """
             Build the method name from prefix and node name and resolve
@@ -106,6 +111,7 @@ class RenderAdapter(object):
             return method
 
         self.modelmethod = modelmethod
+        self.new = new
         return self
 
     def for_prerender(cls, model, attr=None):
@@ -162,6 +168,11 @@ class PreRenderWrapper(object):
         if attr is not None:
             scope_attr = attr.get('scope', scope_attr)
             tdi_attr = attr.get('tdi', tdi_attr)
+            attr = dict(tdi=tdi_attr, scope=scope_attr)
+
+        def new(model):
+            """ Create adapter for a new model """
+            return cls(adapter.new(model), attr=attr)
 
         omethod = adapter.modelmethod
         def modelmethod(prefix, name, scope, noauto):
@@ -248,6 +259,8 @@ class PreRenderWrapper(object):
             return render
 
         self.modelmethod = modelmethod
+        self.new = new
+
         return self
 
 

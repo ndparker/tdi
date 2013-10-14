@@ -356,7 +356,7 @@ TDI_NodeType_copy(tdi_node_t *self, PyObject *dummy)
 }
 
 PyDoc_STRVAR(TDI_NodeType_render__doc__,
-"render(self, callback, params, decode=True, decode_errors='strict')\n\
+"render(self, callback, params, **kwargs)\n\
 \n\
 Render this node only and return the result as string\n\
 \n\
@@ -377,6 +377,7 @@ is also possible.\n\
   `params` : ``tuple``\n\
     Optional extra parameters for `callback`\n\
 \n\
+:Keywords:\n\
   `decode` : ``bool``\n\
     Decode the result back to unicode? This uses the encoding of the\n\
     template.\n\
@@ -384,13 +385,24 @@ is also possible.\n\
   `decode_errors` : ``str``\n\
     Error handler if decode errors happen.\n\
 \n\
-:Return: The rendered node, type depends on `decode` parameter\n\
+  `model` : any\n\
+    New render model, if omitted or ``None``, the current model is\n\
+    applied.\n\
+\n\
+  `adapter` : ``callable``\n\
+    Model adapter factory, takes the model and returns a\n\
+    `ModelAdapterInterface`. If omitted or ``None``, the current\n\
+    adapter is used. This parameter is ignored, if no ``model``\n\
+    parameter is passed.\n\
+\n\
+:Return: The rendered node, type depends on ``decode`` keyword\n\
 :Rtype: ``basestring``");
 
 static PyObject *
 TDI_NodeType_render(tdi_node_t *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *tmp, *callback, *fixed, *collect, *iter;
+    PyObject *tmp, *tmp2, *callback, *fixed, *collect, *iter;
+    PyObject *decode_o, *decode_errors_o, *model_o, *adapter_o;
     tdi_adapter_t *model;
     char *decode_errors, *encoding;
     tdi_node_t *mynode;
@@ -399,40 +411,48 @@ TDI_NodeType_render(tdi_node_t *self, PyObject *args, PyObject *kwds)
 
     /* Evaluate Keywords */
     if (!kwds) {
-        decode = 1;
-        decode_errors = NULL;
+        decode_o = NULL;
+        decode_errors_o = NULL;
+        model_o = NULL;
+        adapter_o = NULL;
     }
     else {
         expected_kwds = 0;
-        if (!(tmp = PyDict_GetItemString(kwds, "decode"))) {
-            if (PyErr_Occurred())
-                return NULL;
-            decode = 1;
-        }
-        else if ((decode = PyObject_IsTrue(tmp)) == -1) {
-            return NULL;
-        }
-        else {
-            ++expected_kwds;
-        }
 
-        if (!(tmp = PyDict_GetItemString(kwds, "decode_errors"))) {
-            if (PyErr_Occurred())
-                return NULL;
-            decode_errors = "strict";
-        }
-        else if (!(decode_errors = PyString_AsString(tmp))) {
-            return NULL;
-        }
-        else {
-            ++expected_kwds;
-        }
+#define KW(name) do {                                      \
+    if (!(name##_o = PyDict_GetItemString(kwds, #name))) { \
+        if (PyErr_Occurred())                              \
+            return NULL;                                   \
+    }                                                      \
+    else {                                                 \
+        ++expected_kwds;                                   \
+    }                                                      \
+} while(0)
+
+        /* all references are borrowed */
+        KW(decode);
+        KW(decode_errors);
+        KW(model);
+        KW(adapter);
+
         if (PyDict_Size(kwds) > expected_kwds) {
             PyErr_SetString(PyExc_TypeError,
                             "Unrecognized keyword parameters");
             return NULL;
         }
+
+#undef KW
     }
+
+    if (!decode_o)
+        decode = 1; /* default: True */
+    else if ((decode = PyObject_IsTrue(decode_o)) == -1)
+        return NULL;
+
+    if (!decode_errors_o)
+        decode_errors = "strict";
+    else if (!(decode_errors = PyString_AsString(decode_errors_o)))
+        return NULL;
 
     /* Evaluate positional arguments */
     length = PyTuple_GET_SIZE(args);
@@ -442,79 +462,98 @@ TDI_NodeType_render(tdi_node_t *self, PyObject *args, PyObject *kwds)
     }
     else {
         callback = PyTuple_GET_ITEM(args, 0);
-        if (length == 1) {
+        if (length == 1)
             fixed = NULL;
-        }
-        else if (!(fixed = PyTuple_GetSlice(args, 1, length))) {
+        else if (!(fixed = PyTuple_GetSlice(args, 1, length)))
             return NULL;
-        }
     }
     Py_INCREF(callback);
 
-    /* setup node */
-    mynode = (tdi_node_t *)tdi_node_deepcopy(self, self->model,
-                                             self->ctx, NULL);
-    if (!mynode) {
-        Py_XDECREF(fixed);
-        Py_DECREF(callback);
-        return NULL;
+    /* setup model */
+    if (!model_o || model_o == Py_None) {
+        model = (Py_INCREF(self->model), self->model);
     }
-    res = tdi_replace_node(mynode, mynode, callback, fixed);
-    Py_XDECREF(fixed);
-    Py_DECREF(callback);
-    if (res == -1) {
-        Py_DECREF(mynode);
-        return NULL;
+    else if (!adapter_o || adapter_o == Py_None) {
+        model = (tdi_adapter_t *)tdi_render_adapter_factory(self->model,
+                                                            model_o);
+        if (!model)
+            goto error_args;
+    }
+    else {
+        if (!(tmp = PyObject_CallFunction(adapter_o, "O", model_o)))
+            goto error_args;
+        if (!TDI_RenderAdapterType_Check(tmp)) {
+            model = (tdi_adapter_t *)tdi_adapter_new_alien(tmp);
+            Py_DECREF(tmp);
+            if (!model)
+                goto error_args;
+        }
+        else {
+            model = (tdi_adapter_t *)tmp;
+        }
     }
 
+    /* setup node */
+    mynode = (tdi_node_t *)tdi_node_deepcopy(self, model, self->ctx, NULL);
+    if (!mynode)
+        goto error_model;
+
+    if (tdi_replace_node(mynode, mynode, callback, fixed) == -1)
+        goto error_mynode;
+
     /* render */
-    if (!(collect = PyList_New(0))) {
-        Py_DECREF(mynode);
-        return NULL;
-    }
-    model = mynode->model;
-    Py_INCREF(model);
-    iter = tdi_render_iterator_new(mynode, model);
-    Py_DECREF(model);
-    Py_DECREF(mynode);
-    if (!iter) {
-        Py_DECREF(collect);
-        return NULL;
-    }
+    if (!(collect = PyList_New(0)))
+        goto error_mynode;
+    if (!(iter = tdi_render_iterator_new(mynode, model)))
+        goto error_collect;
 
     while ((tmp = PyIter_Next(iter))) {
         res = PyList_Append(collect, tmp);
         Py_DECREF(tmp);
-        if (res == -1) {
-            Py_DECREF(iter);
-            Py_DECREF(collect);
-            return NULL;
-        }
+        if (res == -1)
+            goto error_iter;
     }
+    if (PyErr_Occurred())
+        goto error_iter;
     Py_DECREF(iter);
-    if (PyErr_Occurred()) {
-        Py_DECREF(collect);
-        return NULL;
-    }
+
+    /* join everything together */
     tmp = tdi_g_empty;
     Py_INCREF(tmp);
-    iter = PyObject_CallMethod(tmp, "join", "(O)", collect);
+    tmp2 = PyObject_CallMethod(tmp, "join", "(O)", collect);
     Py_DECREF(tmp);
     Py_DECREF(collect);
-    if (!iter)
+    Py_DECREF(mynode);
+    Py_DECREF(model);
+    Py_XDECREF(fixed);
+    Py_DECREF(callback);
+    if (!tmp2)
         return NULL;
+    if (!decode)
+        return tmp2;
 
-    if (decode) {
-        if (!(encoding = PyString_AsString(self->encoder->encoding))) {
-            Py_DECREF(iter);
-            return NULL;
-        }
-        tmp = PyString_AsDecodedObject(iter, encoding, decode_errors);
-        Py_DECREF(iter);
-        return tmp;
+    /* decode */
+    if (!(encoding = PyString_AsString(self->encoder->encoding))) {
+        Py_DECREF(tmp2);
+        return NULL;
     }
+    tmp = PyString_AsDecodedObject(tmp2, encoding, decode_errors);
+    Py_DECREF(tmp2);
+    return tmp;
 
-    return iter;
+error_iter:
+    Py_DECREF(iter);
+error_collect:
+    Py_DECREF(collect);
+error_mynode:
+    Py_DECREF(mynode);
+error_model:
+    Py_DECREF(model);
+error_args:
+    Py_XDECREF(fixed);
+    Py_DECREF(callback);
+
+    return NULL;
 }
 
 #ifdef METH_COEXIST  /* Python 2.4 optimization */

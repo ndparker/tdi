@@ -1,5 +1,12 @@
 Changes with version
 
+ *) node.render() now accepts "model" and "adapter" parameters, which allows
+    subrendering using a different model.
+
+ *) ModelAdapterInterface: got a new "new" method, to create the adapter with a
+    different model.
+
+
 Changes with version 0.9.9.7
 
  *) Removed some deprecated code and/or wrappers:

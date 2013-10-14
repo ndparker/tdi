@@ -25,6 +25,10 @@ method). This is useful if you want to process the render result before
 actually emitting it to the output stream. Sub-rendering is implemented
 by the node's :tdi:`tdi.nodetree.Node./render` method.
 
+Note that the node is copied, before it's subrendered. Changes to
+the node or its subnodes are *not* visible to the regular rendering
+process.
+
 
 Placing a HTML Node Into a Javascript Block
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -55,5 +59,15 @@ The code uses the :func:`javascript.fill` function, which is part of the
 Also note, how contents of the node is rendered using the model.
 The options of the :meth:`render()` method are :tdi:`described in the API
 documentation <tdi.nodetree.Node.render>`.
+
+
+Using A Different Model
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The subrender mechanism uses the current model structure by default.
+That way, the nodes are properly handled within their scopes. There are,
+however, use cases, where it's useful to provide a different model. If
+you pass your own model, it acts as a "root" model: you might need to
+rebuild your scope structure.
 
 .. vim: ft=rest tw=72

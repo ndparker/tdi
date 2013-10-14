@@ -501,7 +501,10 @@ class ModelAdapterInterface(object):
 
     :IVariables:
       `modelmethod` : ``callable``
-        The function to resolve model methods
+        Function to resolve model methods
+
+      `new` : ``callable``
+        Function to create an adapter with a new model instance.
 
       `emit_escaped` : ``bool``
         Emit escaped text as escape sequence? (Needed for pre-rendering)

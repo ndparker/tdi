@@ -198,6 +198,20 @@ tdi_render_adapter_method(tdi_adapter_t *adapter, PyObject *prefix,
 }
 
 
+/*
+ * Create new adapter from adapter with a new model
+ */
+PyObject *
+tdi_render_adapter_factory(tdi_adapter_t *self, PyObject *model)
+{
+    if (!self->newmethod)
+        return tdi_adapter_new(self->ob_type, model, self->require,
+                               self->emit_escaped);
+
+    return PyObject_CallFunction(self->newmethod, "O", model);
+}
+
+
 /* ----------------- BEGIN TDI_RenderAdapterType DEFINITION ---------------- */
 
 PyDoc_STRVAR(TDI_RenderAdapterType_for_prerender__doc__,
@@ -373,6 +387,61 @@ TDI_RenderAdapterType_setmodelmethod(tdi_adapter_t *self, PyObject *method,
     return 0;
 }
 
+PyDoc_STRVAR(TDI_RenderAdapterType_new_method__doc__,
+"new(model)\n\
+\n\
+Create adapter for a new model");
+
+static PyObject *
+TDI_RenderAdapterType_new_method(tdi_adapter_t *self, PyObject *args)
+{
+    PyObject *model;
+
+    if (!(PyArg_ParseTuple(args, "O", &model)))
+        return NULL;
+
+    return tdi_render_adapter_factory(self, model);
+}
+
+static struct PyMethodDef TDI_RenderAdapterType_new_method__def = {
+    "new",
+    (PyCFunction)TDI_RenderAdapterType_new_method,
+    METH_VARARGS,
+    TDI_RenderAdapterType_new_method__doc__
+};
+
+static PyObject *
+TDI_RenderAdapterType_getnew(tdi_adapter_t *self, void *closure)
+{
+    PyObject *tmp, *mod;
+
+    if (self->newmethod) {
+        Py_INCREF(self->newmethod);
+        return self->newmethod;
+    }
+
+    if (!(mod = PyString_FromString(EXT_MODULE_PATH)))
+        return NULL;
+    tmp = PyCFunction_NewEx(&TDI_RenderAdapterType_new_method__def,
+                            (PyObject *)self, mod);
+    Py_DECREF(mod);
+    return tmp;
+}
+
+static int
+TDI_RenderAdapterType_setnew(tdi_adapter_t *self, PyObject *method,
+                             void *closure)
+{
+    PyObject *tmp;
+
+    Py_INCREF(method);
+    tmp = self->newmethod;
+    self->newmethod = method;
+    Py_DECREF(tmp);
+
+    return 0;
+}
+
 static PyObject *
 TDI_RenderAdapterType_getemit_escaped(tdi_adapter_t *self, void *closure)
 {
@@ -399,6 +468,11 @@ static PyGetSetDef TDI_RenderAdapterType_getset[] = {
     {"modelmethod",
      (getter)TDI_RenderAdapterType_getmodelmethod,
      (setter)TDI_RenderAdapterType_setmodelmethod,
+     NULL, NULL},
+
+    {"new",
+     (getter)TDI_RenderAdapterType_getnew,
+     (setter)TDI_RenderAdapterType_setnew,
      NULL, NULL},
 
     {"emit_escaped",
@@ -531,6 +605,7 @@ error:
     return NULL;
 }
 
+
 /*
  * Create model object from alien model
  */
@@ -546,6 +621,11 @@ tdi_adapter_new_alien(PyObject *model)
 
     Py_INCREF(model);
     if (!(self->modelmethod = PyObject_GetAttrString(model, "modelmethod"))) {
+        Py_DECREF(model);
+        Py_DECREF(self);
+        return NULL;
+    }
+    if (!(self->newmethod = PyObject_GetAttrString(model, "new"))) {
         Py_DECREF(model);
         Py_DECREF(self);
         return NULL;

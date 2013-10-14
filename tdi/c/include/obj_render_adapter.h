@@ -21,6 +21,7 @@
 #include "cext.h"
 #include "tdi.h"
 
+
 /*
  * Object structure for TDI_RenderAdapterType
  */
@@ -29,6 +30,7 @@ struct tdi_adapter_t {
     PyObject *weakreflist;  /* Weak reference list */
 
     PyObject *modelmethod;  /* PyCFunction to ask for the model method */
+    PyObject *newmethod;    /* PyCFunction for adapter factory */
     PyObject *models;       /* user models */
     int require;            /* Require methods? */
     int emit_escaped;       /* Emit escaped text? */
@@ -63,5 +65,12 @@ tdi_adapter_new(PyTypeObject *, PyObject *, int, int);
  */
 PyObject *
 tdi_adapter_new_alien(PyObject *);
+
+
+/*
+ * Create new adapter from adapter with a new model
+ */
+PyObject *
+tdi_render_adapter_factory(tdi_adapter_t *self, PyObject *model);
 
 #endif

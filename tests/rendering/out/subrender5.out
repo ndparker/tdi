@@ -1,0 +1,7 @@
+<html>
+<body>
+    <script>
+        document.write('<div><h1 foo=\"bar\">different.<\/h1><\/div>')
+    </script>
+</body>
+</html>

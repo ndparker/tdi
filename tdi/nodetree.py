@@ -596,7 +596,7 @@ class Node(object):
 
     def render(self, *callback, **kwargs):
         """
-        render(self, callback, params, decode=True, decode_errors='strict')
+        render(self, callback, params, **kwargs)
 
         Render this node only and return the result as string
 
@@ -617,6 +617,7 @@ class Node(object):
           `params` : ``tuple``
             Optional extra parameters for `callback`
 
+        :Keywords:
           `decode` : ``bool``
             Decode the result back to unicode? This uses the encoding of the
             template.
@@ -624,20 +625,40 @@ class Node(object):
           `decode_errors` : ``str``
             Error handler if decode errors happen.
 
-        :Return: The rendered node, type depends on `decode` parameter
+          `model` : any
+            New render model, if omitted or ``None``, the current model is
+            applied.
+
+          `adapter` : ``callable``
+            Model adapter factory, takes the model and returns a
+            `ModelAdapterInterface`. If omitted or ``None``, the current
+            adapter is used. This parameter is ignored, if no ``model``
+            parameter is passed.
+
+        :Return: The rendered node, type depends on ``decode`` keyword
         :Rtype: ``basestring``
         """
         # pylint: disable = W0212
         decode = kwargs.pop('decode', True)
         decode_errors = kwargs.pop('decode_errors', 'strict')
+        model = kwargs.pop('model', None)
+        adapter = kwargs.pop('adapter', None)
         if kwargs:
             raise TypeError("Unrecognized keyword parameters")
-        node = self.copy()
+
+        if model is None:
+            model = self._model
+        elif adapter is None:
+            model = self._model.new(model)
+        else:
+            model = adapter(model)
+
+        node = _nodetree.copydeep(self, model, self.ctx, Node)
         if callback and callback[0] is not None:
             node.replace(callback[0], node, *callback[1:])
         else:
             node.replace(None, node)
-        res = ''.join(_nodetree.render(node, node._model, Node))
+        res = ''.join(_nodetree.render(node, model, Node))
         if not decode:
             return res
         return res.decode(self._udict['decoder'].encoding, decode_errors)
