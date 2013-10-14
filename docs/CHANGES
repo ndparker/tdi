@@ -1,5 +1,13 @@
 Changes with version
 
+ *) Explicitly ignore ModelMissingError exceptions in the prerender wrapper,
+    when calling the user adapter.
+
+ *) Minor interface change: render methods and scopes can be explicitly set
+    to None, which avoids triggering errors, if they are required.
+
+ *) Added option to model adapters to not silently ignore missing scopes
+
  *) integration.wtf_service: added "content_type" parameter to render
     functions
 

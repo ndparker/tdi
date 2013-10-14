@@ -1,6 +1,6 @@
 # -*- coding: ascii -*-
 #
-# Copyright 2006 - 2012
+# Copyright 2006 - 2013
 # Andr\xe9 Malo or his licensors, as applicable
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +38,7 @@ class RenderAdapter(object):
 
     emit_escaped = False
 
-    def __new__(cls, model, requiremethods=False):
+    def __new__(cls, model, requiremethods=False, requirescopes=False):
         """
         Construct
 
@@ -49,17 +49,29 @@ class RenderAdapter(object):
           `requiremethods` : ``bool``
             Require methods to exist?
 
+          `requirescopes` : ``bool``
+            Require scopes to exist?
+
         :Return: Render adapter
         :Rtype: `ModelAdapterInterface`
         """
         self = object.__new__(cls)
 
-        require = bool(requiremethods)
+        requiremethods = bool(requiremethods)
+        requirescopes = bool(requirescopes)
+        getattr_ = getattr
         models = {'': model}
+
+        class unset(object):
+            pass
+        unset = unset()
 
         def new(model):
             """ Create adapter for a new model """
-            return cls(model, requiremethods=require)
+            return cls(model,
+                requiremethods=requiremethods,
+                requirescopes=requirescopes,
+            )
 
         def modelmethod(prefix, name, scope, noauto):
             """
@@ -102,12 +114,18 @@ class RenderAdapter(object):
                     if scope_part in models:
                         model = models[scope_part]
                     else:
-                        model = getattr(model, 'scope_' + part, None)
+                        model = getattr_(model, 'scope_' + part, unset)
+                        if model is unset:
+                            if requirescopes:
+                                raise ModelMissingError(scope_part)
+                            model = None
                         models[scope_part] = model
 
-            method = getattr(model, "%s_%s" % (prefix, name), None)
-            if method is None and require:
-                raise ModelMissingError(name)
+            method = getattr_(model, "%s_%s" % (prefix, name), unset)
+            if method is unset:
+                if requiremethods:
+                    raise ModelMissingError("%s_%s" % (prefix, name))
+                method = None
             return method
 
         self.modelmethod = modelmethod
@@ -199,9 +217,13 @@ class PreRenderWrapper(object):
             :Return: The method
             :Rtype: ``callable``
             """
-            method = omethod(prefix, name, scope, noauto)
-            if method is not None:
-                return method
+            try:
+                method = omethod(prefix, name, scope, noauto)
+            except ModelMissingError:
+                pass
+            else:
+                if method is not None:
+                    return method
 
             # These methods we only see of the model repeats a node, but
             # doesn't define a separator logic. We do not want to write out

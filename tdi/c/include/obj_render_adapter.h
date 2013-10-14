@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 - 2012
+ * Copyright 2010 - 2013
  * Andr\xe9 Malo or his licensors, as applicable
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +32,8 @@ struct tdi_adapter_t {
     PyObject *modelmethod;  /* PyCFunction to ask for the model method */
     PyObject *newmethod;    /* PyCFunction for adapter factory */
     PyObject *models;       /* user models */
-    int require;            /* Require methods? */
+    int requiremethods;     /* Require methods? */
+    int requirescopes;      /* Require scopes? */
     int emit_escaped;       /* Emit escaped text? */
 };
 
@@ -57,7 +58,7 @@ tdi_render_adapter_method(tdi_adapter_t *, PyObject *, PyObject *, PyObject *,
  * Create new model adapter
  */
 PyObject *
-tdi_adapter_new(PyTypeObject *, PyObject *, int, int);
+tdi_adapter_new(PyTypeObject *, PyObject *, int, int, int);
 
 
 /*

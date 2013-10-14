@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 - 2012
+ * Copyright 2006 - 2013
  * Andr\xe9 Malo or his licensors, as applicable
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,8 +52,8 @@ find_model(tdi_adapter_t *adapter, PyObject *scope)
         c2 = memchr(c1, '.', size);
         if (!c2)
             c2 = sentinel;
-        size -= (c2 - c1) + 1;
-        scope_part = PyString_FromStringAndSize(cscope, c2 - cscope - 1);
+        size -= (c2 - c1);
+        scope_part = PyString_FromStringAndSize(cscope, c2 - cscope);
         if (!scope_part) {
             Py_DECREF(model);
             return NULL;
@@ -64,11 +64,9 @@ find_model(tdi_adapter_t *adapter, PyObject *scope)
             model = tmp;
         }
         else {
-            if (!(part = PyString_FromStringAndSize(NULL, c2 - c1 + 6))) {
-                Py_DECREF(scope_part);
-                Py_DECREF(model);
-                return NULL;
-            }
+            if (!(part = PyString_FromStringAndSize(NULL, c2 - c1 + 6)))
+                goto error_scope_part;
+
             cp = PyString_AS_STRING(part);
             *cp++ = 's';
             *cp++ = 'c';
@@ -80,28 +78,32 @@ find_model(tdi_adapter_t *adapter, PyObject *scope)
             tmp = PyObject_GetAttr(model, part);
             Py_DECREF(part);
             if (!tmp) {
-                if (!PyErr_ExceptionMatches(PyExc_AttributeError)) {
-                    Py_DECREF(scope_part);
-                    Py_DECREF(model);
-                    return NULL;
-                }
+                if (!PyErr_ExceptionMatches(PyExc_AttributeError))
+                    goto error_scope_part;
                 PyErr_Clear();
+                if (adapter->requirescopes) {
+                    PyErr_SetObject(TDI_E_ModelMissingError, scope_part);
+                    goto error_scope_part;
+                }
                 Py_INCREF(Py_None);
                 tmp = Py_None;
             }
             Py_DECREF(model);
             model = tmp;
-            if (PyDict_SetItem(adapter->models, scope_part, model) == -1) {
-                Py_DECREF(scope_part);
-                Py_DECREF(model);
-                return NULL;
-            }
+            if (PyDict_SetItem(adapter->models, scope_part, model) == -1)
+                goto error_scope_part;
         }
         Py_DECREF(scope_part);
         c1 = c2 + (c2 != sentinel);
     }
 
     return model;
+
+error_scope_part:
+    Py_DECREF(scope_part);
+    Py_DECREF(model);
+
+    return NULL;
 }
 
 
@@ -152,21 +154,25 @@ modelmethod_default(tdi_adapter_t *adapter, PyObject *prefix, PyObject *name,
                  (size_t)PyString_GET_SIZE(name));
 
     method = PyObject_GetAttr(model, methodname);
-    Py_DECREF(methodname);
     Py_DECREF(model);
     if (!method) {
         if (!PyErr_ExceptionMatches(PyExc_AttributeError))
-            return NULL;
+            goto error_methodname;
         PyErr_Clear();
-        if (adapter->require) {
-            PyErr_SetObject(TDI_E_ModelMissingError, name);
-            return NULL;
+        if (adapter->requiremethods) {
+            PyErr_SetObject(TDI_E_ModelMissingError, methodname);
+            goto error_methodname;
         }
         Py_INCREF(Py_None);
         method = Py_None;
     }
+    Py_DECREF(methodname);
 
     return method;
+
+error_methodname:
+    Py_DECREF(methodname);
+    return NULL;
 }
 
 
@@ -205,8 +211,8 @@ PyObject *
 tdi_render_adapter_factory(tdi_adapter_t *self, PyObject *model)
 {
     if (!self->newmethod)
-        return tdi_adapter_new(self->ob_type, model, self->require,
-                               self->emit_escaped);
+        return tdi_adapter_new(self->ob_type, model, self->requiremethods,
+                               self->requirescopes, self->emit_escaped);
 
     return PyObject_CallFunction(self->newmethod, "O", model);
 }
@@ -486,20 +492,27 @@ static PyGetSetDef TDI_RenderAdapterType_getset[] = {
 static PyObject *
 TDI_RenderAdapterType_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    static char *kwlist[] = {"model", "requiremethods", NULL};
-    PyObject *model, *requiremethods = NULL;
-    int require;
+    static char *kwlist[] = {"model", "requiremethods", "requirescopes",
+                             NULL};
+    PyObject *model, *requiremethods_o = NULL, *requirescopes_o = NULL;
+    int requiremethods, requirescopes;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O", kwlist,
-                                     &model, &requiremethods))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist,
+                                     &model, &requiremethods_o,
+                                     &requirescopes_o))
         return NULL;
 
-    if (!requiremethods)
-        require = 0;
-    else if ((require = PyObject_IsTrue(requiremethods)) == -1)
+    if (!requiremethods_o)
+        requiremethods = 0;
+    else if ((requiremethods = PyObject_IsTrue(requiremethods_o)) == -1)
         return NULL;
 
-    return tdi_adapter_new(type, model, require, 0);
+    if (!requirescopes_o)
+        requirescopes = 0;
+    else if ((requirescopes = PyObject_IsTrue(requirescopes_o)) == -1)
+        return NULL;
+
+    return tdi_adapter_new(type, model, requiremethods, requirescopes, 0);
 }
 
 static int
@@ -525,7 +538,7 @@ TDI_RenderAdapterType_clear(tdi_adapter_t *self)
 DEFINE_GENERIC_DEALLOC(TDI_RenderAdapterType)
 
 PyDoc_STRVAR(TDI_RenderAdapterType__doc__,
-"RenderAdapter(model, requiremethods=False)\n\
+"RenderAdapter(model, requiremethods=False, requirescopes=False)\n\
 \n\
 Regular Render-Adapter implementation\n\
 \n\
@@ -582,15 +595,16 @@ PyTypeObject TDI_RenderAdapterType = {
  * Create new model adapter
  */
 PyObject *
-tdi_adapter_new(PyTypeObject *type, PyObject *model, int require,
-                int emit_escaped)
+tdi_adapter_new(PyTypeObject *type, PyObject *model, int requiremethods,
+                int requirescopes, int emit_escaped)
 {
     tdi_adapter_t *self;
 
     if (!(self = GENERIC_ALLOC(type)))
         return NULL;
 
-    self->require = require ? 1 : 0;
+    self->requiremethods = requiremethods ? 1 : 0;
+    self->requirescopes = requirescopes ? 1 : 0;
     self->emit_escaped = emit_escaped ? 1 : 0;
 
     if (!(self->models = PyDict_New()))

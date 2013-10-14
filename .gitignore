@@ -9,5 +9,6 @@ docs/apidoc/
 docs/userdoc/
 _website/
 *.ebuild
+.sw?
 .*.sw?
 MANIFEST
