@@ -40,6 +40,9 @@ Configuration
   #filters.xml.load =
   #filters.xml.overlay =
   #filters.xml.template=
+  #filters.text.load =
+  #filters.text.overlay =
+  #filters.text.template=
 
   # load + overlay Filters are lists of (event) filter factories, for example
   #
@@ -201,6 +204,11 @@ class GlobalTemplate(object):
             eventfilters=load('xml', 'load'),
             overlay_eventfilters=load('xml', 'overlay'),
         )
+        self.text = loader('text',
+            post_load=load('text', 'template'),
+            eventfilters=load('text', 'load'),
+            overlay_eventfilters=load('text', 'overlay'),
+        )
 
     def stream(self, name, mode='rb', buffering=-1, blockiter=0):
         """
@@ -273,18 +281,20 @@ class ResponseFactory(object):
                 """
                 return global_template.html(names)
             return load_html
-        def render_html(response):
+        def render_html(response, content_type='text/html'):
             """ Response factory for ``render_html`` """
             return self._render_factory(
-                response, global_template.html, "render_html"
+                response, global_template.html, "render_html", content_type
             )
-        def pre_render_html(response):
+        def pre_render_html(response, content_type='text/html'):
             """ Response factory for ``pre_render_html`` """
             return self._render_factory(
-                response, global_template.html, "pre_render_html", pre=True
+                response, global_template.html, "pre_render_html",
+                content_type, pre=True
             )
+
         def load_xml(response):
-            """ Response factory for ``load_html`` """
+            """ Response factory for ``load_xml`` """
             # pylint: disable = W0613
             def load_xml(*names):
                 """
@@ -300,15 +310,45 @@ class ResponseFactory(object):
                 """
                 return global_template.xml(names)
             return load_xml
-        def render_xml(response):
+        def render_xml(response, content_type='text/xml'):
             """ Response factory for ``render_xml`` """
             return self._render_factory(
-                response, global_template.xml, "render_xml"
+                response, global_template.xml, "render_xml", content_type
             )
-        def pre_render_xml(response):
+        def pre_render_xml(response, content_type='text/xml'):
             """ Response factory for ``pre_render_xml`` """
             return self._render_factory(
-                response, global_template.xml, "pre_render_xml", pre=True,
+                response, global_template.xml, "pre_render_xml",
+                content_type, pre=True,
+            )
+
+        def load_text(response):
+            """ Response factory for ``load_text`` """
+            # pylint: disable = W0613
+            def load_text(*names):
+                """
+                Load TDI template
+
+                :Parameters:
+                  `names` : ``tuple``
+                    The template names. If there's more than one name
+                    given, the templates are overlayed.
+
+                :Return: The TDI template
+                :Rtype: ``tdi.template.Template``
+                """
+                return global_template.text(names)
+            return load_text
+        def render_text(response, content_type='text/plain'):
+            """ Response factory for ``render_text`` """
+            return self._render_factory(
+                response, global_template.text, "render_text", content_type
+            )
+        def pre_render_text(response, content_type='text/plain'):
+            """ Response factory for ``pre_render_text`` """
+            return self._render_factory(
+                response, global_template.text, "pre_render_text",
+                content_type, pre=True,
             )
 
         self.env = {
@@ -318,12 +358,15 @@ class ResponseFactory(object):
             'wtf.response.load_xml': load_xml,
             'wtf.response.render_xml': render_xml,
             'wtf.response.pre_render_xml': pre_render_xml,
+            'wtf.response.load_text': load_text,
+            'wtf.response.render_text': render_text,
+            'wtf.response.pre_render_text': pre_render_text,
         }
 
     def _render_factory(self, response, template_loader, func_name,
-                        pre=False):
+                        content_type, pre=False):
         """
-        Response factory for ``render_html/xml``
+        Response factory for ``render_html/xml/text``
 
         :Parameters:
           `response` : ``wtf.response.Response``
@@ -334,6 +377,9 @@ class ResponseFactory(object):
 
           `func_name` : ``str``
             Name of the render function (only for introspection)
+
+          `content_type` : ``str``
+            Content type
 
           `pre` : ``bool``
             Prerender only?
@@ -377,7 +423,7 @@ class ResponseFactory(object):
 
             tpl = template_loader(names)
             encoding = tpl.encoding
-            response.content_type(charset=encoding)
+            response.content_type(content_type, charset=encoding)
             if pre and prerender is not None:
                 return [tpl.render_string(
                     prerender, startnode=startnode,

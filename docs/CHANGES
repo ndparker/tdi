@@ -1,5 +1,10 @@
 Changes with version
 
+ *) integration.wtf_service: added "content_type" parameter to render
+    functions
+
+ *) integration.wtf_service: added text template load/render functions
+
  *) node.render() now accepts "model" and "adapter" parameters, which allows
     subrendering using a different model.
 
