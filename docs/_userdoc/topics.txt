@@ -33,12 +33,13 @@ available online and listed in the :doc:`example index <examples>`.
     looping
     copy_replace
     subrendering
+    overlays
+    scopes
     html_tools
     html_forms
     javascript_tools
     css_tools
-    overlays
-    scopes
+    template_tools
     partial
     prerender
     filtering
@@ -109,6 +110,28 @@ regular rendering process (i.e. from within a :samp:`render_{name}`
 method). :doc:`More... <subrendering>`
 
 
+Code Organization
+~~~~~~~~~~~~~~~~~~
+
+Template Combination With Overlays
+----------------------------------
+
+Usually there's more than one template in a project and there are certainly
+the same or similar elements on the different pages. In order to avoid
+code duplication move the common elements into an extra file and load
+them where they are needed. |TDI| provides the concept of
+:dfn:`overlays` for this purpose. :doc:`More... <overlays>`
+
+
+Code Partitioning With Scopes
+-----------------------------
+
+|TDI| allows you to bind nodes or groups of nodes to :dfn:`scopes`. This
+is the counterpart to overlays on the code side. Scopes add the
+capability to edit the template with different model instances.
+:doc:`More ...  <scopes>`
+
+
 Helpful Tools
 ~~~~~~~~~~~~~
 
@@ -150,26 +173,12 @@ module. The CSS tools mainly provide a minifier for now. :doc:`More...
 <css_tools>`
 
 
-Code Organization
-~~~~~~~~~~~~~~~~~~
+Template Tools
+--------------
 
-Template Combination With Overlays
-----------------------------------
-
-Usually there's more than one template in a project and there are certainly
-the same or similar elements on the different pages. In order to avoid
-code duplication move the common elements into an extra file and load
-them where they are needed. |TDI| provides the concept of
-:dfn:`overlays` for this purpose. :doc:`More... <overlays>`
-
-
-Code Partitioning With Scopes
------------------------------
-
-|TDI| allows you to bind nodes or groups of nodes to :dfn:`scopes`. This
-is the counterpart to overlays on the code side. Scopes add the
-capability to edit the template with different model instances.
-:doc:`More ...  <scopes>`
+The tools described here can be found in the :tdi:`tdi.tools.template`
+module. The module provides tools for automatic based on overlay
+dependencies. :doc:`More... <template_tools>`
 
 
 Advanced Features

@@ -35,8 +35,9 @@ Placing a HTML Node Into a Javascript Block
 
 That's a typical use case. Imagine you have a piece of HTML code, that
 only makes sense if javascript is enabled, or just a fragment that you
-need later in your script. |TDI| cannot render HTML within a javascript
-block (because it's just a piece of text from |TDI|\'s point of view).
+need later in your script. |TDI| cannot natively render HTML within a
+javascript block (because it's just a piece of text from |TDI|\'s point
+of view).
 
 The following example shows how to render the HTML in the regular
 template context and then remove it (using :ref:`the content picking
