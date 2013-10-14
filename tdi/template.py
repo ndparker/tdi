@@ -91,7 +91,7 @@ class Template(object):
         """
         # pylint: disable = E0211, W0612, C0111
         def fget(self):
-            return self.tree.encoder.encoding
+            return self.virgin_tree.encoder.encoding
         return locals()
     encoding = _util.Property(encoding)
 
@@ -103,7 +103,7 @@ class Template(object):
         """
         # pylint: disable = E0211, W0612, C0111
         def fget(self):
-            return self.tree.source_overlay_names
+            return self.virgin_tree.source_overlay_names
         return locals()
     source_overlay_names = _util.Property(source_overlay_names)
 
@@ -115,7 +115,7 @@ class Template(object):
         """
         # pylint: disable = E0211, W0612, C0111
         def fget(self):
-            return self.tree.target_overlay_names
+            return self.virgin_tree.target_overlay_names
         return locals()
     target_overlay_names = _util.Property(target_overlay_names)
 
@@ -216,7 +216,7 @@ class Template(object):
                             tdi=ffactory.builder().analyze.attribute,
                         )
                     )
-                )))).virgin_tree
+                ))), encoding=ftree.encoder.encoding).virgin_tree
             otree[1] = ftree
 
         # Without a model *never* return a prerendered tree
@@ -266,7 +266,9 @@ class Template(object):
             scope=factory.builder().analyze.scope,
             tdi=factory.builder().analyze.attribute,
         ))
-        tree = factory.from_string(''.join(list(ftree.render(adapted)))).tree
+        tree = factory.from_string(''.join(list(ftree.render(adapted))),
+            encoding=ftree.encoder.encoding
+        ).tree
 
         otree[2] = tree, version
         return tree

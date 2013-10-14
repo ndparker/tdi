@@ -1,5 +1,12 @@
 Changes with version
 
+ *) Explicitly pass encoding to prerender and overlay filter processing.
+    This is mostly relevant for templates, which remove the encoding marker
+    (text templates do that by default).
+
+ *) Fixed the problem that overlay inspection didn't work together with
+    overlay filters
+
  *) Explicitly ignore ModelMissingError exceptions in the prerender wrapper,
     when calling the user adapter.
 
