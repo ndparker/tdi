@@ -1,10 +1,12 @@
 Before 1.0
 ~~~~~~~~~~
 
-- add node inspector
+- add node inspector?
 - more integration modules
+  * django?
+  * web2py?
+  * bottle?
 - python 3?
-- subrender w/ model
 - pickle
 
 .. vim:tw=72 syntax=rest
