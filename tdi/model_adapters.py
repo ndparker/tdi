@@ -55,6 +55,9 @@ class RenderAdapter(object):
         :Return: Render adapter
         :Rtype: `ModelAdapterInterface`
         """
+        # pylint: disable = R0912
+        # (too many branches)
+
         self = object.__new__(cls)
 
         requiremethods = bool(requiremethods)
@@ -62,7 +65,7 @@ class RenderAdapter(object):
         getattr_ = getattr
         models = {'': model}
 
-        class unset(object):
+        class unset(object): # pylint: disable = C0103, C0111
             pass
         unset = unset()
 
