@@ -49,15 +49,15 @@ class Template(object):
       `factory` : `Factory`
         Template factory
 
-      `_loader` : ``callable``
+      `loader` : ``callable``
         Loader
 
       `_tree` : ``list``
         The nodetree, the overlay-filtered tree and the prerendered tree
     """
-    __slots__ = [
-        '__weakref__', 'filename', 'mtime', 'factory', '_loader', '_tree'
-    ]
+    __slots__ = (
+        '__weakref__', 'filename', 'mtime', 'factory', 'loader', '_tree'
+    )
 
     def tree():
         """
@@ -143,7 +143,7 @@ class Template(object):
         self.filename = filename
         self.mtime = mtime
         self.factory = factory
-        self._loader = loader
+        self.loader = loader
 
     def __str__(self):
         """
@@ -169,18 +169,18 @@ class Template(object):
         :Return: The reloaded (new) template or self
         :Rtype: `Template`
         """
-        if self._loader is not None:
+        if self.loader is not None:
             if force:
                 mtime = None
             else:
                 mtime = self.mtime
             try:
-                tree, mtime = self._loader(mtime)
+                tree, mtime = self.loader(mtime)
             except (AttributeError, IOError, OSError, Error), e:
                 raise TemplateReloadError(str(e))
             if tree is not None:
                 return self.__class__(
-                    tree, self.filename, mtime, self.factory, self._loader
+                    tree, self.filename, mtime, self.factory, self.loader
                 )
         return self
 
@@ -191,8 +191,8 @@ class Template(object):
         :Return: Update available?
         :Rtype: ``bool``
         """
-        if self._loader is not None:
-            return self._loader(self.mtime, check_only=True)[0]
+        if self.loader is not None:
+            return self.loader(self.mtime, check_only=True)[0]
         return False
 
     def _prepare(self):
@@ -234,7 +234,7 @@ class Template(object):
         """
         otree, factory = self._tree, self.factory
 
-        # First: overlay filters
+        # 1st) Prepare the tree (overlay filters and possibly more)
         ftree = otree[1]
         if ftree is None:
             otree[1] = ftree = self._prepare()
@@ -243,7 +243,7 @@ class Template(object):
         if model is None:
             return ftree
 
-        # Second: check if prerendering is actually needed.
+        # 2nd) check if prerendering is actually needed.
         ptree = otree[2]
         if ptree is None:
             version = None
@@ -266,7 +266,7 @@ class Template(object):
             otree[2] = ptree[0], version
             return ptree[0]
 
-        # Third: actually prerender
+        # 3rd) actually prerender
         filters = getattr(model, 'prerender_filters', None)
         if filters is not None:
             filters = filters().get
@@ -416,7 +416,7 @@ class Template(object):
 
 class OverlayTemplate(Template):
     """ Overlay template representation """
-    __slots__ = ['_left', '_right']
+    __slots__ = ('_left', '_right')
 
     def __init__(self, original, overlay, keep=False):
         """
@@ -606,4 +606,97 @@ class AutoUpdate(object):
             for func in list(self._cb):
                 func(self)
 
+        return self
+
+
+class WrappedTemplate(Template):
+    """
+    Wrapped template base class
+
+    This class can be used to extend the hooks provided by the regular
+    template class. Inherit from it and overwrite the methods you need. This
+    class just defines the basics.
+
+    :IVariables:
+      `_template` : `Template`
+        Original template instance
+
+      `_opts` : any
+        Options passed via constructor
+    """
+    __slots__ = ('_opts', '_original')
+
+    def __new__(cls, template, opts=None):
+        """
+        Construct
+
+        We may return an ``AutoUpdate`` instance here, wrapping the actual
+        instance.
+
+        :Parameters:
+          `template` : `Template`
+            Original template instance
+
+          `opts` : any
+            Options
+        """
+        self = super(WrappedTemplate, cls).__new__(cls)
+        factory = getattr(template, 'autoupdate_factory', None)
+        if factory is not None:
+            self.__init__(template, opts=opts)
+            return factory(self)
+        return self
+
+    def __init__(self, template, opts=None):
+        """
+        Initialization
+
+        :Parameters:
+          `template` : `Template`
+            Original template instance
+
+          `opts` : any
+            Options
+        """
+        self._original = tpl = template.template()
+        self._opts = opts
+        super(WrappedTemplate, self).__init__(
+            tpl.virgin_tree, tpl.filename, tpl.mtime, tpl.factory, tpl.loader
+        )
+
+    def overlay(self, other):
+        """
+        Overlay this template with another one
+
+        :Parameters:
+          `other` : `Template`
+            The template layed over self
+
+        :Return: The combined template
+        :Rtype: `Template`
+        """
+        return self.__class__(self._original.overlay(other), opts=self._opts)
+
+    def update_available(self):
+        """
+        Check for update
+
+        :Return: Update available?
+        :Rtype: ``bool``
+        """
+        return self._original.update_available()
+
+    def reload(self, force=False):
+        """
+        Reload template(s) if possible and needed
+
+        :Parameters:
+          `force` : ``bool``
+            Force reload (if possible)?
+
+        :Return: The reloaded (new) template or self
+        :Rtype: `Template`
+        """
+        if force or self.update_available():
+            self.__init__(self._original.reload(force=force), self._opts)
         return self
