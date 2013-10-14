@@ -1,5 +1,15 @@
 Changes with version
 
+ *) Added new tool collection: tdi.tools.template. It contains functions for
+    automatic template discovery and ordering by inspecting overlay
+    information (check out the "discover" function and the "Layout" class)
+
+ *) WTF service: Added single-file loaders. (.html_file(), .xml_file() and
+    .text_file()). These loaders integrate no filters, but the load filters.
+
+ *) WTF service: Added DirectoryTemplateLister class. An instance of this class
+    can be created by the global service's .lister() method.
+
  *) Added generic "WrappedTemplate" class
 
  *) Template: Added "force" argument to .reload() method

@@ -58,6 +58,7 @@ __author__ = u"Andr\xe9 Malo"
 
 import errno as _errno
 import itertools as _it
+import os as _os
 try:
     import threading as _threading
 except ImportError:
@@ -114,6 +115,83 @@ class RequestParameterAdapter(object):
     def getlist(self, name): # pylint: disable = E0202
         """ :See: ``tdi.tools.htmlform.ParameterAdapterInterface`` """
         return self.param.multi(name)
+
+
+class DirectoryTemplateLister(object):
+    """ Directory Template Lister """
+
+    #: Default list of directory names to ignore
+    #:
+    #: :Type: ``tuple``
+    DEFAULT_IGNORE = ('.svn', 'CVS', '.git', '.bzr', '.hg')
+
+    def __init__(self, directories, extensions, ignore=None):
+        """
+        Initialization
+
+        :Parameters:
+          `directories` : ``iterable``
+            List of base directories to scan
+
+          `extensions` : ``iterable``
+            List of extensions to consider
+
+          `ignore` : ``iterable``
+            List of directory names to ignore. If omitted or ``None``,
+            `DEFAULT_IGNORE` is applied.
+        """
+        self._dirs = tuple(_it.imap(str, directories))
+        self._ext = tuple(_it.imap(str, extensions or ()))
+        self._ci = _os.path.normcase('aA') != 'aA'
+        if ignore is None:
+            ignore = self.DEFAULT_IGNORE
+        if self._ci:
+            self._ignore = frozenset((
+                _os.path.normcase(item) for item in (ignore or ())
+            ))
+        else:
+            self._ignore = frozenset(ignore or ())
+
+    def __call__(self):
+        """
+        Walk the directories and yield all template names
+
+        :Return: Iterator over template names
+        :Rtype: ``iterable``
+        """
+        # pylint: disable = R0912
+
+        seen = set()
+        for base in self._dirs:
+            baselen = len(_os.path.join(base, ''))
+            reldir = lambda x: x[baselen:]
+            def onerror(_):
+                """ Error handler """
+                raise
+            for dirpath, dirs, files in _os.walk(base, onerror=onerror):
+                # fixup directories to recurse
+                if self._ignore:
+                    newdirs = []
+                    for dirname in dirs:
+                        if self._ci:
+                            if _os.path.normcase(dirname) in self._ignore:
+                                continue
+                        elif dirname in self._ignore:
+                            continue
+                        newdirs.append(dirname)
+                    if len(newdirs) != len(dirs):
+                        dirs[:] = newdirs
+
+                # find names
+                dirpath = reldir(dirpath)
+                for name in files:
+                    if not name.endswith(self._ext):
+                        continue
+                    if dirpath:
+                        name = _os.path.join(dirpath, name)
+                    if name in seen:
+                        continue
+                    yield name
 
 
 class _Memoizer(dict):
@@ -220,21 +298,41 @@ class GlobalTemplate(object):
                 _util.load_dotted, filter(None, opt(filters, args) or ())
             ) or None
 
-        self.html, self.single_html = loader('html',
+        self.html, self.html_file = loader('html',
             post_load=load('html', 'template'),
             eventfilters=load('html', 'load'),
             overlay_eventfilters=load('html', 'overlay'),
         )
-        self.xml, self.single_xml = loader('xml',
+        self.xml, self.xml_file = loader('xml',
             post_load=load('xml', 'template'),
             eventfilters=load('xml', 'load'),
             overlay_eventfilters=load('xml', 'overlay'),
         )
-        self.text, self.single_text = loader('text',
+        self.text, self.text_file = loader('text',
             post_load=load('text', 'template'),
             eventfilters=load('text', 'load'),
             overlay_eventfilters=load('text', 'overlay'),
         )
+
+    def lister(self, extensions, ignore=None):
+        """
+        Create template lister from our own config
+
+        :Parameters:
+          `extensions` : ``iterable``
+            List of file extensions to consider (required)
+
+          `ignore` : ``iterable``
+            List of (simple) directory names to ignore. If omitted or
+            ``None``, a default list is applied
+            (`DirectoryTemplateLister.DEFAULT_IGNORE`)
+
+        :Return: a template lister
+        :Rtype: ``callable``
+        """
+        return DirectoryTemplateLister([
+            rsc.resolve('.').filename for rsc in self._dirs
+        ], extensions, ignore=ignore)
 
     def stream(self, name, mode='rb', buffering=-1, blockiter=0):
         """
