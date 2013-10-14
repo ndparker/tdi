@@ -528,9 +528,21 @@ class AutoUpdate(object):
         return getattr(self.reload(force=False)._template, name)
 
     def autoupdate_factory(self, new):
+        """
+        Create new autoupdate wrapper from instance.
+
+        This is needed, when adding template wrappers.
+
+        :Parameters:
+          `new` : any
+            Template object
+
+        :Return: Autoupdated-wrapped template
+        :Rtype: `AutoUpdate`
+        """
         return self.__class__(new, _cb=self._cb)
 
-    def register_autoupdate_callback(self, callback):
+    def autoupdate_register_callback(self, callback):
         """
         Register an autoupdate callback function
 
