@@ -771,19 +771,80 @@ class SVNRelease(Target):
             make.fail("Uncommitted changes!")
 
 
+class GitRelease(Target):
+    """ Release current version """
+    #NAME = "release"
+    DEPS = None
+
+    def run(self):
+        self._check_committed()
+        self._update_versions()
+        self._tag_release()
+        self.runner('dist', seen={})
+
+    def _tag_release(self):
+        """ Tag release """
+        from _setup.util import SafeConfigParser as parser
+        parser = parser()
+        parser.read('package.cfg')
+        strversion = parser.get('package', 'version.number')
+        isdev = parser.getboolean('package', 'version.dev')
+        revision = parser.getint('package', 'version.revision')
+        version = strversion
+        if isdev:
+            version += '-dev-r%d' % (revision,)
+        git = shell.frompath('git')
+        shell.spawn(
+            git, 'tag', '-a', '-m', 'Release version ' + version, '--',
+            version,
+            echo=True,
+        )
+
+    def _update_versions(self):
+        """ Update versions """
+        self.runner('revision', 'version', seen={})
+        git = shell.frompath('git')
+        shell.spawn(git, 'commit', '-a', '-m', 'Pre-release: version update',
+            echo=True
+        )
+
+    def _check_committed(self):
+        """ Check if everything is committed """
+        git = shell.frompath('git')
+        lines = shell.spawn(git, 'branch', '--color=never',
+            stdout=True, env=dict(_os.environ, LC_ALL='C')
+        ).splitlines()
+        for line in lines:
+            if line.startswith('*'):
+                branch = line.split(None, 1)[1]
+                break
+        else:
+            make.fail("Could not determine current branch.")
+        if branch != 'master':
+            rex = _re.compile(r'^\d+(?:\.\d+)*\.[xX]$').match
+            match = rex(branch)
+            if not match:
+                make.fail("Not in master or release branch.")
+
+        lines = shell.spawn(git, 'status', '--porcelain',
+            stdout=True, env=dict(_os.environ, LC_ALL='C'),
+        )
+        if lines:
+            make.fail("Uncommitted changes!")
+
+
 class Release(SVNRelease):
     NAME = "release"
     #DEPS = None
 
 
-class Revision(Target):
+class SVNRevision(Target):
     """ Insert the svn revision into all relevant files """
-    NAME = "revision"
+    #NAME = "revision"
     #DEPS = None
 
     def run(self):
         revision = self._revision()
-
         self._revision_cfg(revision)
 
     def _revision(self):
@@ -820,6 +881,46 @@ class Revision(Target):
         finally:
             fp.close()
         assert replaced, "version.revision not found in package.cfg"
+
+
+class SimpleRevision(Target):
+    """ Update the revision number and insert into all relevant files """
+    #NAME = "revision"
+    #DEPS = None
+
+    def run(self):
+        self._revision_cfg()
+
+    def _revision_cfg(self):
+        """ Modify version in package.cfg """
+        filename = 'package.cfg'
+        fp = open(filename)
+        try:
+            initlines = fp.readlines()
+        finally:
+            fp.close()
+        fp = open(filename, 'w')
+        revision, replaced = None, False
+        try:
+            for line in initlines:
+                if line.startswith('version.revision'):
+                    if revision is None:
+                        revision = int(line.split('=', 1)[1].strip() or 0, 10)
+                        revision += 1
+                    line = 'version.revision = %d\n' % (revision,)
+                    replaced = True
+                fp.write(line)
+        finally:
+            fp.close()
+        assert replaced, "version.revision not found in package.cfg"
+
+GitRevision = SimpleRevision
+
+
+class Revision(GitRevision):
+    """ Insert the revision into all relevant files """
+    NAME = "revision"
+    #DEPS = None
 
 
 class Version(Target):
