@@ -20,7 +20,7 @@
 ===============================
 
 |TDI| allows you to bind nodes or groups of nodes to :dfn:`scopes`. This
-is the counterpart to overlays on the code side. Scopes add the
+is the counterpart to overlays on the python side. Scopes add the
 capability to edit the template with different model instances.
 
 It looks like this:
