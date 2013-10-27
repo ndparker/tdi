@@ -57,7 +57,7 @@ Here's some example code:
     :language: python
     :start-after: BEGIN INCLUDE
 
-The code deals with three different templates objects:
+The code deals with three different template objects:
 
 1) The content template, which contains just a small "placeholder" for
    the menu to mark where it should go.
