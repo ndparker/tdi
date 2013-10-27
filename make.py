@@ -1017,7 +1017,7 @@ class Version(Target):
         assert replaced & 3 != 0, "version/release not found in conf.py"
 
     def _version_download(self, strversion, isdev, revision):
-        """ Modify version inb website download docs """
+        """ Modify version in website download docs """
         filename = _os.path.join(
             self.dirs['userdoc_source'], 'website_download.txt'
         )
