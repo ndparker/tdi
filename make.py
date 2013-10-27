@@ -833,7 +833,7 @@ class GitRelease(Target):
             make.fail("Uncommitted changes!")
 
 
-class Release(SVNRelease):
+class Release(GitRelease):
     NAME = "release"
     #DEPS = None
 
