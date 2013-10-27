@@ -30,7 +30,7 @@ node's name:
 
 However, since the node object defines some names by itself, you cannot
 address *every* name by this method [#]_\. Thatswhy there's a canonical
-(but more ugly), method too, which takes a string as the child node's
+(but more ugly) method, too, which takes a string as the child node's
 name. This method is also reasonable to use if you don't know the node
 name in advance (same template as above, just a different model):
 
@@ -131,7 +131,8 @@ in order to get a quick abstract of the template.
        :attr:`content`, :attr:`copy`, :attr:`ctx`,
        :attr:`hiddenelement`, :attr:`closedelement`, :attr:`iterate`,
        :attr:`raw`, :attr:`remove`, :attr:`render`, :attr:`repeat`,
-       :attr:`replace`. Python keywords cannot be used either.
+       :attr:`replace`. Python keywords cannot be used either, because
+       attribute access of a python keyword raises a SyntaxError.
 
 
 .. vim: ft=rest tw=72
