@@ -125,7 +125,7 @@ class Version(tuple):
         Is it a development version?
 
       `revision` : ``int``
-        SVN Revision
+        Internal revision
     """
 
     def __new__(cls, versionstring, is_dev, revision):
@@ -141,7 +141,7 @@ class Version(tuple):
             Is it a development version?
 
           `revision` : ``int``
-            SVN Revision
+            Internal revision
 
         :Return: New version instance
         :Rtype: `version`
@@ -173,7 +173,7 @@ class Version(tuple):
             Is it a development version?
 
           `revision` : ``int``
-            SVN Revision
+            Internal revision
         """
         # pylint: disable = W0613
         super(Version, self).__init__()

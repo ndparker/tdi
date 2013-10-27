@@ -627,6 +627,9 @@ class Website(Target):
             if '.svn' in dirs:
                 dirs.remove('.svn')
                 shell.rm_rf(_os.path.join(top, '.svn'))
+            if '.git' in dirs:
+                dirs.remove('.git')
+                shell.rm_rf(_os.path.join(top, '.git'))
 
         shell.cp_r(
             self.dirs['apidoc'],
