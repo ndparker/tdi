@@ -56,10 +56,11 @@ function. This is useful for example, if you want to split the logic for
 some reason. Also, these callbacks are executed, even if the node is
 contained in a subtree marked as "done".
 
-Note that you don't need to pass a render callback at all (pass ``None``
-then). :tdi:`|node.replace()| <tdi.nodetree.Node.replace()>` both
-modifies the node in-place and also conveniently returns the node again,
-so you can apply all needed logic within your current function as well.
+Note that you don't *need* to pass a render callback at all (pass ``None``
+then).
+
+:tdi:`|node.replace()| <tdi.nodetree.Node.replace()>` both
+modifies the node in-place and also conveniently returns the node again.
 
 
 Building Trees With :meth:`node.copy()` And :meth:`node.replace()`
@@ -73,10 +74,10 @@ like building trees. Here's a simplified example:
     :language: python
     :start-after: BEGIN INCLUDE
 
-The tree is defined as nested tuples. Every level is rendered into an
-unordered list (``<ul>``). The prototype of such a list (the ``<ul>``
-node named ``tree``) is initially copied and stored. The children of
-each current level are passed as iterable to the
+The tree is defined in this example as nested tuples. Every level is
+rendered into an unordered list (``<ul>``). The prototype of such a list
+(the ``<ul>`` node named ``tree``) is initially copied and stored. The
+children of each current level are passed as iterable to the
 :tdi:`tdi.nodetree.Node./repeat` method along with the ``level``
 callback which does the actual work until no more children are
 available. This work consists of filling the currently rendered item and

@@ -26,7 +26,7 @@ actually emitting it to the output stream. Sub-rendering is implemented
 by the node's :tdi:`tdi.nodetree.Node./render` method.
 
 Note that the node is copied, before it's subrendered. Changes to
-the node or its subnodes are *not* visible to the regular rendering
+the node or its subnodes are *not* visible to the "regular" rendering
 process.
 
 
@@ -36,8 +36,8 @@ Placing a HTML Node Into a Javascript Block
 That's a typical use case. Imagine you have a piece of HTML code, that
 only makes sense if javascript is enabled, or just a fragment that you
 need later in your script. |TDI| cannot natively render HTML within a
-javascript block (because it's just a piece of text from |TDI|\'s point
-of view).
+javascript block (because an inline script is just a piece of text from
+|TDI|\'s point of view).
 
 The following example shows how to render the HTML in the regular
 template context and then remove it (using :ref:`the content picking
@@ -57,9 +57,9 @@ The example produces the following output:
 The code uses the :func:`javascript.fill` function, which is part of the
 :doc:`javascript tools <javascript_tools>`.
 
-Also note, how contents of the node is rendered using the model.
-The options of the :meth:`render()` method are :tdi:`described in the API
-documentation <tdi.nodetree.Node.render>`.
+Also note, how the contents of the node is rendered using the current
+model.  The options of the :meth:`render()` method are :tdi:`described
+in the API documentation <tdi.nodetree.Node.render>`.
 
 
 Using A Different Model

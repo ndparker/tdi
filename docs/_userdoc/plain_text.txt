@@ -122,8 +122,8 @@ Standalone Tags
 Also in the initial example, we used a standalone tag already
 (``[[name]]``). Standalone tags do not have an endtag (in HTML that
 would be, for example, ``<br />``). Any content you set on such a node
-is placed after the tag. The tag itself is removed by default, so
-effectively the tag is replaced by the content assigned later:
+is formally placed after the tag. The tag itself is removed by default,
+so effectively the tag is replaced by the content assigned later:
 
 .. literalinclude:: ../examples/plain_text4.py
     :language: python
