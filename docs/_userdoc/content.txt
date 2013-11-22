@@ -136,7 +136,8 @@ Bypassing Automatic Escaping
              trust.
 
 There are certain use cases for pasting ready-to-use HTML into the
-output. Examples are (elsewhere) generated code, banner code etc.
+output. Examples are (elsewhere) generated code, banner code, inline
+scripts or styles etc.
 You need to circumvent |TDI|'s automatic escaping mechanism in order to
 insert content literally.
 
@@ -150,11 +151,12 @@ node object and behaves as such (in a limited way), but assignments are just
 passed through.  So you can assign ``content`` or attributes in raw form.
 That means:
 
-- they should be encoded properly (according to the template)
+- If they are already encoded, they should be encoded properly (according to
+  the template). If you want to let |TDI| take care of it, pass unicode.
 - (raw attribute assignments need to include the attribute quotes)
-- well, you should make sure that the content doesn't open the output
+- You should make sure that the content doesn't open the output
   for `XSS attacks <http://en.wikipedia.org/wiki/Cross-site_scripting>`_
-- avoid raw content assignment whenever you can
+- Avoid raw content assignment whenever you can
 
 ``render_banner1`` assigns the same content to the regular node, and
 it's properly escaped (just to show the difference):
