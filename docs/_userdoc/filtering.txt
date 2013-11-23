@@ -91,10 +91,9 @@ factory is a callable returning the filter object
 (:tdi:`tdi.interfaces./FilterFactoryInterface`). Often the filter class
 itself can be passed as factory.
 
-There's only one default filter right now:
-:tdi:`tdi./filters.EncodingDetectFilter`, which generates
-`handle_encoding` events whenever it sees a suitable declaration in the
-event stream.
+There's only one default filter right now - the encoding detection
+filter - which generates ``handle_encoding`` events, whenever it sees a
+suitable declaration in the event stream.
 
 |TDI| always adds a filter, which provides the filename of the template
 (which may or may be not something useful). But this filter cannot be
