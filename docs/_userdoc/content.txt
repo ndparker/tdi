@@ -129,8 +129,8 @@ The example shows the possibilities (1), (2) and (3):
 
 .. _bypassing:
 
-Bypassing Automatic Escaping
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Bypassing Automatic Escaping - Dealing With Raw Content
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. Warning:: Be careful. Only bypass automatic escaping with content you
              trust.
@@ -151,7 +151,7 @@ node object and behaves as such (in a limited way), but assignments are just
 passed through.  So you can assign ``content`` or attributes in raw form.
 That means:
 
-- If they are already encoded, they should be encoded properly (according to
+- If it's already encoded, it should be encoded properly (according to
   the template). If you want to let |TDI| take care of it, pass unicode.
 - (raw attribute assignments need to include the attribute quotes)
 - You should make sure that the content doesn't open the output
