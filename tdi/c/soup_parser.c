@@ -109,7 +109,7 @@ static int
 parser_callback(tdi_parser_event *event, void *self)
 {
     PyObject *listener = ((soup_parser *)self)->listener;
-    PyObject *result;
+    PyObject *result = NULL;
 
     Py_INCREF(listener);
 
