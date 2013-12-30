@@ -771,7 +771,7 @@ tdi_template_node_template_new(PyObject *tagname, PyObject *attr,
     PyObject *name;
     tdi_node_t *self;
     tdi_overlay_t *overlay;
-    tdi_scope_t *scope;
+    tdi_scope_t *scope = NULL;
     int res, noelement, separator, noauto;
 
     Py_INCREF(special);
