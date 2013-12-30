@@ -520,6 +520,7 @@ TDI_RenderAdapterType_traverse(tdi_adapter_t *self, visitproc visit, void *arg)
 {
     Py_VISIT(self->models);
     Py_VISIT(self->modelmethod);
+    Py_VISIT(self->newmethod);
 
     return 0;
 }
@@ -531,6 +532,7 @@ TDI_RenderAdapterType_clear(tdi_adapter_t *self)
         PyObject_ClearWeakRefs((PyObject *)self);
     Py_CLEAR(self->models);
     Py_CLEAR(self->modelmethod);
+    Py_CLEAR(self->newmethod);
 
     return 0;
 }
@@ -634,25 +636,23 @@ tdi_adapter_new_alien(PyObject *model)
         return NULL;
 
     Py_INCREF(model);
-    if (!(self->modelmethod = PyObject_GetAttrString(model, "modelmethod"))) {
-        Py_DECREF(model);
-        Py_DECREF(self);
-        return NULL;
-    }
-    if (!(self->newmethod = PyObject_GetAttrString(model, "new"))) {
-        Py_DECREF(model);
-        Py_DECREF(self);
-        return NULL;
-    }
+    if (!(self->modelmethod = PyObject_GetAttrString(model, "modelmethod")))
+        goto error;
+    if (!(self->newmethod = PyObject_GetAttrString(model, "new")))
+        goto error;
     if (!(tmp = PyObject_GetAttrString(model, "emit_escaped"))
-        || (res = PyObject_IsTrue(tmp)) == -1) {
-        Py_XDECREF(tmp);
-        Py_DECREF(model);
-        Py_DECREF(self);
-        return NULL;
-    }
+        || (res = PyObject_IsTrue(tmp)) == -1)
+        goto error_tmp;
+    Py_DECREF(model);
     Py_DECREF(tmp);
     self->emit_escaped = res;
 
     return (PyObject *)self;
+
+error_tmp:
+    Py_XDECREF(tmp);
+error:
+    Py_DECREF(model);
+    Py_DECREF(self);
+    return NULL;
 }
