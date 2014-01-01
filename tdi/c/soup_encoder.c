@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 - 2013
+ * Copyright 2006 - 2014
  * Andr\xe9 Malo or his licensors, as applicable
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@
 #include "tdi_exceptions.h"
 #include "tdi_globals.h"
 
+#include "obj_avoid_gc.h"
 #include "obj_encoder.h"
 #include "obj_soup_encoder.h"
 #include "obj_node.h"
@@ -714,12 +715,29 @@ TDI_SoupEncoderType_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
-static void
-TDI_SoupEncoderType_dealloc(tdi_soup_encoder_t *self)
+#ifndef TDI_AVOID_GC
+static int
+TDI_SoupEncoderType_traverse(tdi_soup_encoder_t *self, visitproc visit,
+                             void *arg)
 {
-    Py_CLEAR(self->encoding);
-    self->ob_type->tp_free((PyObject *)self);
+    Py_VISIT(self->encoding);
+
+    return 0;
 }
+#endif
+
+static int
+TDI_SoupEncoderType_clear(tdi_soup_encoder_t *self)
+{
+    if (self->weakreflist)
+        PyObject_ClearWeakRefs((PyObject *)self);
+
+    Py_CLEAR(self->encoding);
+
+    return 0;
+}
+
+DEFINE_GENERIC_DEALLOC(TDI_SoupEncoderType)
 
 PyDoc_STRVAR(TDI_SoupEncoderType__doc__,
 "``SoupEncoder(encoding)``\n\
@@ -749,10 +767,11 @@ PyTypeObject TDI_SoupEncoderType = {
     0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_HAVE_WEAKREFS                            /* tp_flags */
     | Py_TPFLAGS_HAVE_CLASS
-    | Py_TPFLAGS_BASETYPE,
+    | Py_TPFLAGS_BASETYPE
+    | TDI_IF_GC(Py_TPFLAGS_HAVE_GC),
     TDI_SoupEncoderType__doc__,                         /* tp_doc */
-    0,                                                  /* tp_traverse */
-    0,                                                  /* tp_clear */
+    (traverseproc)TDI_IF_GC(TDI_SoupEncoderType_traverse), /* tp_traverse */
+    (inquiry)TDI_SoupEncoderType_clear,                 /* tp_clear */
     0,                                                  /* tp_richcompare */
     offsetof(tdi_soup_encoder_t, weakreflist),          /* tp_weaklistoffset */
     0,                                                  /* tp_iter */

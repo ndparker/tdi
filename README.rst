@@ -30,7 +30,7 @@ where they can be modified in any way you want.
 COPYRIGHT AND LICENSE
 ---------------------
 
-Copyright 2006 - 2013
+Copyright 2006 - 2014
 André Malo or his licensors, as applicable.
 
 The whole package is distributed under the Apache License Version 2.0.

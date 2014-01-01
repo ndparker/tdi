@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 - 2013
+ * Copyright 2006 - 2014
  * Andr\xe9 Malo or his licensors, as applicable
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@
 #include "tdi_overlay.h"
 #include "tdi_finalize.h"
 
+#include "obj_avoid_gc.h"
 #include "obj_node.h"
 #include "obj_render_adapter.h"
 #include "obj_render_iter.h"
@@ -596,17 +597,9 @@ PyTypeObject TDI_RootNodeType = {
     0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_HAVE_WEAKREFS                            /* tp_flags */
     | Py_TPFLAGS_HAVE_CLASS
-#ifndef TDI_AVOID_GC
-    | Py_TPFLAGS_HAVE_GC
-#endif
-    ,
+    | TDI_IF_GC(Py_TPFLAGS_HAVE_GC),
     TDI_RootNodeType__doc__,                            /* tp_doc */
-#ifndef TDI_AVOID_GC
-    (traverseproc)TDI_RootNodeType_traverse             /* tp_traverse */
-#else
-    0
-#endif
-    ,
+    (traverseproc)TDI_IF_GC(TDI_RootNodeType_traverse), /* tp_traverse */
     (inquiry)TDI_RootNodeType_clear,                    /* tp_clear */
     0,                                                  /* tp_richcompare */
     offsetof(tdi_node_t, weakreflist),                  /* tp_weaklistoffset */

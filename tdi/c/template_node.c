@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 - 2013
+ * Copyright 2006 - 2014
  * Andr\xe9 Malo or his licensors, as applicable
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +23,7 @@
 #include "tdi_scope.h"
 #include "tdi_util.h"
 
+#include "obj_avoid_gc.h"
 #include "obj_node.h"
 #include "obj_template_node.h"
 #include "obj_attr.h"
@@ -334,17 +335,9 @@ PyTypeObject TDI_TemplateNodeType = {
     Py_TPFLAGS_HAVE_WEAKREFS                            /* tp_flags */
     | Py_TPFLAGS_HAVE_CLASS
     | Py_TPFLAGS_BASETYPE
-#ifndef TDI_AVOID_GC
-    | Py_TPFLAGS_HAVE_GC
-#endif
-    ,
+    | TDI_IF_GC(Py_TPFLAGS_HAVE_GC),
     TDI_TemplateNodeType__doc__,                        /* tp_doc */
-#ifndef TDI_AVOID_GC
-    (traverseproc)TDI_TemplateNodeType_traverse         /* tp_traverse */
-#else
-    0
-#endif
-    ,
+    (traverseproc)TDI_IF_GC(TDI_TemplateNodeType_traverse), /* tp_traverse */
     (inquiry)TDI_TemplateNodeType_clear,                /* tp_clear */
     0,                                                  /* tp_richcompare */
     offsetof(tdi_node_t, weakreflist),                  /* tp_weaklistoffset */

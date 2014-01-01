@@ -1,5 +1,5 @@
 /*
- * Copyright 2013
+ * Copyright 2013 - 2014
  * Andr\xe9 Malo or his licensors, as applicable
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,7 @@
 
 #include "cext.h"
 
+#include "obj_avoid_gc.h"
 #include "obj_decoder.h"
 #include "obj_html_decoder.h"
 #include "obj_text_decoder.h"
@@ -71,17 +72,9 @@ PyTypeObject TDI_DecoderWrapperType = {
     0,                                                  /* tp_setattro */
     0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_HAVE_CLASS                               /* tp_flags */
-#ifndef TDI_AVOID_GC
-    | Py_TPFLAGS_HAVE_GC
-#endif
-    ,
+    | TDI_IF_GC(Py_TPFLAGS_HAVE_GC),
     0,                                                  /* tp_doc */
-#ifndef TDI_AVOID_GC
-    (traverseproc)TDI_DecoderWrapperType_traverse       /* tp_traverse */
-#else
-    0
-#endif
-    ,
+    (traverseproc)TDI_IF_GC(TDI_DecoderWrapperType_traverse), /* tp_traverse */
     (inquiry)TDI_DecoderWrapperType_clear               /* tp_clear */
 };
 

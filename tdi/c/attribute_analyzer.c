@@ -955,8 +955,7 @@ PyTypeObject TDI_AttributeAnalyzerType = {
     Py_TPFLAGS_HAVE_WEAKREFS                            /* tp_flags */
     | Py_TPFLAGS_HAVE_CLASS
     | Py_TPFLAGS_BASETYPE
-    | Py_TPFLAGS_HAVE_GC
-    ,
+    | Py_TPFLAGS_HAVE_GC,
     TDI_AttributeAnalyzerType__doc__,                   /* tp_doc */
     (traverseproc)TDI_AttributeAnalyzerType_traverse,   /* tp_traverse */
     (inquiry)TDI_AttributeAnalyzerType_clear,           /* tp_clear */

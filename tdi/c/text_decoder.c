@@ -1,5 +1,5 @@
 /*
- * Copyright 2013
+ * Copyright 2013 - 2014
  * Andr\xe9 Malo or his licensors, as applicable
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,9 @@
 #include "tdi.h"
 #include "tdi_util.h"
 
+#include "obj_avoid_gc.h"
 #include "obj_text_decoder.h"
+
 
 PyObject *
 tdi_text_decoder_normalize(PyObject *name)
@@ -138,7 +140,6 @@ TDI_TextDecoderType_decode(tdi_text_decoder_t *self, PyObject *args,
                                      &value, &errors))
         return NULL;
 
-    
     return decode(value, self->encoding, errors);
 }
 
@@ -230,12 +231,29 @@ TDI_TextDecoderType_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
-static void
-TDI_TextDecoderType_dealloc(tdi_text_decoder_t *self)
+#ifndef TDI_AVOID_GC
+static int
+TDI_TextDecoderType_traverse(tdi_text_decoder_t *self, visitproc visit,
+                             void *arg)
 {
-    Py_CLEAR(self->encoding);
-    self->ob_type->tp_free((PyObject *)self);
+    Py_VISIT(self->encoding);
+
+    return 0;
 }
+#endif
+
+static int
+TDI_TextDecoderType_clear(tdi_text_decoder_t *self)
+{
+    if (self->weakreflist)
+        PyObject_ClearWeakRefs((PyObject *)self);
+
+    Py_CLEAR(self->encoding);
+
+    return 0;
+}
+
+DEFINE_GENERIC_DEALLOC(TDI_TextDecoderType)
 
 PyDoc_STRVAR(TDI_TextDecoderType__doc__,
 "``TextDecoder(encoding)``\n\
@@ -265,10 +283,11 @@ PyTypeObject TDI_TextDecoderType = {
     0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_HAVE_WEAKREFS                            /* tp_flags */
     | Py_TPFLAGS_HAVE_CLASS
-    | Py_TPFLAGS_BASETYPE,
+    | Py_TPFLAGS_BASETYPE
+    | TDI_IF_GC(Py_TPFLAGS_HAVE_GC),
     TDI_TextDecoderType__doc__,                         /* tp_doc */
-    0,                                                  /* tp_traverse */
-    0,                                                  /* tp_clear */
+    (traverseproc)TDI_IF_GC(TDI_TextDecoderType_traverse), /* tp_traverse */
+    (inquiry)TDI_TextDecoderType_clear,                 /* tp_clear */
     0,                                                  /* tp_richcompare */
     offsetof(tdi_text_decoder_t, weakreflist),          /* tp_weaklistoffset */
     0,                                                  /* tp_iter */

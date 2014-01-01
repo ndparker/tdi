@@ -1,5 +1,5 @@
 /*
- * Copyright 2013
+ * Copyright 2013 - 2014
  * Andr\xe9 Malo or his licensors, as applicable
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,7 @@
 #include "tdi_util.h"
 
 #include "htmldecode.h"
+#include "obj_avoid_gc.h"
 #include "obj_html_decoder.h"
 
 
@@ -167,12 +168,29 @@ TDI_HTMLDecoderType_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
-static void
-TDI_HTMLDecoderType_dealloc(tdi_html_decoder_t *self)
+#ifndef TDI_AVOID_GC
+static int
+TDI_HTMLDecoderType_traverse(tdi_html_decoder_t *self, visitproc visit,
+                             void *arg)
 {
-    Py_CLEAR(self->encoding);
-    self->ob_type->tp_free((PyObject *)self);
+    Py_VISIT(self->encoding);
+
+    return 0;
 }
+#endif
+
+static int
+TDI_HTMLDecoderType_clear(tdi_html_decoder_t *self)
+{
+    if (self->weakreflist)
+        PyObject_ClearWeakRefs((PyObject *)self);
+
+    Py_CLEAR(self->encoding);
+
+    return 0;
+}
+
+DEFINE_GENERIC_DEALLOC(TDI_HTMLDecoderType)
 
 PyDoc_STRVAR(TDI_HTMLDecoderType__doc__,
 "``HTMLDecoder(encoding)``\n\
@@ -202,10 +220,11 @@ PyTypeObject TDI_HTMLDecoderType = {
     0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_HAVE_WEAKREFS                            /* tp_flags */
     | Py_TPFLAGS_HAVE_CLASS
-    | Py_TPFLAGS_BASETYPE,
+    | Py_TPFLAGS_BASETYPE
+    | TDI_IF_GC(Py_TPFLAGS_HAVE_GC),
     TDI_HTMLDecoderType__doc__,                         /* tp_doc */
-    0,                                                  /* tp_traverse */
-    0,                                                  /* tp_clear */
+    (traverseproc)TDI_IF_GC(TDI_HTMLDecoderType_traverse), /* tp_traverse */
+    (inquiry)TDI_HTMLDecoderType_clear,                 /* tp_clear */
     0,                                                  /* tp_richcompare */
     offsetof(tdi_html_decoder_t, weakreflist),          /* tp_weaklistoffset */
     0,                                                  /* tp_iter */

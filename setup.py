@@ -23,6 +23,29 @@ from _setup import run
 def setup(args=None, _manifest=0):
     """ Main setup function """
     from _setup.ext import Extension
+    from _setup import commands as _commands
+
+    class TDIExtension(Extension):
+        def __init__(self, *args, **kwargs):
+            Extension.__init__(self, *args, **kwargs)
+
+            macro = ('TDI_AVOID_GC', None)
+            self.define_macros.append(macro)
+            def finalizer(d, s=self, m=macro):
+                if d.with_full_gc:
+                    if m in s.define_macros:
+                        s.define_macros.remove(m)
+
+            _commands.add_option('install_lib', 'with-full-gc',
+                help_text='Enable full garbage collection',
+                inherit='install',
+            )
+            _commands.add_finalizer('install_lib', 'full-gc', finalizer)
+            _commands.add_option('build_ext', 'with-full-gc',
+                help_text='Enable full garbage collection',
+                inherit=('build', 'install_lib'),
+            )
+            _commands.add_finalizer('build_ext', 'full-gc', finalizer)
 
     if _sys.version_info[0] == 3:
         # turn off c extension for python3 for now.
@@ -35,7 +58,7 @@ def setup(args=None, _manifest=0):
         # promising)
         ext = None
     else:
-        ext = [Extension('tdi.c._tdi_impl', [
+        ext = [TDIExtension('tdi.c._tdi_impl', [
             'tdi/c/main.c',
 
             'tdi/c/lib/content.c',
@@ -106,6 +129,7 @@ def setup(args=None, _manifest=0):
             'tdi/c/include/htmldecode.h',
             'tdi/c/include/obj_attr.h',
             'tdi/c/include/obj_attribute_analyzer.h',
+            'tdi/c/include/obj_avoid_gc.h',
             'tdi/c/include/obj_base_event_filter.h',
             'tdi/c/include/obj_decoder.h',
             'tdi/c/include/obj_encoder.h',
@@ -129,8 +153,6 @@ def setup(args=None, _manifest=0):
         ], include_dirs=[
             'tdi/c/include',
             'tdi/c/lib/include',
-        ], define_macros=[
-            ('TDI_AVOID_GC', '1'), # experimental, comment to unset
         ])]
 
     if ext is not None:
