@@ -239,9 +239,7 @@ class PreRenderWrapper(object):
             if prefix == 'separate':
                 return None
 
-            return _PrerenderMethod(
-                prefix, name, scope, noauto, tdi_attr, scope_attr,
-            )
+            return _PrerenderMethod(name, scope, noauto, tdi_attr, scope_attr)
 
         self.modelmethod = modelmethod
         self.new = new
@@ -252,9 +250,8 @@ class PreRenderWrapper(object):
 class _PrerenderMethod(object):
     """ Prerender method """
 
-    def __init__(self, prefix, name, scope, noauto, tdi_attr, scope_attr):
+    def __init__(self, name, scope, noauto, tdi_attr, scope_attr):
         """ Initialization """
-        self._prefix = prefix
         self._name = name
         self._scope = scope
         self._noauto = noauto
