@@ -250,6 +250,8 @@ class PreRenderWrapper(object):
 
 
 class _PrerenderMethod(object):
+    """ Prerender method """
+
     def __init__(self, prefix, name, scope, noauto, tdi_attr, scope_attr):
         """ Initialization """
         self._prefix = prefix
