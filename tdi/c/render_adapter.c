@@ -544,7 +544,17 @@ PyDoc_STRVAR(TDI_RenderAdapterType__doc__,
 \n\
 Regular Render-Adapter implementation\n\
 \n\
-:See: `ModelAdapterInterface`");
+:See: `ModelAdapterInterface`\n\
+\n\
+:Parameters:\n\
+  `model` : any\n\
+    User model\n\
+\n\
+  `requiremethods` : ``bool``\n\
+    Require methods to exist?\n\
+\n\
+  `requirescopes` : ``bool``\n\
+    Require scopes to exist?");
 
 PyTypeObject TDI_RenderAdapterType = {
     PyObject_HEAD_INIT(NULL)
