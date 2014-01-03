@@ -199,7 +199,6 @@ class PreRenderWrapper(object):
             """ Create adapter for a new model """
             return cls(adapter.new(model), attr=attr)
 
-        omethod = adapter.modelmethod
         def modelmethod(prefix, name, scope, noauto):
             """
             Build the method name from prefix and node name and resolve
@@ -221,11 +220,11 @@ class PreRenderWrapper(object):
               `noauto` : ``bool``
                 No automatic method calling?
 
-            :Return: The method
+            :Return: The method or ``None``
             :Rtype: ``callable``
             """
             try:
-                method = omethod(prefix, name, scope, noauto)
+                method = adapter.modelmethod(prefix, name, scope, noauto)
             except ModelMissingError:
                 pass
             else:

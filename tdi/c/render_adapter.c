@@ -180,13 +180,13 @@ error_methodname:
  * Find a model method
  */
 PyObject *
-tdi_render_adapter_method(tdi_adapter_t *adapter, PyObject *prefix,
+tdi_render_adapter_method(tdi_adapter_t *self, PyObject *prefix,
                           PyObject *name, PyObject *scope, int noauto)
 {
     PyObject *name_passed, *res;
 
-    if (!adapter->modelmethod)
-        return modelmethod_default(adapter, prefix, name, scope, noauto);
+    if (!self->modelmethod)
+        return modelmethod_default(self, prefix, name, scope, noauto);
 
     if (!name) {
         Py_INCREF(Py_None);
@@ -195,7 +195,7 @@ tdi_render_adapter_method(tdi_adapter_t *adapter, PyObject *prefix,
     else
         name_passed = name;
 
-    res = PyObject_CallFunction(adapter->modelmethod, "OOOi",
+    res = PyObject_CallFunction(self->modelmethod, "OOOi",
                                 prefix, name_passed, scope, noauto);
     if (!name) {
         Py_DECREF(Py_None);
@@ -210,11 +210,16 @@ tdi_render_adapter_method(tdi_adapter_t *adapter, PyObject *prefix,
 PyObject *
 tdi_render_adapter_factory(tdi_adapter_t *self, PyObject *model)
 {
+    PyObject *result;
+
     if (!self->newmethod)
         return tdi_adapter_new(self->ob_type, model, self->requiremethods,
                                self->requirescopes, self->emit_escaped);
 
-    return PyObject_CallFunction(self->newmethod, "O", model);
+    Py_INCREF(model);
+    result = PyObject_CallFunction(self->newmethod, "O", model);
+    Py_DECREF(model);
+    return result;
 }
 
 

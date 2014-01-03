@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: ascii -*-
 #
-# Copyright 2006 - 2013
+# Copyright 2006 - 2014
 # Andr\xe9 Malo or his licensors, as applicable
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -87,6 +87,7 @@ def setup(args=None, _manifest=0):
             'tdi/c/html_decoder.c',
             'tdi/c/iterate_iterator.c',
             'tdi/c/node.c',
+            'tdi/c/prerender_wrapper.c',
             'tdi/c/raw_node.c',
             'tdi/c/render_adapter.c',
             'tdi/c/render_iterator.c',
@@ -136,6 +137,7 @@ def setup(args=None, _manifest=0):
             'tdi/c/include/obj_html_decoder.h',
             'tdi/c/include/obj_iterate_iter.h',
             'tdi/c/include/obj_node.h',
+            'tdi/c/include/obj_prerender_wrapper.h',
             'tdi/c/include/obj_raw_node.h',
             'tdi/c/include/obj_render_adapter.h',
             'tdi/c/include/obj_render_iter.h',
