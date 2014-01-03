@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 - 2013
+ * Copyright 2010 - 2014
  * Andr\xe9 Malo or his licensors, as applicable
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,13 +20,14 @@
 
 typedef struct tdi_adapter_t tdi_adapter_t;
 typedef struct tdi_attr_t tdi_attr_t;
-typedef struct tdi_encoder_t tdi_encoder_t;
+typedef struct tdi_content_t tdi_content_t;
 typedef struct tdi_decoder_t tdi_decoder_t;
+typedef struct tdi_encoder_t tdi_encoder_t;
 typedef struct tdi_node_t tdi_node_t;
-typedef struct tdi_scope_t tdi_scope_t;
 typedef struct tdi_overlay_t tdi_overlay_t;
+typedef struct tdi_prerender_wrapper_t tdi_prerender_wrapper_t;
 typedef struct tdi_render_t tdi_render_t;
 typedef struct tdi_repr_t tdi_repr_t;
-typedef struct tdi_content_t tdi_content_t;
+typedef struct tdi_scope_t tdi_scope_t;
 
 #endif

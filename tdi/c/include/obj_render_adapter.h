@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 - 2013
+ * Copyright 2010 - 2014
  * Andr\xe9 Malo or his licensors, as applicable
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,21 +22,6 @@
 #include "tdi.h"
 
 
-/*
- * Object structure for TDI_RenderAdapterType
- */
-struct tdi_adapter_t {
-    PyObject_HEAD
-    PyObject *weakreflist;  /* Weak reference list */
-
-    PyObject *modelmethod;  /* PyCFunction to ask for the model method */
-    PyObject *newmethod;    /* PyCFunction for adapter factory */
-    PyObject *models;       /* user models */
-    int requiremethods;     /* Require methods? */
-    int requirescopes;      /* Require scopes? */
-    int emit_escaped;       /* Emit escaped text? */
-};
-
 extern PyTypeObject TDI_RenderAdapterType;
 
 #define TDI_RenderAdapterType_Check(op) \
@@ -55,6 +40,13 @@ tdi_render_adapter_method(tdi_adapter_t *, PyObject *, PyObject *, PyObject *,
 
 
 /*
+ * Create new adapter from adapter with a new model
+ */
+PyObject *
+tdi_render_adapter_factory(tdi_adapter_t *self, PyObject *model);
+
+
+/*
  * Create new model adapter
  */
 PyObject *
@@ -69,9 +61,10 @@ tdi_adapter_new_alien(PyObject *);
 
 
 /*
- * Create new adapter from adapter with a new model
+ * Return emit_escaped flag
  */
-PyObject *
-tdi_render_adapter_factory(tdi_adapter_t *self, PyObject *model);
+int
+tdi_adapter_emit_escaped(tdi_adapter_t *);
+
 
 #endif

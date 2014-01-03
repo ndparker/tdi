@@ -22,8 +22,6 @@
 #include "tdi.h"
 
 
-typedef struct tdi_prerender_wrapper_t tdi_prerender_wrapper_t;
-
 extern PyTypeObject TDI_PreRenderWrapperType;
 
 #define TDI_PreRenderWrapperType_Check(op) \

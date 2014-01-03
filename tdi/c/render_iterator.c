@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 - 2012
+ * Copyright 2006 - 2014
  * Andr\xe9 Malo or his licensors, as applicable
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -157,7 +157,7 @@ tdi_render_iterator_new(tdi_node_t *startnode, tdi_adapter_t *model)
 
     if (startnode->flags & NODE_ROOT && startnode->content) {
         self->stage = TDI_RE_STAGE_ONLY_CONTENT;
-        iter = model->emit_escaped ?
+        iter = tdi_adapter_emit_escaped(model) ?
             (startnode->content->with_escapes) : (startnode->content->clean);
         Py_INCREF(iter);
         self->model = iter;
@@ -166,7 +166,7 @@ tdi_render_iterator_new(tdi_node_t *startnode, tdi_adapter_t *model)
         self->stage = TDI_RE_STAGE_BEGIN;
         Py_INCREF((PyObject *)model);
         self->model = (PyObject *)model;
-        self->emit_escaped = model->emit_escaped;
+        self->emit_escaped = tdi_adapter_emit_escaped(model);
         if (!(iter = find_rootnodes(startnode, model)))
             goto error;
         if (tdi_render_stack_push(&self->stack, iter, NULL, 0) == -1)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 - 2013
+ * Copyright 2006 - 2014
  * Andr\xe9 Malo or his licensors, as applicable
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,22 @@
 #include "tdi_globals.h"
 
 #include "obj_render_adapter.h"
+
+
+/*
+ * Object structure for TDI_RenderAdapterType
+ */
+struct tdi_adapter_t {
+    PyObject_HEAD
+    PyObject *weakreflist;  /* Weak reference list */
+
+    PyObject *modelmethod;  /* PyCFunction to ask for the model method */
+    PyObject *newmethod;    /* PyCFunction for adapter factory */
+    PyObject *models;       /* user models */
+    int requiremethods;     /* Require methods? */
+    int requirescopes;      /* Require scopes? */
+    int emit_escaped;       /* Emit escaped text? */
+};
 
 
 /*
@@ -670,4 +686,14 @@ error:
     Py_DECREF(model);
     Py_DECREF(self);
     return NULL;
+}
+
+
+/*
+ * Return emit_escaped flag
+ */
+int
+tdi_adapter_emit_escaped(tdi_adapter_t *self)
+{
+    return self->emit_escaped;
 }
