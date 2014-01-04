@@ -22,6 +22,12 @@
 #include "obj_render_adapter.h"
 
 
+typedef enum {
+    ADAPTED_RENDER = 1,
+    ADAPTED_PRERENDER,
+    ADAPTED_FOREIGN
+} adapted_e;
+
 /*
  * Object structure for TDI_RenderAdapterType
  */
@@ -31,10 +37,20 @@ struct tdi_adapter_t {
 
     PyObject *modelmethod;  /* PyCFunction to ask for the model method */
     PyObject *newmethod;    /* PyCFunction for adapter factory */
-    PyObject *models;       /* user models */
-    int requiremethods;     /* Require methods? */
-    int requirescopes;      /* Require scopes? */
     int emit_escaped;       /* Emit escaped text? */
+    adapted_e adapted;      /* What was adapted? */
+
+    union {
+        struct {
+            PyObject *models;       /* user models */
+            int requiremethods;     /* Require methods? */
+            int requirescopes;      /* Require scopes? */
+        } render;
+        struct {
+            PyObject *attr;         /* Attribute name mapping */
+            PyObject *adapter;      /* Original adapter */
+        } prerender;
+    } u;
 };
 
 
@@ -49,13 +65,13 @@ render_find_model(tdi_adapter_t *adapter, PyObject *scope)
     char *cp;
     Py_ssize_t size;
 
-    model = PyDict_GetItem(adapter->models, scope);
+    model = PyDict_GetItem(adapter->u.render.models, scope);
     if (model) {
         Py_INCREF(model);
         return model;
     }
 
-    if (!(model = PyDict_GetItem(adapter->models, tdi_g_empty))) {
+    if (!(model = PyDict_GetItem(adapter->u.render.models, tdi_g_empty))) {
         PyErr_SetObject(PyExc_KeyError, tdi_g_empty);
         return NULL;
     }
@@ -74,7 +90,7 @@ render_find_model(tdi_adapter_t *adapter, PyObject *scope)
             Py_DECREF(model);
             return NULL;
         }
-        if ((tmp = PyDict_GetItem(adapter->models, scope_part))) {
+        if ((tmp = PyDict_GetItem(adapter->u.render.models, scope_part))) {
             Py_DECREF(model);
             Py_INCREF(tmp);
             model = tmp;
@@ -97,7 +113,7 @@ render_find_model(tdi_adapter_t *adapter, PyObject *scope)
                 if (!PyErr_ExceptionMatches(PyExc_AttributeError))
                     goto error_scope_part;
                 PyErr_Clear();
-                if (adapter->requirescopes) {
+                if (adapter->u.render.requirescopes) {
                     PyErr_SetObject(TDI_E_ModelMissingError, scope_part);
                     goto error_scope_part;
                 }
@@ -106,7 +122,8 @@ render_find_model(tdi_adapter_t *adapter, PyObject *scope)
             }
             Py_DECREF(model);
             model = tmp;
-            if (PyDict_SetItem(adapter->models, scope_part, model) == -1)
+            if (-1 == PyDict_SetItem(adapter->u.render.models, scope_part,
+                                     model))
                 goto error_scope_part;
         }
         Py_DECREF(scope_part);
@@ -175,7 +192,7 @@ render_modelmethod_default(tdi_adapter_t *adapter, PyObject *prefix,
         if (!PyErr_ExceptionMatches(PyExc_AttributeError))
             goto error_methodname;
         PyErr_Clear();
-        if (adapter->requiremethods) {
+        if (adapter->u.render.requiremethods) {
             PyErr_SetObject(TDI_E_ModelMissingError, methodname);
             goto error_methodname;
         }
@@ -204,13 +221,14 @@ render_new(PyTypeObject *type, PyObject *model, int requiremethods,
     if (!(self = GENERIC_ALLOC(type)))
         return NULL;
 
-    self->requiremethods = requiremethods ? 1 : 0;
-    self->requirescopes = requirescopes ? 1 : 0;
+    self->adapted = ADAPTED_RENDER;
+    self->u.render.requiremethods = requiremethods ? 1 : 0;
+    self->u.render.requirescopes = requirescopes ? 1 : 0;
     self->emit_escaped = emit_escaped ? 1 : 0;
 
-    if (!(self->models = PyDict_New()))
+    if (!(self->u.render.models = PyDict_New()))
         goto error;
-    if (PyDict_SetItem(self->models, tdi_g_empty, model) == -1)
+    if (PyDict_SetItem(self->u.render.models, tdi_g_empty, model) == -1)
         goto error;
 
     return (PyObject *)self;
@@ -521,7 +539,7 @@ TDI_RenderAdapterType_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 TDI_RenderAdapterType_traverse(tdi_adapter_t *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->models);
+    Py_VISIT(self->u.render.models);
     Py_VISIT(self->modelmethod);
     Py_VISIT(self->newmethod);
 
@@ -534,7 +552,7 @@ TDI_RenderAdapterType_clear(tdi_adapter_t *self)
     if (self->weakreflist)
         PyObject_ClearWeakRefs((PyObject *)self);
 
-    Py_CLEAR(self->models);
+    Py_CLEAR(self->u.render.models);
     Py_CLEAR(self->modelmethod);
     Py_CLEAR(self->newmethod);
 
@@ -702,8 +720,8 @@ tdi_adapter_factory(tdi_adapter_t *self, PyObject *model)
     PyObject *result;
 
     if (!self->newmethod)
-        return render_new(self->ob_type, model, self->requiremethods,
-                          self->requirescopes, self->emit_escaped);
+        return render_new(self->ob_type, model, self->u.render.requiremethods,
+                          self->u.render.requirescopes, self->emit_escaped);
 
     Py_INCREF(model);
     result = PyObject_CallFunction(self->newmethod, "O", model);
