@@ -539,7 +539,8 @@ TDI_RenderAdapterType_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 TDI_RenderAdapterType_traverse(tdi_adapter_t *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->u.render.models);
+    if (self->adapted == ADAPTED_RENDER)
+        Py_VISIT(self->u.render.models);
     Py_VISIT(self->modelmethod);
     Py_VISIT(self->newmethod);
 
@@ -552,7 +553,8 @@ TDI_RenderAdapterType_clear(tdi_adapter_t *self)
     if (self->weakreflist)
         PyObject_ClearWeakRefs((PyObject *)self);
 
-    Py_CLEAR(self->u.render.models);
+    if (self->adapted == ADAPTED_RENDER)
+        Py_CLEAR(self->u.render.models);
     Py_CLEAR(self->modelmethod);
     Py_CLEAR(self->newmethod);
 
@@ -645,6 +647,7 @@ tdi_adapter_adapt(PyObject *adapter)
     if (!(self = GENERIC_ALLOC(&TDI_RenderAdapterType)))
         return NULL;
 
+    self->adapted = ADAPTED_FOREIGN;
     if (!(self->modelmethod = PyObject_GetAttrString(adapter, "modelmethod")))
         goto error;
     if (!(self->newmethod = PyObject_GetAttrString(adapter, "new")))
