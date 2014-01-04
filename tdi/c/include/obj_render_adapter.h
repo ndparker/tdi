@@ -40,6 +40,9 @@ extern PyTypeObject TDI_PreRenderWrapperType;
     ((op)->ob_type == &TDI_PreRenderWrapperType)
 
 
+extern PyTypeObject TDI_PreRenderMethodType;
+
+
 /*
  * Create adapter from anything.
  *

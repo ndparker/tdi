@@ -149,6 +149,7 @@ EXT_INIT_FUNC {
     EXT_INIT_TYPE(m, &TDI_HTMLDecoderType);
     EXT_INIT_TYPE(m, &TDI_IterateIteratorType);
     EXT_INIT_TYPE(m, &TDI_NodeType);
+    EXT_INIT_TYPE(m, &TDI_PreRenderMethodType);
     EXT_INIT_TYPE(m, &TDI_PreRenderWrapperType);
     EXT_INIT_TYPE(m, &TDI_RawNodeType);
     EXT_INIT_TYPE(m, &TDI_RenderAdapterType);

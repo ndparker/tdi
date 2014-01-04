@@ -29,7 +29,7 @@ typedef enum {
 } adapted_e;
 
 /*
- * Object structure for TDI_RenderAdapterType
+ * Object structure for TDI_RenderAdapterType and TDI_PreRenderWrapperType
  */
 struct tdi_adapter_t {
     PyObject_HEAD
@@ -49,9 +49,25 @@ struct tdi_adapter_t {
         struct {
             tdi_adapter_t *adapter; /* Original adapter */
             PyObject *attr;         /* Attribute name mapping */
+            PyObject *tdi_attr;     /* tdi attribute name */
+            PyObject *scope_attr;   /* scope attribute name */
         } prerender;
     } u;
 };
+
+
+/*
+ * Object structure for TDI_PreRenderMethodType
+ */
+typedef struct {
+    PyObject_HEAD
+
+    PyObject *name;
+    PyObject *scope;
+    PyObject *tdi_attr;
+    PyObject *scope_attr;
+    int noauto;
+} tdi_premethod_t;
 
 
 /*
@@ -246,6 +262,7 @@ static PyObject *
 prerender_new(PyTypeObject *type, PyObject *adapter, PyObject *attr,
               int emit_escaped)
 {
+    PyObject *tmp;
     tdi_adapter_t *self;
 
     if (!(self = GENERIC_ALLOC(type)))
@@ -254,16 +271,78 @@ prerender_new(PyTypeObject *type, PyObject *adapter, PyObject *attr,
     self->adapted = ADAPTED_PRERENDER;
 
     Py_INCREF(adapter);
-    self->u.prerender.adapter = tdi_adapter_adapt(adapter);
+    if (!(self->u.prerender.adapter = tdi_adapter_adapt(adapter)))
+        goto error;
+
     if (attr == Py_None)
         attr = NULL;
     Py_XINCREF(attr);
     self->u.prerender.attr = attr;
+
+    if (!(tmp = PyString_FromString("tdi:scope")))
+        goto error;
+    if (attr) {
+        self->u.prerender.scope_attr = PyObject_CallMethod(attr, "get", "sO",
+                                                           "scope", tmp);
+        Py_DECREF(tmp);
+        if (!self->u.prerender.scope_attr)
+            goto error;
+    }
+    else {
+        self->u.prerender.scope_attr = tmp;
+    }
+
+    if (!(tmp = PyString_FromString("tdi")))
+        goto error;
+    if (attr) {
+        self->u.prerender.tdi_attr = PyObject_CallMethod(attr, "get", "sO",
+                                                         "tdi", tmp);
+        Py_DECREF(tmp);
+        if (!self->u.prerender.tdi_attr)
+            goto error;
+    }
+    else {
+        self->u.prerender.tdi_attr = tmp;
+    }
+
     self->emit_escaped = emit_escaped ? 1 : 0;
 
     return (PyObject *)self;
+
+error:
+    Py_DECREF(self);
+    return NULL;
 }
 
+
+/*
+ * Create new prerender wrapper
+ */
+static PyObject *
+premethod_new(PyObject *name, PyObject *scope, PyObject *tdi_attr,
+              PyObject *scope_attr, int noauto)
+{
+    tdi_premethod_t *self;
+
+    if (!(self = GENERIC_ALLOC(&TDI_PreRenderMethodType)))
+        return NULL;
+
+    Py_XINCREF(name);
+    self->name = name;
+
+    Py_INCREF(scope);
+    self->scope = scope;
+
+    Py_INCREF(tdi_attr);
+    self->tdi_attr = tdi_attr;
+
+    Py_INCREF(scope_attr);
+    self->scope_attr = scope_attr;
+
+    self->noauto = noauto;
+
+    return (PyObject *)self;
+}
 
 /*
  * Prerender modelmethod
@@ -295,8 +374,8 @@ prerender_modelmethod(tdi_adapter_t *self, PyObject *prefix, PyObject *name,
         Py_RETURN_NONE;
 #undef SIZE
 
-    PyErr_SetNone(PyExc_NotImplementedError);
-    return NULL;
+    return premethod_new(name, scope, self->u.prerender.tdi_attr,
+                         self->u.prerender.scope_attr, noauto);
 }
 
 /* ----------------- BEGIN TDI_RenderAdapterType DEFINITION ---------------- */
@@ -823,6 +902,8 @@ TDI_PreRenderWrapperType_traverse(tdi_adapter_t *self, visitproc visit,
     if (self->adapted == ADAPTED_PRERENDER) {
         Py_VISIT(((PyObject *)self->u.prerender.adapter));
         Py_VISIT(self->u.prerender.attr);
+        Py_VISIT(self->u.prerender.tdi_attr);
+        Py_VISIT(self->u.prerender.scope_attr);
     }
     Py_VISIT(self->modelmethod);
     Py_VISIT(self->newmethod);
@@ -839,6 +920,8 @@ TDI_PreRenderWrapperType_clear(tdi_adapter_t *self)
     if (self->adapted == ADAPTED_PRERENDER) {
         Py_CLEAR(self->u.prerender.adapter);
         Py_CLEAR(self->u.prerender.attr);
+        Py_CLEAR(self->u.prerender.tdi_attr);
+        Py_CLEAR(self->u.prerender.scope_attr);
     }
     Py_CLEAR(self->modelmethod);
     Py_CLEAR(self->newmethod);
@@ -910,6 +993,59 @@ PyTypeObject TDI_PreRenderWrapperType = {
 };
 
 /* --------------- END TDI_PreRenderWrapperType DEFINITION --------------- */
+
+/* --------------- BEGIN TDI_PreRenderMethodType DEFINITION -------------- */
+
+static PyObject *
+TDI_PreRenderMethodType_call(tdi_premethod_t *self, PyObject *args,
+                             PyObject *kwds)
+{
+    PyObject *node;
+
+    if (!PyArg_ParseTuple(args, "O", &node))
+        return NULL;
+
+    return NULL;
+}
+
+static int
+TDI_PreRenderMethodType_clear(tdi_premethod_t *self)
+{
+    Py_CLEAR(self->name);
+    Py_CLEAR(self->scope);
+    Py_CLEAR(self->tdi_attr);
+    Py_CLEAR(self->scope_attr);
+
+    return 0;
+}
+
+DEFINE_GENERIC_DEALLOC(TDI_PreRenderMethodType)
+
+PyTypeObject TDI_PreRenderMethodType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                                  /* ob_size */
+    EXT_MODULE_PATH "._PreRenderMethod",                /* tp_name */
+    sizeof(tdi_premethod_t),                            /* tp_basicsize */
+    0,                                                  /* tp_itemsize */
+    (destructor)TDI_PreRenderMethodType_dealloc,        /* tp_dealloc */
+    0,                                                  /* tp_print */
+    0,                                                  /* tp_getattr */
+    0,                                                  /* tp_setattr */
+    0,                                                  /* tp_compare */
+    0,                                                  /* tp_repr */
+    0,                                                  /* tp_as_number */
+    0,                                                  /* tp_as_sequence */
+    0,                                                  /* tp_as_mapping */
+    0,                                                  /* tp_hash */
+    (ternaryfunc)TDI_PreRenderMethodType_call,          /* tp_call */
+    0,                                                  /* tp_str */
+    0,                                                  /* tp_getattro */
+    0,                                                  /* tp_setattro */
+    0,                                                  /* tp_as_buffer */
+    Py_TPFLAGS_HAVE_CLASS                               /* tp_flags */
+};
+
+/* ---------------- END TDI_PreRenderMethodType DEFINITION --------------- */
 
 /*
  * Create adapter from anything.
