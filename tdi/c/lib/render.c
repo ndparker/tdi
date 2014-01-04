@@ -216,7 +216,7 @@ nested_callback:
         *done = 1;
     }
     else {
-        tmp = tdi_render_adapter_method(
+        tmp = tdi_adapter_method(
             (tdi_adapter_t *)self->model, tdi_g_rendermethod, node->name,
             node->modelscope,
             !!(node->flags & NODE_NOAUTO)

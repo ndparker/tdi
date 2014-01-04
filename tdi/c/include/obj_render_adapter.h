@@ -32,32 +32,28 @@ extern PyTypeObject TDI_RenderAdapterType;
 
 
 /*
+ * Create adapter from anything.
+ *
+ * Adapter is stolen.
+ *
+ * Return: new adapter.
+ */
+tdi_adapter_t *
+tdi_adapter_adapt(PyObject *r);
+
+
+/*
  * Find a model method
  */
 PyObject *
-tdi_render_adapter_method(tdi_adapter_t *, PyObject *, PyObject *, PyObject *,
-                          int);
+tdi_adapter_method(tdi_adapter_t *, PyObject *, PyObject *, PyObject *, int);
 
 
 /*
  * Create new adapter from adapter with a new model
  */
 PyObject *
-tdi_render_adapter_factory(tdi_adapter_t *self, PyObject *model);
-
-
-/*
- * Create new model adapter
- */
-PyObject *
-tdi_adapter_new(PyTypeObject *, PyObject *, int, int, int);
-
-
-/*
- * Create model object from alien model
- */
-PyObject *
-tdi_adapter_new_alien(PyObject *);
+tdi_adapter_factory(tdi_adapter_t *self, PyObject *model);
 
 
 /*

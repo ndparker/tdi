@@ -47,8 +47,8 @@ modelmethod_default(tdi_prerender_wrapper_t *self, PyObject *prefix,
 {
     PyObject *method;
 
-    method = tdi_render_adapter_method((tdi_adapter_t *)self->adapter,
-                                       prefix, name, scope, noauto);
+    method = tdi_adapter_method((tdi_adapter_t *)self->adapter, prefix, name,
+                                scope, noauto);
     if (!method) {
         if (!PyErr_ExceptionMatches(TDI_E_ModelMissingError))
             return NULL;
@@ -84,9 +84,8 @@ tdi_prerender_wrapper_factory(tdi_prerender_wrapper_t *self, PyObject *model)
         PyObject *adapter;
 
         if (TDI_RenderAdapterType_CheckExact(self->adapter)) {
-            adapter = tdi_render_adapter_factory(
-                (tdi_adapter_t *)self->adapter, model
-            );
+            adapter = tdi_adapter_factory((tdi_adapter_t *)self->adapter,
+                                          model);
         }
         else {
             Py_INCREF(model);

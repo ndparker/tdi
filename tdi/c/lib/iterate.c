@@ -170,7 +170,7 @@ tdi_iterate_next(tdi_iterate_t *self)
         self->idx = -1;
         if (self->node->sep && !self->sepmodel && self->node->name) {
             /* nextnode misuse as callback tmp */
-            nextnode = tdi_render_adapter_method(
+            nextnode = tdi_adapter_method(
                 self->node->model, tdi_g_separatemethod, self->node->name,
                 ((tdi_node_t *)(self->node->sep))->modelscope,
                 !!(((tdi_node_t *)(self->node->sep))->flags & NODE_NOAUTO)

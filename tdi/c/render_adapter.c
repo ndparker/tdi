@@ -42,7 +42,7 @@ struct tdi_adapter_t {
  * Find the model
  */
 static PyObject *
-find_model(tdi_adapter_t *adapter, PyObject *scope)
+render_find_model(tdi_adapter_t *adapter, PyObject *scope)
 {
     PyObject *model, *part, *scope_part, *tmp;
     const char *cscope, *c1, *c2, *sentinel;
@@ -127,8 +127,8 @@ error_scope_part:
  * Find a model method
  */
 static PyObject *
-modelmethod_default(tdi_adapter_t *adapter, PyObject *prefix, PyObject *name,
-                    PyObject *scope, int noauto)
+render_modelmethod_default(tdi_adapter_t *adapter, PyObject *prefix,
+                           PyObject *name, PyObject *scope, int noauto)
 {
     PyObject *method, *methodname, *model;
     char *cmethodname;
@@ -145,7 +145,7 @@ modelmethod_default(tdi_adapter_t *adapter, PyObject *prefix, PyObject *name,
         return NULL;
     }
 
-    if (!(model = find_model(adapter, scope)))
+    if (!(model = render_find_model(adapter, scope)))
         return NULL;
     if (model == Py_None)
         return model;
@@ -193,49 +193,31 @@ error_methodname:
 
 
 /*
- * Find a model method
+ * Create new model adapter
  */
-PyObject *
-tdi_render_adapter_method(tdi_adapter_t *self, PyObject *prefix,
-                          PyObject *name, PyObject *scope, int noauto)
+static PyObject *
+render_new(PyTypeObject *type, PyObject *model, int requiremethods,
+           int requirescopes, int emit_escaped)
 {
-    PyObject *name_passed, *res;
+    tdi_adapter_t *self;
 
-    if (!self->modelmethod)
-        return modelmethod_default(self, prefix, name, scope, noauto);
+    if (!(self = GENERIC_ALLOC(type)))
+        return NULL;
 
-    if (!name) {
-        Py_INCREF(Py_None);
-        name_passed = Py_None;
-    }
-    else
-        name_passed = name;
+    self->requiremethods = requiremethods ? 1 : 0;
+    self->requirescopes = requirescopes ? 1 : 0;
+    self->emit_escaped = emit_escaped ? 1 : 0;
 
-    res = PyObject_CallFunction(self->modelmethod, "OOOi",
-                                prefix, name_passed, scope, noauto);
-    if (!name) {
-        Py_DECREF(Py_None);
-    }
-    return res;
-}
+    if (!(self->models = PyDict_New()))
+        goto error;
+    if (PyDict_SetItem(self->models, tdi_g_empty, model) == -1)
+        goto error;
 
+    return (PyObject *)self;
 
-/*
- * Create new adapter from adapter with a new model
- */
-PyObject *
-tdi_render_adapter_factory(tdi_adapter_t *self, PyObject *model)
-{
-    PyObject *result;
-
-    if (!self->newmethod)
-        return tdi_adapter_new(self->ob_type, model, self->requiremethods,
-                               self->requirescopes, self->emit_escaped);
-
-    Py_INCREF(model);
-    result = PyObject_CallFunction(self->newmethod, "O", model);
-    Py_DECREF(model);
-    return result;
+error:
+    Py_DECREF(self);
+    return NULL;
 }
 
 
@@ -370,7 +352,7 @@ TDI_RenderAdapterType_modelmethod(tdi_adapter_t *self, PyObject *args)
     else if (!(name = PyObject_Str(name)))
         return NULL;
 
-    res = modelmethod_default(self, prefix, name, scope, noauto);
+    res = render_modelmethod_default(self, prefix, name, scope, noauto);
     Py_XDECREF(name);
     return res;
 }
@@ -427,7 +409,7 @@ TDI_RenderAdapterType_new_method(tdi_adapter_t *self, PyObject *args)
     if (!(PyArg_ParseTuple(args, "O", &model)))
         return NULL;
 
-    return tdi_render_adapter_factory(self, model);
+    return tdi_adapter_factory(self, model);
 }
 
 static struct PyMethodDef TDI_RenderAdapterType_new_method__def = {
@@ -533,7 +515,7 @@ TDI_RenderAdapterType_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     else if ((requirescopes = PyObject_IsTrue(requirescopes_o)) == -1)
         return NULL;
 
-    return tdi_adapter_new(type, model, requiremethods, requirescopes, 0);
+    return render_new(type, model, requiremethods, requirescopes, 0);
 }
 
 static int
@@ -551,6 +533,7 @@ TDI_RenderAdapterType_clear(tdi_adapter_t *self)
 {
     if (self->weakreflist)
         PyObject_ClearWeakRefs((PyObject *)self);
+
     Py_CLEAR(self->models);
     Py_CLEAR(self->modelmethod);
     Py_CLEAR(self->newmethod);
@@ -625,65 +608,42 @@ PyTypeObject TDI_RenderAdapterType = {
 /* ------------------ END TDI_RenderAdapterType DEFINITION ----------------- */
 
 /*
- * Create new model adapter
+ * Create adapter from anything.
+ *
+ * Adapter is stolen.
+ *
+ * Return: new adapter.
  */
-PyObject *
-tdi_adapter_new(PyTypeObject *type, PyObject *model, int requiremethods,
-                int requirescopes, int emit_escaped)
-{
-    tdi_adapter_t *self;
-
-    if (!(self = GENERIC_ALLOC(type)))
-        return NULL;
-
-    self->requiremethods = requiremethods ? 1 : 0;
-    self->requirescopes = requirescopes ? 1 : 0;
-    self->emit_escaped = emit_escaped ? 1 : 0;
-
-    if (!(self->models = PyDict_New()))
-        goto error;
-    if (PyDict_SetItem(self->models, tdi_g_empty, model) == -1)
-        goto error;
-
-    return (PyObject *)self;
-
-error:
-    Py_DECREF(self);
-    return NULL;
-}
-
-
-/*
- * Create model object from alien model
- */
-PyObject *
-tdi_adapter_new_alien(PyObject *model)
+tdi_adapter_t *
+tdi_adapter_adapt(PyObject *adapter)
 {
     tdi_adapter_t *self;
     PyObject *tmp;
     int res;
 
+    if (TDI_RenderAdapterType_Check(adapter))
+        return (tdi_adapter_t *)adapter;
+
     if (!(self = GENERIC_ALLOC(&TDI_RenderAdapterType)))
         return NULL;
 
-    Py_INCREF(model);
-    if (!(self->modelmethod = PyObject_GetAttrString(model, "modelmethod")))
+    if (!(self->modelmethod = PyObject_GetAttrString(adapter, "modelmethod")))
         goto error;
-    if (!(self->newmethod = PyObject_GetAttrString(model, "new")))
+    if (!(self->newmethod = PyObject_GetAttrString(adapter, "new")))
         goto error;
-    if (!(tmp = PyObject_GetAttrString(model, "emit_escaped"))
+    if (!(tmp = PyObject_GetAttrString(adapter, "emit_escaped"))
         || (res = PyObject_IsTrue(tmp)) == -1)
         goto error_tmp;
-    Py_DECREF(model);
+    Py_DECREF(((PyObject *)adapter));
     Py_DECREF(tmp);
     self->emit_escaped = res;
 
-    return (PyObject *)self;
+    return self;
 
 error_tmp:
     Py_XDECREF(tmp);
 error:
-    Py_DECREF(model);
+    Py_DECREF(((PyObject *)adapter));
     Py_DECREF(self);
     return NULL;
 }
@@ -691,9 +651,62 @@ error:
 
 /*
  * Return emit_escaped flag
+ *
+ * (adapter.emit_escaped)
  */
 int
 tdi_adapter_emit_escaped(tdi_adapter_t *self)
 {
     return self->emit_escaped;
+}
+
+
+/*
+ * Find a model method
+ *
+ * (adapter.modelmethod())
+ */
+PyObject *
+tdi_adapter_method(tdi_adapter_t *self, PyObject *prefix,
+                          PyObject *name, PyObject *scope, int noauto)
+{
+    PyObject *name_passed, *res;
+
+    if (!self->modelmethod)
+        return render_modelmethod_default(self, prefix, name, scope, noauto);
+
+    if (!name) {
+        Py_INCREF(Py_None);
+        name_passed = Py_None;
+    }
+    else
+        name_passed = name;
+
+    res = PyObject_CallFunction(self->modelmethod, "OOOi",
+                                prefix, name_passed, scope, noauto);
+    if (!name) {
+        Py_DECREF(Py_None);
+    }
+    return res;
+}
+
+
+/*
+ * Create new adapter from adapter with a new model
+ *
+ * (adapter.new())
+ */
+PyObject *
+tdi_adapter_factory(tdi_adapter_t *self, PyObject *model)
+{
+    PyObject *result;
+
+    if (!self->newmethod)
+        return render_new(self->ob_type, model, self->requiremethods,
+                          self->requirescopes, self->emit_escaped);
+
+    Py_INCREF(model);
+    result = PyObject_CallFunction(self->newmethod, "O", model);
+    Py_DECREF(model);
+    return result;
 }

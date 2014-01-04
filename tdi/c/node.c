@@ -474,24 +474,13 @@ TDI_NodeType_render(tdi_node_t *self, PyObject *args, PyObject *kwds)
         model = (Py_INCREF(self->model), self->model);
     }
     else if (!adapter_o || adapter_o == Py_None) {
-        model = (tdi_adapter_t *)tdi_render_adapter_factory(self->model,
-                                                            model_o);
+        model = (tdi_adapter_t *)tdi_adapter_factory(self->model, model_o);
         if (!model)
             goto error_args;
     }
-    else {
-        if (!(tmp = PyObject_CallFunction(adapter_o, "O", model_o)))
-            goto error_args;
-        if (!TDI_RenderAdapterType_Check(tmp)) {
-            model = (tdi_adapter_t *)tdi_adapter_new_alien(tmp);
-            Py_DECREF(tmp);
-            if (!model)
-                goto error_args;
-        }
-        else {
-            model = (tdi_adapter_t *)tmp;
-        }
-    }
+    else if (!(tmp = PyObject_CallFunction(adapter_o, "O", model_o))
+            || !(model = tdi_adapter_adapt(tmp)))
+        goto error_args;
 
     /* setup node */
     mynode = (tdi_node_t *)tdi_node_deepcopy(self, model, self->ctx, NULL);

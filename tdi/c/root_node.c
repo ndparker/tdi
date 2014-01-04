@@ -253,12 +253,9 @@ TDI_RootNodeType_render(tdi_node_t *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    if (!TDI_RenderAdapterType_Check(model)) {
-        if (!(model = tdi_adapter_new_alien(model)))
-            return NULL;
-    }
-    else
-        Py_INCREF(model);
+    Py_INCREF(model);
+    if (!(model = (PyObject *)tdi_adapter_adapt(model)))
+        return NULL;
 
     if (startnode == Py_None)
         startnode = NULL;
