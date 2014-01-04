@@ -47,8 +47,8 @@ struct tdi_adapter_t {
             int requirescopes;      /* Require scopes? */
         } render;
         struct {
+            tdi_adapter_t *adapter; /* Original adapter */
             PyObject *attr;         /* Attribute name mapping */
-            PyObject *adapter;      /* Original adapter */
         } prerender;
     } u;
 };
@@ -144,8 +144,8 @@ error_scope_part:
  * Find a model method
  */
 static PyObject *
-render_modelmethod_default(tdi_adapter_t *adapter, PyObject *prefix,
-                           PyObject *name, PyObject *scope, int noauto)
+render_modelmethod(tdi_adapter_t *adapter, PyObject *prefix, PyObject *name,
+                   PyObject *scope, int noauto)
 {
     PyObject *method, *methodname, *model;
     char *cmethodname;
@@ -239,6 +239,66 @@ error:
 }
 
 
+/*
+ * Create new prerender wrapper
+ */
+static PyObject *
+prerender_new(PyTypeObject *type, PyObject *adapter, PyObject *attr,
+              int emit_escaped)
+{
+    tdi_adapter_t *self;
+
+    if (!(self = GENERIC_ALLOC(type)))
+        return NULL;
+
+    self->adapted = ADAPTED_PRERENDER;
+
+    Py_INCREF(adapter);
+    self->u.prerender.adapter = tdi_adapter_adapt(adapter);
+    if (attr == Py_None)
+        attr = NULL;
+    Py_XINCREF(attr);
+    self->u.prerender.attr = attr;
+    self->emit_escaped = emit_escaped ? 1 : 0;
+
+    return (PyObject *)self;
+}
+
+
+/*
+ * Prerender modelmethod
+ */
+static PyObject *
+prerender_modelmethod(tdi_adapter_t *self, PyObject *prefix, PyObject *name,
+                      PyObject *scope, int noauto)
+{
+    PyObject *method;
+
+    method = tdi_adapter_method(self->u.prerender.adapter, prefix, name,
+                                scope, noauto);
+    if (!method) {
+        if (!PyErr_ExceptionMatches(TDI_E_ModelMissingError))
+            return NULL;
+        PyErr_Clear();
+    }
+    else if (method == Py_None) {
+        Py_DECREF(method);
+        method = NULL;
+    }
+    else {
+        return method;
+    }
+
+#define SIZE (sizeof("separate") - 1)
+    if ((PyString_GET_SIZE(prefix) == SIZE)
+        && (!memcmp(PyString_AS_STRING(prefix), "separate", SIZE)))
+        Py_RETURN_NONE;
+#undef SIZE
+
+    PyErr_SetNone(PyExc_NotImplementedError);
+    return NULL;
+}
+
 /* ----------------- BEGIN TDI_RenderAdapterType DEFINITION ---------------- */
 
 PyDoc_STRVAR(TDI_RenderAdapterType_for_prerender__doc__,
@@ -258,61 +318,26 @@ TDI_RenderAdapterType_for_prerender(PyObject *cls, PyObject *args,
                                     PyObject *kwds)
 {
     static char *kwlist[] = {"model", "attr", NULL};
-    PyObject *wrapper, *model, *adapter, *cargs, *ckwds, *attr = NULL;
-    int res;
+    PyObject *wrapper, *model, *adapter, *attr = NULL;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O", kwlist,
                                      &model, &attr))
         return NULL;
 
-    if (!(adapter = PyObject_CallFunction(cls, "O", model)))
-        return NULL;
-
-    if (!(model = PyImport_ImportModule("tdi.model_adapters"))) {
-        Py_DECREF(adapter);
-        return NULL;
-    }
-
-    wrapper = PyObject_GetAttrString(model, "PreRenderWrapper");
+    Py_INCREF(model);
+    Py_XINCREF(attr);
+    adapter = PyObject_CallFunction(cls, "O", model);
     Py_DECREF(model);
-    if (!wrapper) {
-        Py_DECREF(adapter);
+    if (!adapter) {
+        Py_XDECREF(attr);
         return NULL;
     }
 
-    if (!attr)
-        attr = Py_None;
-    Py_INCREF(attr);
+    wrapper = prerender_new(&TDI_PreRenderWrapperType, adapter, attr, 1);
+    Py_DECREF(adapter);
+    Py_XDECREF(attr);
 
-    if (!(cargs = PyTuple_New(1))) {
-        Py_DECREF(attr);
-        Py_DECREF(wrapper);
-        Py_DECREF(adapter);
-        return NULL;
-    }
-    PyTuple_SET_ITEM(cargs, 0, adapter);
-
-    if (!(ckwds = PyDict_New())) {
-        Py_DECREF(cargs);
-        Py_DECREF(attr);
-        Py_DECREF(wrapper);
-        return NULL;
-    }
-    res = PyDict_SetItemString(ckwds, "attr", attr);
-    Py_DECREF(attr);
-    if (res == -1) {
-        Py_DECREF(ckwds);
-        Py_DECREF(cargs);
-        Py_DECREF(wrapper);
-        return NULL;
-    }
-
-    model = PyObject_Call(wrapper, cargs, ckwds);
-    Py_DECREF(wrapper);
-    Py_DECREF(ckwds);
-    Py_DECREF(cargs);
-
-    return model;
+    return wrapper;
 }
 
 static struct PyMethodDef TDI_RenderAdapterType_methods[] = {
@@ -370,7 +395,7 @@ TDI_RenderAdapterType_modelmethod(tdi_adapter_t *self, PyObject *args)
     else if (!(name = PyObject_Str(name)))
         return NULL;
 
-    res = render_modelmethod_default(self, prefix, name, scope, noauto);
+    res = render_modelmethod(self, prefix, name, scope, noauto);
     Py_XDECREF(name);
     return res;
 }
@@ -627,6 +652,265 @@ PyTypeObject TDI_RenderAdapterType = {
 
 /* ------------------ END TDI_RenderAdapterType DEFINITION ----------------- */
 
+/* -------------- BEGIN TDI_PreRenderWrapperType DEFINITION -------------- */
+
+PyDoc_STRVAR(TDI_PreRenderWrapperType_modelmethod__doc__,
+"modelmethod(prefix, name, scope, noauto)\n\
+\n\
+This asks the passed adapter and if the particular method is not\n\
+found it generates its own, which restores the tdi attributes\n\
+(but not tdi:overlay).\n\
+\n\
+:Parameters:\n\
+  `prefix` : ``str``\n\
+    The method prefix (``render``, or ``separate``)\n\
+\n\
+  `name` : ``str``\n\
+    The node name\n\
+\n\
+  `scope` : ``str``\n\
+    Scope\n\
+\n\
+  `noauto` : ``bool``\n\
+    No automatic method calling?\n\
+\n\
+:Return: The method or ``None``\n\
+:Rtype: ``callable``\n\
+\n\
+:Exceptions:\n\
+  - `ModelMissingError` : The method was not found, but all\n\
+    methods are required");
+
+static PyObject *
+TDI_PreRenderWrapperType_modelmethod(tdi_adapter_t *self, PyObject *args)
+{
+    PyObject *prefix, *name, *scope, *noauto_o, *res;
+    int noauto;
+
+    if (!(PyArg_ParseTuple(args, "SOSO", &prefix, &name, &scope, &noauto_o)))
+        return NULL;
+
+    if ((noauto = PyObject_IsTrue(noauto_o)) == -1)
+        return NULL;
+
+    if (name == Py_None)
+        name = NULL;
+    else if (PyString_Check(name))
+        Py_INCREF(name);
+    else if (!(name = PyObject_Str(name)))
+        return NULL;
+
+    res = prerender_modelmethod(self, prefix, name, scope, noauto);
+    Py_XDECREF(name);
+    return res;
+}
+
+static struct PyMethodDef TDI_PreRenderWrapperType_modelmethod__def = {
+    "modelmethod",
+    (PyCFunction)TDI_PreRenderWrapperType_modelmethod,
+    METH_VARARGS,
+    TDI_PreRenderWrapperType_modelmethod__doc__
+};
+
+static PyObject *
+TDI_PreRenderWrapperType_getmodelmethod(tdi_adapter_t *self, void *closure)
+{
+    PyObject *tmp, *mod;
+
+    if (self->modelmethod) {
+        Py_INCREF(self->modelmethod);
+        return self->modelmethod;
+    }
+
+    if (!(mod = PyString_FromString(EXT_MODULE_PATH)))
+        return NULL;
+    tmp = PyCFunction_NewEx(&TDI_PreRenderWrapperType_modelmethod__def,
+                            (PyObject *)self, mod);
+    Py_DECREF(mod);
+    return tmp;
+}
+
+PyDoc_STRVAR(TDI_PreRenderWrapperType_new_method__doc__,
+"new(model)\n\
+\n\
+Create adapter for a new model");
+
+static PyObject *
+TDI_PreRenderWrapperType_new_method(tdi_adapter_t *self, PyObject *args)
+{
+    PyObject *model;
+
+    if (!(PyArg_ParseTuple(args, "O", &model)))
+        return NULL;
+
+    return tdi_adapter_factory(self, model);
+}
+
+static struct PyMethodDef TDI_PreRenderWrapperType_new_method__def = {
+    "new",
+    (PyCFunction)TDI_PreRenderWrapperType_new_method,
+    METH_VARARGS,
+    TDI_PreRenderWrapperType_new_method__doc__
+};
+
+static PyObject *
+TDI_PreRenderWrapperType_getnew(tdi_adapter_t *self, void *closure)
+{
+    PyObject *tmp, *mod;
+
+    if (self->newmethod) {
+        Py_INCREF(self->newmethod);
+        return self->newmethod;
+    }
+
+    if (!(mod = PyString_FromString(EXT_MODULE_PATH)))
+        return NULL;
+    tmp = PyCFunction_NewEx(&TDI_PreRenderWrapperType_new_method__def,
+                            (PyObject *)self, mod);
+    Py_DECREF(mod);
+    return tmp;
+}
+
+/* method setters are the same as above */
+#define TDI_PreRenderWrapperType_setmodelmethod \
+    TDI_RenderAdapterType_setmodelmethod
+#define TDI_PreRenderWrapperType_setnew \
+        TDI_RenderAdapterType_setnew
+
+/* emit_escaped getter/setter are the same as above. */
+#define TDI_PreRenderWrapperType_getemit_escaped \
+    TDI_RenderAdapterType_getemit_escaped
+#define TDI_PreRenderWrapperType_setemit_escaped \
+    TDI_RenderAdapterType_setemit_escaped
+
+static PyGetSetDef TDI_PreRenderWrapperType_getset[] = {
+    {"modelmethod",
+     (getter)TDI_PreRenderWrapperType_getmodelmethod,
+     (setter)TDI_PreRenderWrapperType_setmodelmethod,
+     NULL, NULL},
+
+    {"new",
+     (getter)TDI_PreRenderWrapperType_getnew,
+     (setter)TDI_PreRenderWrapperType_setnew,
+     NULL, NULL},
+
+    {"emit_escaped",
+     (getter)TDI_PreRenderWrapperType_getemit_escaped,
+     (setter)TDI_PreRenderWrapperType_setemit_escaped,
+     NULL, NULL},
+
+    {NULL}  /* Sentinel */
+};
+
+static PyObject *
+TDI_PreRenderWrapperType_new(PyTypeObject *type, PyObject *args,
+                             PyObject *kwds)
+{
+    static char *kwlist[] = {"adapter", "attr", NULL};
+    PyObject *adapter, *attr = NULL;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O", kwlist,
+                                     &adapter, &attr))
+        return NULL;
+
+    return prerender_new(type, adapter, attr, 1);
+}
+
+static int
+TDI_PreRenderWrapperType_traverse(tdi_adapter_t *self, visitproc visit,
+                                  void *arg)
+{
+    if (self->adapted == ADAPTED_PRERENDER) {
+        Py_VISIT(((PyObject *)self->u.prerender.adapter));
+        Py_VISIT(self->u.prerender.attr);
+    }
+    Py_VISIT(self->modelmethod);
+    Py_VISIT(self->newmethod);
+
+    return 0;
+}
+
+static int
+TDI_PreRenderWrapperType_clear(tdi_adapter_t *self)
+{
+    if (self->weakreflist)
+        PyObject_ClearWeakRefs((PyObject *)self);
+
+    if (self->adapted == ADAPTED_PRERENDER) {
+        Py_CLEAR(self->u.prerender.adapter);
+        Py_CLEAR(self->u.prerender.attr);
+    }
+    Py_CLEAR(self->modelmethod);
+    Py_CLEAR(self->newmethod);
+
+    return 0;
+}
+
+DEFINE_GENERIC_DEALLOC(TDI_PreRenderWrapperType)
+
+PyDoc_STRVAR(TDI_PreRenderWrapperType__doc__,
+"PreRenderWrapper(adapter, attr=None)\n\
+\n\
+Pre-Render wrapper adapter\n\
+\n\
+:See: `ModelAdapterInterface`\n\
+\n\
+:Parameters:\n\
+  `adapter` : `ModelAdapterInterface`\n\
+    model adapter for resolving methods\n\
+\n\
+  `attr` : ``dict``\n\
+    Attribute name mapping. The keys 'scope' and 'tdi' are recognized.\n\
+    If omitted or ``None``, the default attribute names are applied\n\
+    ('tdi:scope' and 'tdi').");
+
+PyTypeObject TDI_PreRenderWrapperType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                                  /* ob_size */
+    EXT_MODULE_PATH ".PreRenderWrapper",                /* tp_name */
+    sizeof(tdi_adapter_t),                              /* tp_basicsize */
+    0,                                                  /* tp_itemsize */
+    (destructor)TDI_PreRenderWrapperType_dealloc,       /* tp_dealloc */
+    0,                                                  /* tp_print */
+    0,                                                  /* tp_getattr */
+    0,                                                  /* tp_setattr */
+    0,                                                  /* tp_compare */
+    0,                                                  /* tp_repr */
+    0,                                                  /* tp_as_number */
+    0,                                                  /* tp_as_sequence */
+    0,                                                  /* tp_as_mapping */
+    0,                                                  /* tp_hash */
+    0,                                                  /* tp_call */
+    0,                                                  /* tp_str */
+    0,                                                  /* tp_getattro */
+    0,                                                  /* tp_setattro */
+    0,                                                  /* tp_as_buffer */
+    Py_TPFLAGS_HAVE_WEAKREFS                            /* tp_flags */
+    | Py_TPFLAGS_HAVE_CLASS
+    | Py_TPFLAGS_BASETYPE
+    | Py_TPFLAGS_HAVE_GC,
+    TDI_PreRenderWrapperType__doc__,                    /* tp_doc */
+    (traverseproc)TDI_PreRenderWrapperType_traverse,    /* tp_traverse */
+    (inquiry)TDI_PreRenderWrapperType_clear,            /* tp_clear */
+    0,                                                  /* tp_richcompare */
+    offsetof(tdi_adapter_t, weakreflist),               /* tp_weaklistoffset */
+    0,                                                  /* tp_iter */
+    0,                                                  /* tp_iternext */
+    0,                                                  /* tp_methods */
+    0,                                                  /* tp_members */
+    TDI_PreRenderWrapperType_getset,                    /* tp_getset */
+    0,                                                  /* tp_base */
+    0,                                                  /* tp_dict */
+    0,                                                  /* tp_descr_get */
+    0,                                                  /* tp_descr_set */
+    0,                                                  /* tp_dictoffset */
+    0,                                                  /* tp_init */
+    0,                                                  /* tp_alloc */
+    TDI_PreRenderWrapperType_new                        /* tp_new */
+};
+
+/* --------------- END TDI_PreRenderWrapperType DEFINITION --------------- */
+
 /*
  * Create adapter from anything.
  *
@@ -641,17 +925,18 @@ tdi_adapter_adapt(PyObject *adapter)
     PyObject *tmp;
     int res;
 
-    if (TDI_RenderAdapterType_Check(adapter))
+    if (TDI_RenderAdapterType_Check(adapter)
+        || TDI_PreRenderWrapperType_Check(adapter))
         return (tdi_adapter_t *)adapter;
 
     if (!(self = GENERIC_ALLOC(&TDI_RenderAdapterType)))
-        return NULL;
+        goto error_adapter;
 
     self->adapted = ADAPTED_FOREIGN;
     if (!(self->modelmethod = PyObject_GetAttrString(adapter, "modelmethod")))
-        goto error;
+        goto error_self;
     if (!(self->newmethod = PyObject_GetAttrString(adapter, "new")))
-        goto error;
+        goto error_self;
     if (!(tmp = PyObject_GetAttrString(adapter, "emit_escaped"))
         || (res = PyObject_IsTrue(tmp)) == -1)
         goto error_tmp;
@@ -663,9 +948,10 @@ tdi_adapter_adapt(PyObject *adapter)
 
 error_tmp:
     Py_XDECREF(tmp);
-error:
-    Py_DECREF(((PyObject *)adapter));
+error_self:
     Py_DECREF(self);
+error_adapter:
+    Py_DECREF(((PyObject *)adapter));
     return NULL;
 }
 
@@ -683,18 +969,39 @@ tdi_adapter_emit_escaped(tdi_adapter_t *self)
 
 
 /*
+ * Raise invalid-setup assertion
+ */
+static PyObject *
+raise_assert(void)
+{
+    PyErr_SetString(PyExc_AssertionError,
+                    "Invalid render adapter setup. This is a bug in TDI.");
+    return NULL;
+}
+
+
+/*
  * Find a model method
  *
  * (adapter.modelmethod())
  */
 PyObject *
-tdi_adapter_method(tdi_adapter_t *self, PyObject *prefix,
-                          PyObject *name, PyObject *scope, int noauto)
+tdi_adapter_method(tdi_adapter_t *self, PyObject *prefix, PyObject *name,
+                   PyObject *scope, int noauto)
 {
     PyObject *name_passed, *res;
 
-    if (!self->modelmethod)
-        return render_modelmethod_default(self, prefix, name, scope, noauto);
+    if (!self->modelmethod) {
+        if (self->adapted == ADAPTED_RENDER) {
+            return render_modelmethod(self, prefix, name, scope, noauto);
+        }
+        else if (self->adapted == ADAPTED_PRERENDER) {
+            return prerender_modelmethod(self, prefix, name, scope, noauto);
+        }
+        else {
+            return raise_assert();
+        }
+    }
 
     if (!name) {
         Py_INCREF(Py_None);
@@ -722,9 +1029,30 @@ tdi_adapter_factory(tdi_adapter_t *self, PyObject *model)
 {
     PyObject *result;
 
-    if (!self->newmethod)
-        return render_new(self->ob_type, model, self->u.render.requiremethods,
-                          self->u.render.requirescopes, self->emit_escaped);
+    if (!self->newmethod) {
+        if (self->adapted == ADAPTED_RENDER) {
+            return render_new(self->ob_type, model,
+                              self->u.render.requiremethods,
+                              self->u.render.requirescopes,
+                              self->emit_escaped);
+        }
+        else if (self->adapted == ADAPTED_PRERENDER) {
+            PyObject *adapter;
+
+            adapter = tdi_adapter_factory(self->u.prerender.adapter, model);
+            if (!adapter)
+                return NULL;
+
+            result = prerender_new(self->ob_type, adapter,
+                                   self->u.prerender.attr,
+                                   self->emit_escaped);
+            Py_DECREF(adapter);
+            return result;
+        }
+        else {
+            return raise_assert();
+        }
+    }
 
     Py_INCREF(model);
     result = PyObject_CallFunction(self->newmethod, "O", model);

@@ -141,15 +141,15 @@ EXT_INIT_FUNC {
     EXT_ADD_UNICODE(m, "__author__", "Andr\xe9 Malo", "latin-1");
     EXT_ADD_STRING(m, "__docformat__", "restructuredtext en");
 
-    EXT_INIT_TYPE(m, &TDI_AttrType);
     EXT_INIT_TYPE(m, &TDI_AttributeAnalyzerType);
+    EXT_INIT_TYPE(m, &TDI_AttrType);
     EXT_INIT_TYPE(m, &TDI_BaseEventFilterType);
     EXT_INIT_TYPE(m, &TDI_DecoderWrapperType);
     EXT_INIT_TYPE(m, &TDI_EncoderWrapperType);
-    EXT_INIT_TYPE(m, &TDI_SoupEncodingDetectFilterType);
     EXT_INIT_TYPE(m, &TDI_HTMLDecoderType);
     EXT_INIT_TYPE(m, &TDI_IterateIteratorType);
     EXT_INIT_TYPE(m, &TDI_NodeType);
+    EXT_INIT_TYPE(m, &TDI_PreRenderWrapperType);
     EXT_INIT_TYPE(m, &TDI_RawNodeType);
     EXT_INIT_TYPE(m, &TDI_RenderAdapterType);
     EXT_INIT_TYPE(m, &TDI_RenderIteratorType);
@@ -157,6 +157,7 @@ EXT_INIT_FUNC {
     EXT_INIT_TYPE(m, &TDI_ReprIteratorType);
     EXT_INIT_TYPE(m, &TDI_RootNodeType);
     EXT_INIT_TYPE(m, &TDI_SoupEncoderType);
+    EXT_INIT_TYPE(m, &TDI_SoupEncodingDetectFilterType);
     EXT_INIT_TYPE(m, &TDI_SoupLexerType);
     EXT_INIT_TYPE(m, &TDI_SoupParserType);
     EXT_INIT_TYPE(m, &TDI_TemplateNodeType);
@@ -169,12 +170,13 @@ EXT_INIT_FUNC {
     EXT_ADD_TYPE(m, "BaseEventFilter", &TDI_BaseEventFilterType);
     EXT_ADD_TYPE(m, "HTMLDecoder", &TDI_HTMLDecoderType);
     EXT_ADD_TYPE(m, "Node", &TDI_NodeType);
+    EXT_ADD_TYPE(m, "PreRenderWrapper", &TDI_PreRenderWrapperType);
     EXT_ADD_TYPE(m, "RawNode", &TDI_RawNodeType);
     EXT_ADD_TYPE(m, "RenderAdapter", &TDI_RenderAdapterType);
     EXT_ADD_TYPE(m, "Root", &TDI_RootNodeType);
     EXT_ADD_TYPE(m, "SoupEncoder", &TDI_SoupEncoderType);
     EXT_ADD_TYPE(m, "SoupEncodingDetectFilter",
-                    &TDI_SoupEncodingDetectFilterType);
+        &TDI_SoupEncodingDetectFilterType);
     EXT_ADD_TYPE(m, "SoupLexer", &TDI_SoupLexerType);
     EXT_ADD_TYPE(m, "SoupParser", &TDI_SoupParserType);
     EXT_ADD_TYPE(m, "TemplateNode", &TDI_TemplateNodeType);
@@ -187,16 +189,16 @@ EXT_INIT_FUNC {
         EXT_INIT_ERROR(m);
 
     /* memorize exceptions and warnings */
-    STORE_EXC(m, exceptions, NodeTreeError);
-    STORE_EXC(m, exceptions, NodeNotFoundError);
-    STORE_EXC(m, exceptions, ModelError);
-    STORE_EXC(m, exceptions, ModelMissingError);
-    STORE_EXC(m, exceptions, NodeWarning);
-    STORE_EXC(m, exceptions, TemplateEncodingError);
     STORE_EXC(m, exceptions, LexerEOFError);
     STORE_EXC(m, exceptions, LexerFinalizedError);
-    STORE_EXC(m, exceptions, TemplateAttributeError);
+    STORE_EXC(m, exceptions, ModelError);
+    STORE_EXC(m, exceptions, ModelMissingError);
+    STORE_EXC(m, exceptions, NodeNotFoundError);
+    STORE_EXC(m, exceptions, NodeTreeError);
+    STORE_EXC(m, exceptions, NodeWarning);
     STORE_EXC(m, exceptions, TemplateAttributeEmptyError);
+    STORE_EXC(m, exceptions, TemplateAttributeError);
+    STORE_EXC(m, exceptions, TemplateEncodingError);
     Py_DECREF(exceptions);
 
     EXT_INIT_RETURN(m);

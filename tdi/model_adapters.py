@@ -40,8 +40,6 @@ class RenderAdapter(object):
     """
     __implements__ = [_interfaces.ModelAdapterInterface]
 
-    emit_escaped = False
-
     def __new__(cls, model, requiremethods=False, requirescopes=False):
         """
         Construct
@@ -137,8 +135,11 @@ class RenderAdapter(object):
 
         self.modelmethod = modelmethod
         self.new = new
+        self.emit_escaped = False
+
         return self
 
+    @classmethod
     def for_prerender(cls, model, attr=None):
         """
         Create prerender adapter from model
@@ -156,7 +157,6 @@ class RenderAdapter(object):
         :Rtype: `ModelAdapterInterface`
         """
         return PreRenderWrapper(cls(model), attr=attr)
-    for_prerender = classmethod(for_prerender)
 
 
 class PreRenderWrapper(object):
@@ -166,8 +166,6 @@ class PreRenderWrapper(object):
     :See: `ModelAdapterInterface`
     """
     __implements__ = [_interfaces.ModelAdapterInterface]
-
-    emit_escaped = True
 
     def __new__(cls, adapter, attr=None):
         """
@@ -242,6 +240,7 @@ class PreRenderWrapper(object):
 
         self.modelmethod = modelmethod
         self.new = new
+        self.emit_escaped = True
 
         return self
 
@@ -320,4 +319,5 @@ from tdi import c
 c = c.load('impl')
 if c is not None:
     RenderAdapter = c.RenderAdapter
+    PreRenderWrapper = c.PreRenderWrapper
 del c

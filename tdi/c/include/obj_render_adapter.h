@@ -31,6 +31,15 @@ extern PyTypeObject TDI_RenderAdapterType;
     ((op)->ob_type == &TDI_RenderAdapterType)
 
 
+extern PyTypeObject TDI_PreRenderWrapperType;
+
+#define TDI_PreRenderWrapperType_Check(op) \
+    PyObject_TypeCheck(op, &TDI_PreRenderWrapperType)
+
+#define TDI_PreRenderWrapperType_CheckExact(op) \
+    ((op)->ob_type == &TDI_PreRenderWrapperType)
+
+
 /*
  * Create adapter from anything.
  *
