@@ -327,6 +327,8 @@ premethod_new(PyObject *name, PyObject *scope, PyObject *tdi_attr,
     if (!(self = GENERIC_ALLOC(&TDI_PreRenderMethodType)))
         return NULL;
 
+    if (name == Py_None)
+        name = NULL;
     Py_XINCREF(name);
     self->name = name;
 
@@ -996,6 +998,157 @@ PyTypeObject TDI_PreRenderWrapperType = {
 
 /* --------------- BEGIN TDI_PreRenderMethodType DEFINITION -------------- */
 
+static int
+prerender_setscope(tdi_premethod_t *self, PyObject *node)
+{
+    PyObject *scope, *tmp;
+    char *cscope;
+    int res;
+
+    scope = PyString_FromStringAndSize(NULL,               /* 2 := =[+-] */
+                                       PyString_GET_SIZE(self->scope) + 2);
+    if (!scope)
+        return -1;
+
+    cscope = PyString_AS_STRING(scope);
+    *cscope++ = '=';
+
+    if (!(tmp = PyObject_GetAttrString(node, "hiddenelement")))
+        goto error;
+    res = PyObject_IsTrue(tmp);
+    Py_DECREF(tmp);
+    if (res == -1)
+        goto error;
+    *cscope++ = res ? '-' : '+';
+
+    (void)memcpy(cscope, PyString_AS_STRING(self->scope),
+                 (size_t)PyString_GET_SIZE(self->scope));
+
+    if (PyObject_SetItem(node, self->scope_attr, scope) == -1)
+        goto error;
+    Py_DECREF(scope);
+
+    return 0;
+
+error:
+    Py_DECREF(scope);
+    return -1;
+}
+
+
+static int
+prerender_toremove(PyObject *node)
+{
+    PyObject *key, *val;
+    int res, res2;
+
+    if (!(key = PyString_FromString("tdi:prerender")))
+        return -1;
+    val = PyObject_GetItem(node, key);
+    if (!val) {
+        Py_DECREF(key);
+        if (!PyErr_ExceptionMatches(PyExc_KeyError))
+            return -1;
+        PyErr_Clear();
+        return 0;
+    }
+
+    res = PyObject_DelItem(node, key);
+    Py_DECREF(key);
+    if (res == -1)
+        goto error_val;
+
+    if (!(key = PyString_FromString("remove-node")))
+        goto error_val;
+
+    res2 = PyObject_Cmp(val, key, &res);
+    Py_DECREF(key);
+    Py_DECREF(val);
+
+    return (res2 == -1) ? -1 : !res;
+
+error_val:
+    Py_DECREF(val);
+    return -1;
+}
+
+
+static int
+prerender_settdi(tdi_premethod_t *self, PyObject *node, int sep)
+{
+    PyObject *tdi, *tmp;
+    char *ctdi;
+    int res;
+
+    tdi = PyString_FromStringAndSize(NULL,
+                                     !!self->noauto + !!sep +    /* [-+] */
+                                        PyString_GET_SIZE(self->name) + 1);
+    if (!tdi)
+        return -1;
+    ctdi = PyString_AS_STRING(tdi);
+
+    if (!(tmp = PyObject_GetAttrString(node, "hiddenelement")))
+        goto error;
+    res = PyObject_IsTrue(tmp);
+    Py_DECREF(tmp);
+    if (res == -1)
+        goto error;
+
+    *ctdi++ = res ? '-' : '+';
+    if (self->noauto)
+        *ctdi++ = '*';
+    if (sep)
+        *ctdi++ = ':';
+
+    (void)memcpy(ctdi, PyString_AS_STRING(self->name),
+                 (size_t)PyString_GET_SIZE(self->name));
+
+    if (PyObject_SetItem(node, self->tdi_attr, tdi) == -1)
+        goto error;
+    Py_DECREF(tdi);
+
+    if (res && PyObject_SetAttrString(node, "hiddenelement", Py_False) == -1)
+        return -1;
+
+    return 0;
+
+error:
+    Py_DECREF(tdi);
+    return -1;
+}
+
+
+static int
+prerender_render(tdi_premethod_t *self, PyObject *node, int sep)
+{
+    int toremove;
+
+    if ((toremove = prerender_toremove(node)) == -1)
+        return -1;
+
+    if (prerender_setscope(self, node) == -1)
+        return -1;
+
+    if (!toremove && self->name && prerender_settdi(self, node, sep) == -1)
+        return -1;
+
+    return 0;
+}
+
+
+static struct PyMethodDef TDI_PreRenderMethodType_methods[] = {
+    /*
+    {"_repeat",
+     (PyCFunction)TDI_PreRenderMethodType_repeat, METH_VARARGS},
+
+    {"_separate",
+     (PyCFunction)TDI_PreRenderMethodType_separate, METH_VARARGS},
+     */
+
+    {NULL, NULL}  /* Sentinel */
+};
+
+
 static PyObject *
 TDI_PreRenderMethodType_call(tdi_premethod_t *self, PyObject *args,
                              PyObject *kwds)
@@ -1005,7 +1158,15 @@ TDI_PreRenderMethodType_call(tdi_premethod_t *self, PyObject *args,
     if (!PyArg_ParseTuple(args, "O", &node))
         return NULL;
 
-    return NULL;
+    if (!self->name) {
+        if (prerender_setscope(self, node) == -1)
+            return NULL;
+    }
+    else if (prerender_render(self, node, 0) == -1) {
+        return NULL;
+    }
+
+    Py_RETURN_NONE;
 }
 
 static int
@@ -1042,7 +1203,15 @@ PyTypeObject TDI_PreRenderMethodType = {
     0,                                                  /* tp_getattro */
     0,                                                  /* tp_setattro */
     0,                                                  /* tp_as_buffer */
-    Py_TPFLAGS_HAVE_CLASS                               /* tp_flags */
+    Py_TPFLAGS_HAVE_CLASS,                              /* tp_flags */
+    0,                                                  /* tp_doc */
+    0,                                                  /* tp_traverse */
+    0,                                                  /* tp_clear */
+    0,                                                  /* tp_richcompare */
+    0,                                                  /* tp_weaklistoffset */
+    0,                                                  /* tp_iter */
+    0,                                                  /* tp_iternext */
+    TDI_PreRenderMethodType_methods                     /* tp_methods */
 };
 
 /* ---------------- END TDI_PreRenderMethodType DEFINITION --------------- */

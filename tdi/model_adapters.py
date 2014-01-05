@@ -295,15 +295,14 @@ class _PreRenderMethod(object):
             toremove = False
 
         self._setscope(node)
-        if not toremove:
-            if self._name is not None:
-                flags = node.hiddenelement and '-' or '+'
-                if self._noauto:
-                    flags += '*'
-                if sep:
-                    flags += ':'
-                node[self._tdi_attr] = flags + self._name
-                node.hiddenelement = False
+        if not toremove and self._name is not None:
+            flags = node.hiddenelement and '-' or '+'
+            if self._noauto:
+                flags += '*'
+            if sep:
+                flags += ':'
+            node[self._tdi_attr] = flags + self._name
+            node.hiddenelement = False
 
         node.repeat(self._repeat, (0, 1), node.ctx, separate=self._separate)
 
