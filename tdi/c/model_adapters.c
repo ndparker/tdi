@@ -56,6 +56,7 @@ struct tdi_adapter_t {
     } u;
 };
 
+static PyObject *prerender_tup;
 
 /*
  * Object structure for TDI_PreRenderMethodType
@@ -1119,35 +1120,148 @@ error:
 }
 
 
+static PyObject *
+prerender_repeat_func(tdi_premethod_t *self, PyObject *args, PyObject *kws)
+{
+    PyObject *ret;
+    int res;
+
+    if ((res = PyObject_IsTrue(PyTuple_GET_ITEM(args, 1))) == -1)
+        return NULL;
+    if (res) {
+        ret = PyObject_CallMethod(PyTuple_GET_ITEM(args, 0), "remove", "");
+        if (!ret)
+            return NULL;
+        Py_DECREF(ret);
+    }
+    if (-1 == PyObject_SetAttrString(PyTuple_GET_ITEM(args, 0), "ctx",
+                                     PyTuple_GET_ITEM(args, 2)))
+        return NULL;
+
+    Py_RETURN_NONE;
+}
+
+
+static int
+prerender_render(tdi_premethod_t *, PyObject *, int);
+
+
+static PyObject *
+prerender_separate_func(tdi_premethod_t *self, PyObject *args, PyObject *kws)
+{
+    if (-1 == PyObject_SetAttrString(PyTuple_GET_ITEM(args, 0), "ctx",
+                                     PyTuple_GET_ITEM(args, 1)))
+        return NULL;
+
+    if (-1 == prerender_render(self, PyTuple_GET_ITEM(args, 0), 1))
+        return NULL;
+
+    Py_RETURN_NONE;
+}
+
+
+static struct PyMethodDef prerender_repeat_method = {
+    "_repeat", (PyCFunction)prerender_repeat_func, METH_VARARGS
+};
+
+static struct PyMethodDef prerender_separate_method = {
+    "_separate", (PyCFunction)prerender_separate_func, METH_VARARGS
+};
+
+
+static int
+prerender_repeat(tdi_premethod_t *self, PyObject *node)
+{
+    PyObject *repeat, *separate, *ctx, *tup, *method, *args, *kws, *ret;
+
+    if (!(method = PyObject_GetAttrString(node, "repeat")))
+        return -1;
+
+    if (!(ctx = PyObject_GetAttrString(node, "ctx")))
+        goto error_method;
+
+    repeat = PyCFunction_NewEx(&prerender_repeat_method, (PyObject *)self,
+                               NULL);
+    if (!repeat)
+        goto error_ctx;
+
+    separate = PyCFunction_NewEx(&prerender_separate_method, (PyObject *)self,
+                                 NULL);
+    if (!separate)
+        goto error_repeat;
+
+    if (!(tup = prerender_tup)) {
+        if (!(tup = PyTuple_New(2)))
+            goto error_separate;
+        if (!(kws = PyInt_FromLong(0)))
+            goto error_tup;
+        PyTuple_SET_ITEM(tup, 0, kws);
+        if (!(kws = PyInt_FromLong(1)))
+            goto error_tup;
+        PyTuple_SET_ITEM(tup, 1, kws);
+        prerender_tup = tup;
+    }
+    Py_INCREF(tup);
+
+    if (!(kws = PyDict_New()))
+        goto error_tup;
+
+    if (!(args = PyTuple_New(3)))
+        goto error_kws;
+
+    if (PyDict_SetItemString(kws, "separate", separate) == -1)
+        goto error_args;
+    Py_DECREF(separate);
+
+    PyTuple_SET_ITEM(args, 0, repeat);
+    PyTuple_SET_ITEM(args, 1, tup);
+    PyTuple_SET_ITEM(args, 2, ctx);
+
+    ret = PyObject_Call(method, args, kws);
+    Py_DECREF(args);
+    Py_DECREF(kws);
+    Py_DECREF(method);
+    if (!ret)
+        return -1;
+    Py_DECREF(ret);
+
+    return 0;
+
+error_args:
+    Py_DECREF(args);
+error_kws:
+    Py_DECREF(kws);
+error_tup:
+    Py_DECREF(tup);
+error_separate:
+    Py_DECREF(separate);
+error_repeat:
+    Py_DECREF(repeat);
+error_ctx:
+    Py_DECREF(ctx);
+error_method:
+    Py_DECREF(method);
+
+    return -1;
+}
+
+
 static int
 prerender_render(tdi_premethod_t *self, PyObject *node, int sep)
 {
-    int toremove;
+    int res;
 
-    if ((toremove = prerender_toremove(node)) == -1)
+    if ((res = prerender_toremove(node)) == -1)
         return -1;
 
     if (prerender_setscope(self, node) == -1)
         return -1;
 
-    if (!toremove && self->name && prerender_settdi(self, node, sep) == -1)
+    if (!res && self->name && prerender_settdi(self, node, sep) == -1)
         return -1;
 
-    return 0;
+    return prerender_repeat(self, node);
 }
-
-
-static struct PyMethodDef TDI_PreRenderMethodType_methods[] = {
-    /*
-    {"_repeat",
-     (PyCFunction)TDI_PreRenderMethodType_repeat, METH_VARARGS},
-
-    {"_separate",
-     (PyCFunction)TDI_PreRenderMethodType_separate, METH_VARARGS},
-     */
-
-    {NULL, NULL}  /* Sentinel */
-};
 
 
 static PyObject *
@@ -1204,15 +1318,7 @@ PyTypeObject TDI_PreRenderMethodType = {
     0,                                                  /* tp_getattro */
     0,                                                  /* tp_setattro */
     0,                                                  /* tp_as_buffer */
-    Py_TPFLAGS_HAVE_CLASS,                              /* tp_flags */
-    0,                                                  /* tp_doc */
-    0,                                                  /* tp_traverse */
-    0,                                                  /* tp_clear */
-    0,                                                  /* tp_richcompare */
-    0,                                                  /* tp_weaklistoffset */
-    0,                                                  /* tp_iter */
-    0,                                                  /* tp_iternext */
-    TDI_PreRenderMethodType_methods                     /* tp_methods */
+    Py_TPFLAGS_HAVE_CLASS                               /* tp_flags */
 };
 
 /* ---------------- END TDI_PreRenderMethodType DEFINITION --------------- */
