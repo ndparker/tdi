@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2013
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -236,82 +236,59 @@ class PreRenderWrapper(object):
             if prefix == 'separate':
                 return None
 
-            return _PreRenderMethod(name, scope, noauto, tdi_attr, scope_attr)
+            # The node is repeated in order to get our hands on
+            # a possible separator. The second iteration of the node is simply
+            # removed, so we keep the node itself and its separator.
+
+            # However, by repeating the node we override an existing context
+            # of the node. So we pass it explicitly and override it again.
+            def repeat(node, item, ctx):
+                """ Repeater """
+                if item:
+                    return node.remove()
+                node.ctx = ctx
+
+            def setscope(node, scope=scope):
+                """ Special attribute helper """
+                node[scope_attr] = (
+                    '=' + (node.hiddenelement and '-' or '+') + scope
+                )
+
+            def render(node, name=name, sep=False):
+                """ Generated render method """
+                try:
+                    toremove = node['tdi:prerender'] == 'remove-node'
+                    del node['tdi:prerender']
+                except KeyError:
+                    toremove = False
+
+                setscope(node)
+                if not toremove:
+                    if name is not None:
+                        flags = node.hiddenelement and '-' or '+'
+                        if noauto:
+                            flags += '*'
+                        if sep:
+                            flags += ':'
+                        node[tdi_attr] = flags + name
+                        node.hiddenelement = False
+
+                def separate(node, ctx):
+                    """ Separator """
+                    node.ctx = ctx
+                    return render(node, sep=True)
+
+                node.repeat(repeat, (0, 1), node.ctx, separate=separate)
+
+            if name is None:
+                return setscope
+            return render
 
         self.modelmethod = modelmethod
         self.new = new
         self.emit_escaped = True
 
         return self
-
-
-class _PreRenderMethod(object):
-    """ Prerender method """
-
-    def __init__(self, name, scope, noauto, tdi_attr, scope_attr):
-        """ Initialization """
-        self._name = name
-        self._scope = scope
-        self._noauto = noauto
-        self._tdi_attr = tdi_attr
-        self._scope_attr = scope_attr
-
-    def _repeat(self, node, item, ctx):
-        """
-        Repeater
-
-        The node is repeated in order to get our hands on
-        a possible separator. The second iteration of the node is simply
-        removed, so we keep the node itself and its separator.
-
-        However, by repeating the node we override an existing context
-        of the node. So we pass it explicitly and override it again.
-        """
-        if item:
-            return node.remove()
-        node.ctx = ctx
-
-    def _separate(self, node, ctx):
-        """
-        Separator
-
-        :See: `_repeat`
-        """
-        node.ctx = ctx
-        return self._render(node, sep=True)
-
-    def _setscope(self, node):
-        """ Set scope to current """
-        node[self._scope_attr] = (
-            '=' + (node.hiddenelement and '-' or '+') + self._scope
-        )
-
-    def _render(self, node, sep=False):
-        """ Render the node (by restoring its tdi attributes) """
-        try:
-            toremove = node['tdi:prerender'] == 'remove-node'
-            del node['tdi:prerender']
-        except KeyError:
-            toremove = False
-
-        self._setscope(node)
-        if not toremove and self._name is not None:
-            flags = node.hiddenelement and '-' or '+'
-            if self._noauto:
-                flags += '*'
-            if sep:
-                flags += ':'
-            node[self._tdi_attr] = flags + self._name
-            node.hiddenelement = False
-
-        node.repeat(self._repeat, (0, 1), node.ctx, separate=self._separate)
-
-    def __call__(self, node):
-        """ Actual generated render method """
-        if self._name is None:
-            self._setscope(node)
-        else:
-            self._render(node)
 
 
 from tdi import c
