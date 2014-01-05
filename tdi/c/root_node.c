@@ -598,7 +598,7 @@ PyTypeObject TDI_RootNodeType = {
     | TDI_IF_GC(Py_TPFLAGS_HAVE_GC),
     TDI_RootNodeType__doc__,                            /* tp_doc */
     (traverseproc)TDI_IF_GC(TDI_RootNodeType_traverse), /* tp_traverse */
-    (inquiry)TDI_RootNodeType_clear,                    /* tp_clear */
+    (inquiry)TDI_IF_GC(TDI_RootNodeType_clear),         /* tp_clear */
     0,                                                  /* tp_richcompare */
     offsetof(tdi_node_t, weakreflist),                  /* tp_weaklistoffset */
     0,                                                  /* tp_iter */

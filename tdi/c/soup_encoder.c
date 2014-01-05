@@ -771,7 +771,7 @@ PyTypeObject TDI_SoupEncoderType = {
     | TDI_IF_GC(Py_TPFLAGS_HAVE_GC),
     TDI_SoupEncoderType__doc__,                         /* tp_doc */
     (traverseproc)TDI_IF_GC(TDI_SoupEncoderType_traverse), /* tp_traverse */
-    (inquiry)TDI_SoupEncoderType_clear,                 /* tp_clear */
+    (inquiry)TDI_IF_GC(TDI_SoupEncoderType_clear),      /* tp_clear */
     0,                                                  /* tp_richcompare */
     offsetof(tdi_soup_encoder_t, weakreflist),          /* tp_weaklistoffset */
     0,                                                  /* tp_iter */

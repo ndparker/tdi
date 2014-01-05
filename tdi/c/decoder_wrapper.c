@@ -75,7 +75,7 @@ PyTypeObject TDI_DecoderWrapperType = {
     | TDI_IF_GC(Py_TPFLAGS_HAVE_GC),
     0,                                                  /* tp_doc */
     (traverseproc)TDI_IF_GC(TDI_DecoderWrapperType_traverse), /* tp_traverse */
-    (inquiry)TDI_DecoderWrapperType_clear               /* tp_clear */
+    (inquiry)TDI_IF_GC(TDI_DecoderWrapperType_clear)    /* tp_clear */
 };
 
 /* ----------------- END TDI_DecoderWrapperType DEFINITION ----------------- */

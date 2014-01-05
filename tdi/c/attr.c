@@ -68,7 +68,7 @@ PyTypeObject TDI_AttrType = {
     | TDI_IF_GC(Py_TPFLAGS_HAVE_GC),
     0,                                                  /* tp_doc */
     (traverseproc)TDI_IF_GC(TDI_AttrType_traverse),     /* tp_traverse */
-    (inquiry)TDI_AttrType_clear                         /* tp_clear */
+    (inquiry)TDI_IF_GC(TDI_AttrType_clear)              /* tp_clear */
 };
 
 /* ---------------------- END TDI_AttrType DEFINITION ---------------------- */

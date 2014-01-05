@@ -20,6 +20,7 @@
 #include "tdi_exceptions.h"
 #include "tdi_globals.h"
 
+#include "obj_avoid_gc.h"
 #include "obj_model_adapters.h"
 
 
@@ -1284,6 +1285,20 @@ TDI_PreRenderMethodType_call(tdi_premethod_t *self, PyObject *args,
     Py_RETURN_NONE;
 }
 
+#ifndef TDI_AVOID_GC
+static int
+TDI_PreRenderMethodType_traverse(tdi_premethod_t *self, visitproc visit,
+                                 void *arg)
+{
+    Py_VISIT(self->name);
+    Py_VISIT(self->scope);
+    Py_VISIT(self->tdi_attr);
+    Py_VISIT(self->scope_attr);
+
+    return 0;
+}
+#endif
+
 static int
 TDI_PreRenderMethodType_clear(tdi_premethod_t *self)
 {
@@ -1319,6 +1334,11 @@ PyTypeObject TDI_PreRenderMethodType = {
     0,                                                  /* tp_setattro */
     0,                                                  /* tp_as_buffer */
     Py_TPFLAGS_HAVE_CLASS                               /* tp_flags */
+    | TDI_IF_GC(Py_TPFLAGS_HAVE_GC),
+    0,                                                  /* tp_doc */
+    (traverseproc)TDI_IF_GC(TDI_PreRenderMethodType_traverse),
+                                                        /* tp_traverse */
+    (inquiry)TDI_IF_GC(TDI_PreRenderMethodType_clear)   /* tp_clear */
 };
 
 /* ---------------- END TDI_PreRenderMethodType DEFINITION --------------- */

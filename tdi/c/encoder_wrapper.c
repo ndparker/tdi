@@ -89,7 +89,7 @@ PyTypeObject TDI_EncoderWrapperType = {
     | TDI_IF_GC(Py_TPFLAGS_HAVE_GC),
     0,                                                  /* tp_doc */
     (traverseproc)TDI_IF_GC(TDI_EncoderWrapperType_traverse), /* tp_traverse */
-    (inquiry)TDI_EncoderWrapperType_clear               /* tp_clear */
+    (inquiry)TDI_IF_GC(TDI_EncoderWrapperType_clear)    /* tp_clear */
 };
 
 /* ----------------- END TDI_EncoderWrapperType DEFINITION ----------------- */
