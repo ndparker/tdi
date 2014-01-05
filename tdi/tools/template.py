@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2013
+ Copyright 2013 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -321,7 +321,19 @@ class Layout(object):
 
 
 def distinct_overlays(tpl):
-    """ Extract distinct overlay names """
+    """
+    Extract distinct overlay names of a template
+
+    Overlay names available both as target and source within the template
+    are discarded.
+
+    :Parameters:
+      `tpl` : `tdi.template.Template`
+        Template to inspect
+
+    :Return: set(targets), set(sources)
+    :Rtype: ``tuple``
+    """
     targets = set(tpl.target_overlay_names)
     sources = set(tpl.source_overlay_names)
     return targets - sources, sources - targets
@@ -332,6 +344,9 @@ def discover(loader, names, use=None, ignore=None):
     Find templates to use, sort topologically correct
 
     :Parameters:
+      `loader` : `Loader`
+        Template loader
+
       `names` : ``iterable``
         Base names. These templates are always added first, in order and
         define the initial list of overlays to discover.
@@ -416,10 +431,50 @@ def discover(loader, names, use=None, ignore=None):
 
 
 class Loader(object):
-    """ Loader """
+    """
+    Loader Container
+
+    :IVariables:
+      `_available` : ``dict`` or ``None``
+        The mapping cache. This dict contains the overlay -> template mapping.
+        If ``None``, the dict is created during the next call of the
+        ``available`` method.
+
+      `_registered` : ``set``
+        List of template names registered for autoreload
+
+      `_load` : callable
+        Loader
+
+      `_list` : callable
+        Lister
+
+      `_select` : callable
+        Selector
+    """
 
     def __init__(self, list, load, select): # pylint: disable = W0622
-        """ Initialization """
+        """
+        Initialization
+
+        :Parameters:
+          `list` : callable
+            Template lister. This function is called without parameters and
+            expected to return a list of all template names available.
+            Template names are hashable tokens (such as strings) identifying
+            the templates. They are passed to the `load` function if the
+            template needs to be loaded.
+
+          `load` : callable
+            Template loader. This function is called with a template name as
+            parameter and expected to return the actual template object.
+
+          `select` : callable
+            Template selector. This function is called with two parameters:
+            The loader instance (self) and the template name. It is expected
+            to return a bool value, which decides whether this template is
+            in the pool for automatic templates or not.
+        """
         self._available = None
         self._registered = set()
         self._load = load
@@ -427,15 +482,29 @@ class Loader(object):
         self._select = select
 
     def autoreload(self):
-        """ Autoreload templates? """
+        """
+        Autoreload templates?
+
+        :Return: Autoreloading available?
+        :Rtype: ``bool``
+        """
         return bool(self._registered)
 
     def _callback(self, _):
-        """ Autoupdate callback - resets the source mapping """
+        """ Autoupdate callback - reset the source mapping """
         self._available = None
 
     def load(self, name):
-        """ Load a single template and register the autoupdate callback """
+        """
+        Load a single template and register the autoupdate callback
+
+        :Parameters:
+          `name` : hashable
+            Template name
+
+        :Return: The template
+        :Rtype: `tdi.template.Template`
+        """
         tpl = self._load(name)
         if name not in self._registered:
             register = getattr(tpl, 'autoupdate_register_callback', None)
