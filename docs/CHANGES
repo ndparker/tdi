@@ -1,5 +1,7 @@
 Changes with version
 
+ *) Added C implementation of the PreRenderWrapper
+
  *) Fixed a few reference leaks
 
  *) Updated rJSmin to version 1.0.7
