@@ -16,12 +16,13 @@
  */
 
 #include "cext.h"
-#include "tdi_globals.h"
+
 #include "tdi_copy.h"
+#include "tdi_globals.h"
 #include "tdi_iterate.h"
 
+#include "obj_model_adapters.h"
 #include "obj_node.h"
-#include "obj_render_adapter.h"
 
 
 /*

@@ -16,6 +16,7 @@
  */
 
 #include "cext.h"
+
 #include "tdi_content.h"
 #include "tdi_copy.h"
 #include "tdi_globals.h"
@@ -23,8 +24,8 @@
 
 #include "obj_encoder.h"
 #include "obj_iterate_iter.h"
+#include "obj_model_adapters.h"
 #include "obj_node.h"
-#include "obj_render_adapter.h"
 #include "obj_repeat_iter.h"
 
 

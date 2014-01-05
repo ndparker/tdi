@@ -16,10 +16,11 @@
  */
 
 #include "cext.h"
-#include "tdi_globals.h"
-#include "tdi_exceptions.h"
+
 #include "tdi_content.h"
 #include "tdi_copy.h"
+#include "tdi_exceptions.h"
+#include "tdi_globals.h"
 #include "tdi_node_clear.h"
 #include "tdi_overlay.h"
 #include "tdi_remove.h"
@@ -28,14 +29,14 @@
 #include "tdi_scope.h"
 #include "tdi_util.h"
 
-#include "obj_node.h"
 #include "obj_attr.h"
-#include "obj_encoder.h"
 #include "obj_decoder.h"
+#include "obj_encoder.h"
+#include "obj_model_adapters.h"
+#include "obj_node.h"
 #include "obj_raw_node.h"
-#include "obj_template_node.h"
 #include "obj_render_iter.h"
-#include "obj_render_adapter.h"
+#include "obj_template_node.h"
 
 
 #define TDI_NodeType_Check(op) PyObject_TypeCheck(op, &TDI_NodeType)

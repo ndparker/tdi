@@ -16,18 +16,19 @@
  */
 
 #include "cext.h"
-#include "tdi_exceptions.h"
+
 #include "tdi_content.h"
-#include "tdi_repr.h"
-#include "tdi_overlay.h"
+#include "tdi_exceptions.h"
 #include "tdi_finalize.h"
+#include "tdi_overlay.h"
+#include "tdi_repr.h"
 
 #include "obj_avoid_gc.h"
-#include "obj_node.h"
-#include "obj_render_adapter.h"
-#include "obj_render_iter.h"
-#include "obj_encoder.h"
 #include "obj_decoder.h"
+#include "obj_encoder.h"
+#include "obj_model_adapters.h"
+#include "obj_node.h"
+#include "obj_render_iter.h"
 #include "obj_root_node.h"
 #include "obj_template_node.h"
 

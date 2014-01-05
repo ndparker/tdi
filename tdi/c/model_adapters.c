@@ -16,10 +16,11 @@
  */
 
 #include "cext.h"
+
 #include "tdi_exceptions.h"
 #include "tdi_globals.h"
 
-#include "obj_render_adapter.h"
+#include "obj_model_adapters.h"
 
 
 typedef enum {

@@ -16,13 +16,14 @@
  */
 
 #include "cext.h"
+
 #include "tdi_content.h"
 #include "tdi_copy.h"
 #include "tdi_render.h"
 
+#include "obj_model_adapters.h"
 #include "obj_node.h"
 #include "obj_render_iter.h"
-#include "obj_render_adapter.h"
 
 
 /* ---------------- BEGIN TDI_RenderIteratorType DEFINITION ---------------- */
