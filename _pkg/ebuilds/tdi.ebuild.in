@@ -16,9 +16,21 @@ RESTRICT="mirror"
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="doc"
+IUSE="doc full-gc"
 
 DOCS=( docs/{CHANGES,DESCRIPTION} README.rst )
+
+python_compile() {
+	local arg
+
+	case "${EPYTHON}" in
+		python*)
+			use full-gc && arg="--with-full-gc"
+			;;
+	esac
+
+	distutils-r1_python_compile $arg || die
+}
 
 python_install() {
 	distutils-r1_python_install --without-docs || die
