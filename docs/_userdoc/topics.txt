@@ -1,5 +1,5 @@
 .. license:
-    Copyright 2010 - 2013
+    Copyright 2010 - 2014
     André Malo or his licensors, as applicable
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -176,9 +176,9 @@ module. The CSS tools mainly provide a minifier for now. :doc:`More...
 Template Tools
 --------------
 
-The tools described here can be found in the :tdi:`tdi.tools.template`
-module. The module provides tools for automatic template discovery based
-on overlay dependencies. :doc:`More... <template_tools>`
+The :tdi:`tdi.tools.template` module deals with templates on a higher
+level and can help you organizing your template lists.
+:doc:`More... <template_tools>`
 
 
 Advanced Features
