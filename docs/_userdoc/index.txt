@@ -43,61 +43,33 @@ Example
 HTML Template
 -------------
 
-.. code-block:: html
+layout.html
+***********
 
-    <!-- layout.html -->
-    <html>
-    <head>
-        <title tdi="title"></title>
-    </head>
-    <body tdi:overlay=">body">
-    </body>
-    </html>
+.. literalinclude:: ../examples/layout.html
+    :language: html
 
-    <!-- template.html -->
-    <body tdi:overlay="<body">
-        <table>
-            <tr tdi="row">
-                <td tdi="col"></td>
-            </tr>
-        </table>
-    </body>
+
+calendar.html
+*************
+
+.. literalinclude:: ../examples/calendar.html
+    :language: html
 
 
 Python Code
 -----------
 
-.. code-block:: python
+.. literalinclude:: ../examples/calendar.py
+    :language: python
+    :start-after: BEGIN INCLUDE
 
-    from tdi import html
 
-    class Model(object):
-        def __init__(self, name, table):
-            self.name = name
-            self.table = table
+Result
+------
 
-        def render_title(self, node):
-            node.content = self.name
-
-        def render_row(self, node):
-            node.repeat(None, self.table)
-
-        def render_col(self, node):
-            cols = node.ctx[1]
-            node.repeat(self.repeat_col, cols)
-
-        def repeat_col(self, node, col):
-            node.content = col
-
-    table = [
-        ( 1,  2,  3,   4,   5,   6,   7),
-        ( 8,  9, 10,  11,  12,  13,  14),
-        (15, 16, 17,  18,  19,  20,  21),
-        (22, 23, 24,  25,  26,  27,  28),
-        (29, 30, 31, u'', u'', u'', u''),
-    ]
-    tpl = html.from_file('layout.html', 'template.html')
-    tpl.render(Model(u"M\xe4rz", table))
+.. literalinclude:: ../examples/out/calendar.out
+    :language: html
 
 
 Documentation
