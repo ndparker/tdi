@@ -37,36 +37,33 @@ alternative implementations are supported:
 - Jython (2.5, 2.7) (Python only)
 
 
-Example
-~~~~~~~
-
-HTML Template
--------------
+Write HTML...
+~~~~~~~~~~~~~
 
 layout.html
-***********
+-----------
 
 .. literalinclude:: ../examples/layout.html
     :language: html
 
 
 calendar.html
-*************
+-------------
 
 .. literalinclude:: ../examples/calendar.html
     :language: html
 
 
-Python Code
------------
+Write Python...
+~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../examples/calendar.py
     :language: python
     :start-after: BEGIN INCLUDE
 
 
-Result
-------
+Be Done.
+~~~~~~~~
 
 .. literalinclude:: ../examples/out/calendar.out
     :language: html
@@ -89,19 +86,6 @@ Documentation
 `PyCon DE 2011 <http://2011.de.pycon.org/2011/home/>`_, which is `available
 on youtube <http://www.youtube.com/watch?v=49ERjKlpY10>`_ (German, about 30
 minutes).
-
-
-Development Status
-~~~~~~~~~~~~~~~~~~
-
-|TDI| has proven its performance and stability in high load production
-environments, which means, it *works* and it's *stable*. There are still
-some kinks to solve and a few missing minor features to add until |TDI|
-reaches version 1.0. So, development wise it's effectively a beta
-release right now.
-
-
-.. placeholder: Download
 
 
 Rationale, Advocacy, Key Features
@@ -151,6 +135,19 @@ documentation_):
 - |TDI| is unicode aware and automatically emits the desired encoding.
 - |TDI| is designed to be highly customizable and extendable. Nearly every
   component can be modified or replaced.
+
+
+Development Status
+~~~~~~~~~~~~~~~~~~
+
+|TDI| has proven its performance and stability in high load production
+environments, which means, it *works* and it's *stable*. There are still
+some kinks to solve and a few missing minor features to add until |TDI|
+reaches version 1.0. So, development wise it's effectively a beta
+release right now.
+
+
+.. placeholder: Download
 
 
 License
