@@ -3,6 +3,9 @@ import warnings as _warnings
 _warnings.resetwarnings()
 _warnings.filterwarnings('error')
 
+import os
+os.chdir(os.path.dirname(os.path.abspath(os.path.normpath(__file__))))
+
 # BEGIN INCLUDE
 from tdi import html
 

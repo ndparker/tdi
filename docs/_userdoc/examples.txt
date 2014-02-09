@@ -23,6 +23,13 @@ This page lists all examples found throughout the documentation, grouped
 by chapter.
 
 
+Homepage
+~~~~~~~~
+
+- `Calendar <../examples/calendar.py>`_ (`Output
+  <../examples/out/calendar.out>`__)
+
+
 Basic Templating
 ~~~~~~~~~~~~~~~~
 
