@@ -27,7 +27,8 @@ Overlay Discovery
 ~~~~~~~~~~~~~~~~~
 
 Practically any non-trivial project consists of a collection of recurring
-template pieces. Be it the basic document layout or tiny boxes
+template pieces. Be it the basic document layout or tiny boxes appearing
+here and there.
 
 
 
