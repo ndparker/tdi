@@ -1,5 +1,5 @@
 /*
- * Copyright 2011
+ * Copyright 2011 - 2014
  * Andr\xe9 Malo or his licensors, as applicable
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,7 @@ typedef struct {
     const rchar *start;
     const rchar *sentinel;
     const rchar *tsentinel;
-    Py_ssize_t at_media;
+    Py_ssize_t at_group;
     int in_macie5;
     int in_rule;
     int keep_bang_comments;
@@ -107,23 +107,58 @@ static const rchar pattern_ie7[] = {
 };
 
 static const rchar pattern_media[] = {
-    /*U('@'),*/ U('m'), U('e'), U('d'), U('i'), U('a'),
-    /*U('@'),*/ U('M'), U('E'), U('D'), U('I'), U('A')
+    U('m'), U('e'), U('d'), U('i'), U('a'),
+    U('M'), U('E'), U('D'), U('I'), U('A')
+};
+
+static const rchar pattern_document[] = {
+    U('d'), U('o'), U('c'), U('u'), U('m'), U('e'), U('n'), U('t'),
+    U('D'), U('O'), U('C'), U('U'), U('M'), U('E'), U('N'), U('T')
+};
+
+static const rchar pattern_supports[] = {
+    U('s'), U('u'), U('p'), U('p'), U('o'), U('r'), U('t'), U('s'),
+    U('S'), U('U'), U('P'), U('P'), U('O'), U('R'), U('T'), U('S')
+};
+
+static const rchar pattern_keyframes[] = {
+    U('k'), U('e'), U('y'), U('f'), U('r'), U('a'), U('m'), U('e'), U('s'),
+    U('K'), U('E'), U('Y'), U('F'), U('R'), U('A'), U('M'), U('E'), U('S')
+};
+
+static const rchar pattern_vendor_o[] = {
+    U('-'), U('o'), U('-'),
+    U('-'), U('O'), U('-')
+};
+
+static const rchar pattern_vendor_moz[] = {
+    U('-'), U('m'), U('o'), U('z'), U('-'),
+    U('-'), U('M'), U('O'), U('Z'), U('-')
+};
+
+static const rchar pattern_vendor_webkit[] = {
+    U('-'), U('w'), U('e'), U('b'), U('k'), U('i'), U('t'), U('-'),
+    U('-'), U('W'), U('E'), U('B'), U('K'), U('I'), U('T'), U('-')
+};
+
+static const rchar pattern_vendor_ms[] = {
+    U('-'), U('m'), U('s'), U('-'),
+    U('-'), U('M'), U('S'), U('-')
 };
 
 static const rchar pattern_first[] = {
-    /*U(':'),*/ U('f'), U('i'), U('r'), U('s'), U('t'), U('-'), U('l'),
-    /*U(':'),*/ U('F'), U('I'), U('R'), U('S'), U('T'), U('-'), U('L')
+    U('f'), U('i'), U('r'), U('s'), U('t'), U('-'), U('l'),
+    U('F'), U('I'), U('R'), U('S'), U('T'), U('-'), U('L')
 };
 
 static const rchar pattern_line[] = {
-    /*U('l'),*/ U('i'), U('n'), U('e'),
-    /*U('L'),*/ U('I'), U('N'), U('E'),
+    U('i'), U('n'), U('e'),
+    U('I'), U('N'), U('E'),
 };
 
 static const rchar pattern_letter[] = {
-    /*U('l'),*/ U('e'), U('t'), U('t'), U('e'), U('r'),
-    /*U('L'),*/ U('E'), U('T'), U('T'), U('E'), U('R')
+    U('e'), U('t'), U('t'), U('e'), U('r'),
+    U('E'), U('T'), U('T'), U('E'), U('R')
 };
 
 static const rchar pattern_macie5_init[] = {
@@ -145,10 +180,13 @@ copy_match(const rchar *pattern, const rchar *psentinel,
     rchar *target = *target_;
     rchar c;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-overflow"
     while (pattern < psentinel
            && source < ctx->sentinel && target < ctx->tsentinel
            && ((c = *source++) == *pattern++))
         *target++ = c;
+#pragma GCC diagnostic pop
 
     *source_ = source;
     *target_ = target;
@@ -204,8 +242,11 @@ copy(const rchar *source, const rchar *sentinel, rchar **target_,
 {
     rchar *target = *target_;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-overflow"
     while (source < sentinel && target < ctx->tsentinel)
         *target++ = *source++;
+#pragma GCC diagnostic pop
 
     *target_ = target;
 
@@ -512,10 +553,10 @@ copy_url(const rchar **source_, rchar **target_, rcssmin_ctx_t *ctx)
 
 
 /*
- * Copy @media
+ * Copy @-group
  */
 static void
-copy_media(const rchar **source_, rchar **target_, rcssmin_ctx_t *ctx)
+copy_at_group(const rchar **source_, rchar **target_, rcssmin_ctx_t *ctx)
 {
     const rchar *source = *source_;
     rchar *target = *target_;
@@ -523,14 +564,29 @@ copy_media(const rchar **source_, rchar **target_, rcssmin_ctx_t *ctx)
     *target++ = U('@');
     *target_ = target;
 
-    if (!IMATCH(media, &source, &target, ctx)
-        || !(source < ctx->sentinel && target < ctx->tsentinel))
+#define REMATCH(what) ( \
+    source = *source_, \
+    target = *target_, \
+    IMATCH(what, &source, &target, ctx) \
+)
+#define CMATCH(what) IMATCH(what, &source, &target, ctx)
+
+    if ((  !CMATCH(media)
+        && !REMATCH(supports)
+        && !REMATCH(document)
+        && !REMATCH(keyframes)
+        && !(REMATCH(vendor_webkit) && CMATCH(keyframes))
+        && !(REMATCH(vendor_moz) && CMATCH(keyframes))
+        && !(REMATCH(vendor_o) && CMATCH(keyframes))
+        && !(REMATCH(vendor_ms) && CMATCH(keyframes)))
+        || !(source < ctx->sentinel && target < ctx->tsentinel)
+        || RCSSMIN_IS_NMCHAR(*source))
         ABORT;
 
-    if (RCSSMIN_IS_NMCHAR(*source))
-        ABORT;
+#undef CMATCH
+#undef REMATCH
 
-    ++ctx->at_media;
+    ++ctx->at_group;
 
     *target_ = target;
     *source_ = source;
@@ -606,7 +662,7 @@ copy_space(const rchar **source_, rchar **target_, rcssmin_ctx_t *ctx,
         && !RCSSMIN_IS_PRE_CHAR(source[-1])
         && (end = skip_space(source, ctx)) < ctx->sentinel
         && (!RCSSMIN_IS_POST_CHAR(*end)
-            || (*end == U(':') && !ctx->in_rule && !ctx->at_media))) {
+            || (*end == U(':') && !ctx->in_rule && !ctx->at_group))) {
 
         if (!(target < ctx->tsentinel))
             ABORT;
@@ -781,7 +837,7 @@ copy_ie7hack(const rchar **source_, rchar **target_, rcssmin_ctx_t *ctx)
     *target++ = U('>');
     *target_ = target;
 
-    if (ctx->in_rule || ctx->at_media)
+    if (ctx->in_rule || ctx->at_group)
         return; /* abort */
 
     if (!MATCH(ie7, &source, &target, ctx))
@@ -873,7 +929,7 @@ rcssmin(const rchar *source, rchar *target, Py_ssize_t slength,
     ctx->start = source;
     ctx->sentinel = source + slength;
     ctx->tsentinel = target + tlength;
-    ctx->at_media = 0;
+    ctx->at_group = 0;
     ctx->in_macie5 = 0;
     ctx->in_rule = 0;
     ctx->keep_bang_comments = keep_bang_comments;
@@ -911,9 +967,9 @@ rcssmin(const rchar *source, rchar *target, Py_ssize_t slength,
             copy_ie7hack(&source, &target, ctx);
             continue;
 
-        /* @media */
+        /* @-group */
         case U('@'):
-            copy_media(&source, &target, ctx);
+            copy_at_group(&source, &target, ctx);
             continue;
 
         /* ; */
@@ -929,8 +985,8 @@ rcssmin(const rchar *source, rchar *target, Py_ssize_t slength,
 
         /* { */
         case U('{'):
-            if (ctx->at_media)
-                --ctx->at_media;
+            if (ctx->at_group)
+                --ctx->at_group;
             else
                 ++ctx->in_rule;
             *target++ = c;

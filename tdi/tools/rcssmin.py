@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: ascii -*-
-ur"""
+"""
 :Copyright:
 
- Copyright 2011, 2012
+ Copyright 2011 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -26,8 +26,8 @@ ur"""
 
 CSS Minifier.
 
-The minifier is based on the semantics of the `YUI compressor`_\, which itself
-is based on `the rule list by Isaac Schlueter`_\.
+The minifier is based on the semantics of the `YUI compressor`_\\, which
+itself is based on `the rule list by Isaac Schlueter`_\\.
 
 This module is a re-implementation aiming for speed instead of maximum
 compression, so it can be used at runtime (rather than during a preprocessing
@@ -55,7 +55,7 @@ Here's a feature list:
 - CSS Hacks supported:
 
   - IE7 hack (``>/**/``)
-  - Mac-IE5 hack (``/*\*/.../**/``)
+  - Mac-IE5 hack (``/*\\*/.../**/``)
   - The boxmodelhack is supported naturally because it relies on valid CSS2
     strings
   - Between ``:first-line`` and the following comma or curly brace a space is
@@ -71,11 +71,14 @@ Both python 2 (>= 2.4) and python 3 are supported.
 
 .. _the rule list by Isaac Schlueter: https://github.com/isaacs/cssmin/tree/
 """
+if 1:
+    # pylint: disable = W0622
+    __doc__ = getattr(__doc__, 'decode', lambda x: __doc__)('latin-1')
 __author__ = "Andr\xe9 Malo"
 __author__ = getattr(__author__, 'decode', lambda x: __author__)('latin-1')
 __docformat__ = "restructuredtext en"
 __license__ = "Apache License, Version 2.0"
-__version__ = '1.0.0'
+__version__ = '1.0.3'
 __all__ = ['cssmin']
 
 import re as _re
@@ -88,7 +91,7 @@ def _make_cssmin(python_only=False):
     :Parameters:
       `python_only` : ``bool``
         Use only the python variant. If true, the c extension is not even
-        tried to be loaded (tdi.c._tdi_rcssmin)
+        tried to be loaded. (tdi.c._tdi_rcssmin)
 
     :Return: Minifier
     :Rtype: ``callable``
@@ -185,7 +188,15 @@ def _make_cssmin(python_only=False):
                 r'%(uri_nl_strings)s'
                 r'|%(uri)s'
             r')%(spacechar)s*\)'
-        r'|(@[mM][eE][dD][iI][aA])(?!%(nmchar)s)'
+        r'|(@(?:'
+              r'[mM][eE][dD][iI][aA]'
+              r'|[sS][uU][pP][pP][oO][rR][tT][sS]'
+              r'|[dD][oO][cC][uU][mM][eE][nN][tT]'
+              r'|(?:-(?:'
+                  r'[wW][eE][bB][kK][iI][tT]|[mM][oO][zZ]|[oO]|[mM][sS]'
+                r')-)?'
+                r'[kK][eE][yY][fF][rR][aA][mM][eE][sS]'
+            r'))(?!%(nmchar)s)'
         r'|(%(ie7hack)s)(%(space)s*)'
         r'|(:[fF][iI][rR][sS][tT]-[lL]'
             r'(?:[iI][nN][eE]|[eE][tT][tT][eE][rR]))'
@@ -198,7 +209,7 @@ def _make_cssmin(python_only=False):
 
     def main_subber(keep_bang_comments):
         """ Make main subber """
-        in_macie5, in_rule, at_media = [0], [0], [0]
+        in_macie5, in_rule, at_group = [0], [0], [0]
 
         if keep_bang_comments:
             space_sub = space_sub_banged
@@ -240,7 +251,7 @@ def _make_cssmin(python_only=False):
         def fn_space_post(group):
             """ space with token after """
             if group(5) is None or (
-                    group(6) == ':' and not in_rule[0] and not at_media[0]):
+                    group(6) == ':' and not in_rule[0] and not at_group[0]):
                 return ' ' + space_sub(space_subber, group(4))
             return space_sub(space_subber, group(4))
 
@@ -257,8 +268,8 @@ def _make_cssmin(python_only=False):
         def fn_open(group):
             """ { handler """
             # pylint: disable = W0613
-            if at_media[0]:
-                at_media[0] -= 1
+            if at_group[0]:
+                at_group[0] -= 1
             else:
                 in_rule[0] = 1
             return '{'
@@ -269,14 +280,14 @@ def _make_cssmin(python_only=False):
             in_rule[0] = 0
             return '}'
 
-        def fn_media(group):
-            """ @media handler """
-            at_media[0] += 1
+        def fn_at_group(group):
+            """ @xxx group handler """
+            at_group[0] += 1
             return group(13)
 
         def fn_ie7hack(group):
             """ IE7 Hack handler """
-            if not in_rule[0] and not at_media[0]:
+            if not in_rule[0] and not at_group[0]:
                 in_macie5[0] = 0
                 return group(14) + space_sub(space_subber, group(15))
             return '>' + space_sub(space_subber, group(15))
@@ -296,7 +307,7 @@ def _make_cssmin(python_only=False):
             lambda g: g(11),                    # string
             lambda g: 'url(%s)' % uri_space_sub(uri_space_subber, g(12)),
                                                 # url(...)
-            fn_media,                           # @media
+            fn_at_group,                        # @xxx expecting {...}
             None,
             fn_ie7hack,                         # ie7hack
             None,
