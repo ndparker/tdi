@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef TDI_OBJ_RENDER_ADAPTER_H
-#define TDI_OBJ_RENDER_ADAPTER_H
+#ifndef TDI_OBJ_MODEL_ADAPTERS_H
+#define TDI_OBJ_MODEL_ADAPTERS_H
 
 #include "cext.h"
 #include "tdi.h"
