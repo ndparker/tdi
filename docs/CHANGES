@@ -4,7 +4,9 @@ Changes with version
 
  *) Fixed a few reference leaks
 
- *) Updated rJSmin to version 1.0.7
+ *) Updated rCSSmin to version 1.0.3
+
+ *) Updated rJSmin to version 1.0.8
 
  *) Added new tool collection: tdi.tools.template. It contains functions for
     automatic template discovery and ordering by inspecting overlay
