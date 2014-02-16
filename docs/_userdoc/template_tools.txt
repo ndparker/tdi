@@ -26,10 +26,96 @@ level and can help you organizing your template lists.
 Overlay Discovery
 ~~~~~~~~~~~~~~~~~
 
-Practically any non-trivial project consists of a collection of recurring
-template pieces. Be it the basic document layout or tiny boxes appearing
-here and there.
+Practically any non-trivial project consists of a collection of
+recurring template pieces. Be it the basic document layout or tiny boxes
+appearing here and there. Every outsourced piece is eventually placed in
+the final template via the :doc:`overlay mechanism <overlays>`. That
+way, a template definition is always a list of template sources and
+might look like this::
 
+    tpl = [
+        'layout.html',
+        'index.html',
+        'header.html',
+        'footer.html',
+        'login.html',
+        'widget1.html',
+        'widget2.html',
+        # and so on
+    ]
+
+Creating these lists is easy, as you typically create one page at a
+time. *Maintaining* them is harder, especially in bigger projects.
+Suppose, you place a new snippet into the footer (via overlay) -- you
+have to modify *all* template lists. Both tasks -- creating and
+maintaining -- are very suitable for automating.
+
+The following subchapters explain the automating mechanism in a
+bottom-up manner. The code typically used by library users is the
+:class:`Layout` class, configured with a :class:`Loader` instance.
+
+
+``discover`` Function
+~~~~~~~~~~~~~~~~~~~~~
+
+.. function:: discover(loader, names, use=None, ignore=None)
+
+    Find templates to use and order them topologically correct
+
+The :tdi:`tdi.tools.template./discover` function is the heart of the
+template tools helping you organizing your templates.
+
+The function takes a base set of template names and finds all additional
+template sources needed to create the final template. All on the basis
+of overlay dependencies. The base set in the example above might be, for
+example::
+
+    ['layout.html', 'index.html']
+
+``discover`` calculates a list of template names, a set of unresolved
+overlays and a dict of ambiguous overlays (mapping overlay names to
+tuples of template names). In case of an overlay cycle an exception is
+raised.
+
+The ``use`` and ``ignore`` parameters are for fine tuning the
+resulting list. They can handle manual overrides and resolve
+ambiguities (when overlays are available in more than one template).
+
+In order to execute the :func:`discover` function, we need another
+abstraction -- the ``loader``, which is responsible for actually finding
+and loading the templates by their names.
+
+
+``Loader`` Class
+~~~~~~~~~~~~~~~~
+
+.. class:: Loader(list, load, select)
+
+    Find, load and select templates
+
+The :tdi:`tdi.tools.template./Loader` is a container class, an interface
+between the :func:`discover` function and the actual code working with
+the templates. The latter is passed to the constructor and split into
+three functions:
+
+``list``
+  This is the template lister. The function is called without parameters
+  and should return a list of all template names. A template name is
+  typically a string, but it can be anything, as long as is (a) hashable
+  and (b) uniquely identifies a template. The returned list can be
+  filtered later using the ``select`` function.
+``load``
+  This function actually should load a template. It takes one parameter
+  (a template name as returned by the lister). The function is expected
+  to return an actual :tdi:`tdi.template./Template` object.
+``select``
+  The selector decides if a particular template source is available for
+  automatic disovery at all (layout and page definition snippets, i.e.
+  the base templates passed to the discover function are usually **not**
+  suitable for auto discovery).
+  ``select`` is called with two parameters -- the loader instance and the
+  template name to check. If it returns a true value, the template
+  should be auto-discovered, otherwise it won't.
 
 
 .. vim: ft=rest tw=72

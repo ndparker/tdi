@@ -341,7 +341,7 @@ def distinct_overlays(tpl):
 
 def discover(loader, names, use=None, ignore=None):
     """
-    Find templates to use, sort topologically correct
+    Find templates to use and order them topologically correct
 
     :Parameters:
       `loader` : `Loader`
@@ -432,7 +432,7 @@ def discover(loader, names, use=None, ignore=None):
 
 class Loader(object):
     """
-    Loader Container
+    Find, load and select templates
 
     :IVariables:
       `_available` : ``dict`` or ``None``
