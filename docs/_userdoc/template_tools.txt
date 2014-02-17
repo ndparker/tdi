@@ -50,9 +50,9 @@ Suppose, you place a new snippet into the footer (via overlay) -- you
 have to modify *all* template lists. Both tasks -- creating and
 maintaining -- are very suitable for automating.
 
-The following subchapters explain the automating mechanism in a
-bottom-up manner. The code typically used by library users is the
-:class:`Layout` class, configured with a :class:`Loader` instance.
+The following sections explain the automating mechanism in a bottom-up
+manner. The code typically used by library users is the :class:`Layout`
+class, configured with a :class:`Loader` instance.
 
 
 ``discover`` Function
@@ -143,9 +143,24 @@ three functions:
   case-sensitivity matters are not addressed here for clarity.
 
 ``load``
-  This function actually should load a template. It takes one parameter
-  (a template name as returned by the lister). The function is expected
-  to return an actual :tdi:`tdi.template./Template` object.
+  This function actually should load a single template. It takes one
+  parameter (a template name as returned by the lister). The function is
+  expected to return an actual :tdi:`tdi.template./Template` object. A
+  trivial file system template loader (working together with the lister
+  above) could be::
+
+    import os
+    from tdi import html
+
+    DIR = '/path/to/templates'
+
+    def loader(name):
+        return html.from_file(os.path.join(DIR, os.path.normpath(name)))
+
+  It is usually a good idea, to use a :ref:`memoized factory
+  <memoizing>` for that.
+
+
 ``select``
   The selector decides if a particular template source is available for
   automatic disovery at all (layout and page definition snippets, i.e.
@@ -155,5 +170,21 @@ three functions:
   template name to check. If it returns a true value, the template
   should be auto-discovered, otherwise it won't.
 
+  How you select the templates is completely your decision. It could be
+  by name or by content or something completely different, like a flag
+  in a database. The following example selects all templates, which
+  provide a particular (source) overlay named "autowidget"::
+
+    def selector(loader, name):
+        return 'autowidget' in loader.load(name).source_overlay_names
+
+  With this selector, all HTML templates, which should be considered for
+  automatic disovery may look like this:
+
+  .. code-block:: html
+
+    <html tdi:overlay="<autowidget">
+    ...
+    </html>
 
 .. vim: ft=rest tw=72

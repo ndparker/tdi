@@ -155,6 +155,8 @@ pile of overlayed templates is checked then and changes bubble up to the
 final template object.
 
 
+.. _memoizing:
+
 Memoizing Factory Calls
 ~~~~~~~~~~~~~~~~~~~~~~~
 
