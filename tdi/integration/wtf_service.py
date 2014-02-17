@@ -63,6 +63,7 @@ __author__ = u"Andr\xe9 Malo"
 import errno as _errno
 import itertools as _it
 import os as _os
+import posixpath as _posixpath
 try:
     import threading as _threading
 except ImportError:
@@ -166,6 +167,11 @@ class DirectoryTemplateLister(object):
         # pylint: disable = R0912
 
         seen = set()
+        if _os.path.sep == '/':
+            norm = lambda p: p
+        else:
+            norm = lambda p: p.replace(_os.path.sep, '/')
+
         for base in self._dirs:
             baselen = len(_os.path.join(base, ''))
             reldir = lambda x: x[baselen:]
@@ -192,7 +198,7 @@ class DirectoryTemplateLister(object):
                     if not name.endswith(self._ext):
                         continue
                     if dirpath:
-                        name = _os.path.join(dirpath, name)
+                        name = _posixpath.join(norm(dirpath), name)
                     if name in seen:
                         continue
                     yield name

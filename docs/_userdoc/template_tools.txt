@@ -34,9 +34,9 @@ way, a template definition is always a list of template sources and
 might look like this::
 
     tpl = [
-        'layout.html',
-        'index.html',
-        'header.html',
+        'layout.html', # overall frame
+        'index.html',  # page specific frame and main content
+        'header.html', # recurring stuff...
         'footer.html',
         'login.html',
         'widget1.html',
@@ -103,7 +103,45 @@ three functions:
   and should return a list of all template names. A template name is
   typically a string, but it can be anything, as long as is (a) hashable
   and (b) uniquely identifies a template. The returned list can be
-  filtered later using the ``select`` function.
+  filtered later using the ``select`` function. A simple lister function
+  walking through the file system might look like this::
+
+    import os, posixpath
+
+    DIR = '/path/to/templates'
+    IGNORE = ('.svn', 'CVS')
+
+    def onerror(_):
+        """ Bail out in case of error """
+        raise
+
+    def lister():
+        # prepare for stripping the path prefix and normalizing to /
+        baselen = len(os.path.join(DIR, ''))
+        slashed = os.path.sep == '/'
+        def norm(path):
+            path = path[baselen:]
+            if not slashed:
+                path = path.replace(os.path.sep, '/')
+            return path
+
+        for path, dirs, files in os.walk(DIR, onerror=onerror):
+            # strip unwanted sub directories
+            dirs[:] = [dir for dir in dirs if dir not in IGNORE]
+
+            # yield all but hidden .html files
+            path = norm(path)
+            for name in files:
+                if name.startswith('.') or not name.endswith('.html'):
+                    continue
+                if path:
+                    name = posixpath.join(path, name)
+                yield name
+
+  It yields relative normalized paths (to all html files below a specified
+  directory and ignores version control directories. Note that
+  case-sensitivity matters are not addressed here for clarity.
+
 ``load``
   This function actually should load a template. It takes one parameter
   (a template name as returned by the lister). The function is expected
