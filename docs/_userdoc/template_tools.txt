@@ -60,7 +60,7 @@ class, configured with a :class:`Loader` instance.
 
 .. function:: discover(loader, names, use=None, ignore=None)
 
-    Find templates to use and order them topologically correct
+  Find templates to use and order them topologically correct
 
 The :tdi:`tdi.tools.template./discover` function is the heart of the
 template tools helping you organizing your templates.
@@ -91,7 +91,7 @@ and loading the templates by their names.
 
 .. class:: Loader(list, load, select)
 
-    Find, load and select templates
+  Find, load and select templates
 
 The :tdi:`tdi.tools.template./Loader` is a container class, an interface
 between the :func:`discover` function and the actual code working with
@@ -186,5 +186,14 @@ three functions:
     <html tdi:overlay="<autowidget">
     ...
     </html>
+
+
+``Layout`` Class
+~~~~~~~~~~~~~~~~
+
+.. class:: Layout(loader, *base, **kwargs)
+
+    Create template lists based on a start configuration
+
 
 .. vim: ft=rest tw=72

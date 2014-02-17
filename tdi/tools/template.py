@@ -159,7 +159,7 @@ class TemplateList(list):
 
 class Layout(object):
     """
-    Template layout container
+    Create template lists based on a start configuration
 
     :IVariables:
       `_base` : ``tuple``
