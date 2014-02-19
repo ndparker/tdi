@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: ascii -*-
-"""
+r"""
+=====================
+ Javascript Minifier
+=====================
+
+rJSmin is a javascript minifier written in python.
+
+The minifier is based on the semantics of `jsmin.c by Douglas Crockford`_\\.
+
 :Copyright:
 
  Copyright 2011 - 2014
@@ -19,14 +27,6 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
-=====================
- Javascript Minifier
-=====================
-
-rJSmin is a javascript minifier written in python.
-
-The minifier is based on the semantics of `jsmin.c by Douglas Crockford`_\\.
 
 The module is a re-implementation aiming for speed, so it can be used at
 runtime (rather than during a preprocessing step). Usually it produces the
@@ -60,11 +60,8 @@ Both python 2 and python 3 are supported.
 .. _jsmin.c by Douglas Crockford:
    http://www.crockford.com/javascript/jsmin.c
 """
-if 1:
-    # pylint: disable = W0622
-    __doc__ = getattr(__doc__, 'decode', lambda x: __doc__)('latin-1')
-__author__ = "Andr\xe9 Malo"
-__author__ = getattr(__author__, 'decode', lambda x: __author__)('latin-1')
+__doc__ = __doc__.encode('ascii').decode('unicode_escape') # pylint: disable = W0622, C0301
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 __license__ = "Apache License, Version 2.0"
 __version__ = '1.0.8'
