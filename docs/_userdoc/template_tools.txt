@@ -30,8 +30,9 @@ Practically any non-trivial project consists of a collection of
 recurring template pieces. Be it the basic document layout or tiny boxes
 appearing here and there. Every outsourced piece is eventually placed in
 the final template via the :doc:`overlay mechanism <overlays>`. That
-way, a template definition is always a list of template sources and
-might look like this::
+way, a template definition is always a list of template sources, which
+are overlayed one by one (starting with the first one) -- and might look
+like this::
 
     tpl = [
         'layout.html', # overall frame
@@ -66,7 +67,7 @@ The :tdi:`tdi.tools.template./discover` function is the heart of the
 template tools helping you organizing your templates.
 
 The function takes a base set of template names and finds all additional
-template sources needed to create the final template. All on the basis
+template sources needed to create the final template -- all on the basis
 of overlay dependencies. The base set in the example above might be, for
 example::
 
@@ -74,8 +75,13 @@ example::
 
 ``discover`` calculates a list of template names, a set of unresolved
 overlays and a dict of ambiguous overlays (mapping overlay names to
-tuples of template names). In case of an overlay cycle an exception is
-raised.
+tuples of template names). Overlay cycles are handled by the following
+algorithm:
+
+#. Immediate cycles, i.e. overlays provided *and* required by a single
+   template are ignored. Those overlays simply not contribute to the
+   dependencies.
+#. In all other cases an exception is raised.
 
 The ``use`` and ``ignore`` parameters are for fine tuning the
 resulting list. They can handle manual overrides and resolve
@@ -101,7 +107,7 @@ three functions:
 ``list``
   This is the template lister. The function is called without parameters
   and should return a list of all template names. A template name is
-  typically a string, but it can be anything, as long as is (a) hashable
+  typically a string, but it can be anything, as long as it's (a) hashable
   and (b) uniquely identifies a template. The returned list can be
   filtered later using the ``select`` function. A simple lister function
   walking through the file system might look like this::
@@ -194,6 +200,18 @@ three functions:
 .. class:: Layout(loader, *base, **kwargs)
 
     Create template lists based on a start configuration
+
+The :class:`Layout` class is tailored for day to day template list
+maintenance. Its task is to eventually emit template lists. It aims to
+do so based on input as minimal as possible (so you can focus on more
+important things). In order to achieve this, it is possible to derive
+new layout instances from existing ones, using the :meth:`extend`
+method. For bigger setups it is actually recommended to use this
+technique to start with a single layout, which defines the loader and
+then build up a hierarchy from there.
+
+``loader``
+  The loader instance as described above. 
 
 
 .. vim: ft=rest tw=72
