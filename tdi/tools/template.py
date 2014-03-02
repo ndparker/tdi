@@ -273,7 +273,7 @@ class Layout(object):
 
     def __call__(self, *names, **kwargs):
         """
-        Create a template list from this auto template
+        Create a template list from this layout
 
         :Parameters:
           `names` : ``tuple``

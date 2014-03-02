@@ -210,8 +210,76 @@ method. For bigger setups it is actually recommended to use this
 technique to start with a single layout, which defines the loader and
 then build up a hierarchy from there.
 
+The layout constructor takes the following parameters (which are passed
+to every derivation, too):
+
 ``loader``
-  The loader instance as described above. 
+  The :class:`Loader` object as described above. 
+
+``*base``
+  The list of base template names. This might be, for example
+  ``layout.html``. Or empty.
+
+``**kwargs``
+  The keyword parameters further configure the layout object:
+
+  ``use``
+    Defines a mapping from overlay names to template names. This
+    parameter allows resolving ambiguities on the one hand and may
+    disable resolution for certain overlays by accepting ``None`` as the
+    mapped template name.
+  
+  ``ignore``
+    Accepts an iterable containg template names to ignore completely.
+
+  ``cls``
+    The factory for the template list. If not specified or ``None``,
+    :class:`TemplateList` is used.
+
+  ``lazy``
+    Specifies, when the template resolution should happen. If true, the
+    templates are discovered, when the template list is accessed. If
+    false, the templates are discovered when the template list is
+    created. If omitted or ``None``, it defaults to true.
+
+The layout object then provides the following methods:
+
+.. method:: Layout.extend(*base, **kwargs)
+
+  Extend the layout and create a new one.
+
+  This method is to derive from a layout in order to create a new one,
+  typically more specialized than the original one. The parameters are
+  similar to the constructor:
+
+  ``*base``
+    This is a list of base template names, too. But they are added to
+    the list, which is already there. So, you cannot reset the base
+    templates. If you need a different base, derive from a different
+    layout.
+
+  ``**kwargs``
+    The keywords are different, too:
+
+    ``use``
+      This updates the inherited ``use`` mapping. So you may extend or
+      overwrite here.
+
+    ``ignore``
+      This updates the inherited ``ignore`` set. You only can add new
+      ignorables here.
+
+    ``consider``
+      Consider removes template names from the ignore list again. It
+      accepts an iterable of template names. It takes precedence over
+      names listed in ``ignore``.
+
+  The :meth:`Layout.extend` method returns a new layout object.
+
+
+.. method:: Layout.__call__(*names, **kwargs)
+
+  Create a template list from this layout
 
 
 .. vim: ft=rest tw=72
