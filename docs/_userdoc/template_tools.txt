@@ -166,7 +166,6 @@ three functions:
   It is usually a good idea, to use a :ref:`memoized factory
   <memoizing>` for that.
 
-
 ``select``
   The selector decides if a particular template source is available for
   automatic disovery at all (layout and page definition snippets, i.e.
@@ -244,23 +243,19 @@ to every derivation, too):
 
 The layout object then provides the following methods:
 
-.. method:: Layout.extend(*base, **kwargs)
+.. method:: Layout.__call__(*names, **kwargs)
 
-  Extend the layout and create a new one.
+  Create a template list from this layout
 
-  This method is to derive from a layout in order to create a new one,
-  typically more specialized than the original one. The parameters are
-  similar to the constructor:
+  The :meth:`Layout.__call__` method is used to actually produce
+  a template list. The parameters are:
 
-  ``*base``
-    This is a list of base template names, too. But they are added to
-    the list, which is already there. So, you cannot reset the base
-    templates. If you need a different base, derive from a different
-    layout.
+  ``*names``
+    This is a list of base template names, which *extends* the list
+    we're deriving from. So, you cannot reset the base templates. If you
+    need a different base, then extend a different layout.
 
   ``**kwargs``
-    The keywords are different, too:
-
     ``use``
       This updates the inherited ``use`` mapping. So you may extend or
       overwrite here.
@@ -270,16 +265,40 @@ The layout object then provides the following methods:
       ignorables here.
 
     ``consider``
-      Consider removes template names from the ignore list again. It
+      ``consider`` removes template names from the ignore list again. It
+      accepts an iterable of template names. It takes precedence over
+      names listed in ``ignore``.
+
+
+.. method:: Layout.extend(*base, **kwargs)
+
+  Extend the layout and create a new one.
+
+  This method is to derive from a layout in order to create a new one,
+  typically more specialized than the original one. The parameters are
+  similar to the constructor:
+
+  ``*base``
+    This is a list of base template names, which *extends* the list
+    we're deriving from. So, you cannot reset the base templates. If you
+    need a different base, then extend a different layout.
+
+  ``**kwargs``
+    ``use``
+      This updates the inherited ``use`` mapping. So you may extend or
+      overwrite here.
+
+    ``ignore``
+      This updates the inherited ``ignore`` set. You only can add new
+      ignorables here.
+
+    ``consider``
+      ``consider`` removes template names from the ignore list again. It
       accepts an iterable of template names. It takes precedence over
       names listed in ``ignore``.
 
   The :meth:`Layout.extend` method returns a new layout object.
 
-
-.. method:: Layout.__call__(*names, **kwargs)
-
-  Create a template list from this layout
 
 
 .. vim: ft=rest tw=72
