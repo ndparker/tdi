@@ -3,6 +3,7 @@ Before 1.0
 
 - add node inspector?
 - more integration modules
+  * flask?
   * django?
   * web2py?
   * bottle?
