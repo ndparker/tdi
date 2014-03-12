@@ -37,38 +37,6 @@ alternative implementations are supported:
 - Jython (2.5, 2.7) (Python only)
 
 
-Write HTML...
-~~~~~~~~~~~~~
-
-layout.html
------------
-
-.. literalinclude:: ../examples/layout.html
-    :language: html
-
-
-calendar.html
--------------
-
-.. literalinclude:: ../examples/calendar.html
-    :language: html
-
-
-Write Python...
-~~~~~~~~~~~~~~~
-
-.. literalinclude:: ../examples/calendar.py
-    :language: python
-    :start-after: BEGIN INCLUDE
-
-
-Be Done.
-~~~~~~~~
-
-.. literalinclude:: ../examples/out/calendar.out
-    :language: html
-
-
 Documentation
 ~~~~~~~~~~~~~
 
@@ -76,6 +44,41 @@ Documentation
     :hidden:
 
     topics
+
+Working Example
+---------------
+
+layout.html
++++++++++++
+
+.. literalinclude:: ../examples/layout.html
+    :language: html
+
+
+calendar.html
++++++++++++++
+
+.. literalinclude:: ../examples/calendar.html
+    :language: html
+
+
+Python Code
++++++++++++
+
+.. literalinclude:: ../examples/calendar.py
+    :language: python
+    :start-after: BEGIN INCLUDE
+
+
+Result
+++++++
+
+.. literalinclude:: ../examples/out/calendar.out
+    :language: html
+
+
+Learn More
+----------
 
 - :doc:`Documentation Topics <topics>`
 - :doc:`Example Index <examples>`

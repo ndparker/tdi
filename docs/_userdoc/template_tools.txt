@@ -252,22 +252,37 @@ The layout object then provides the following methods:
 
   ``*names``
     This is a list of base template names, which *extends* the list
-    we're deriving from. So, you cannot reset the base templates. If you
-    need a different base, then extend a different layout.
+    provided by the layout already. So, you cannot reset the base
+    templates. If you need a different base, then use a different
+    layout.
 
   ``**kwargs``
     ``use``
-      This updates the inherited ``use`` mapping. So you may extend or
-      overwrite here.
+      This updates the ``use`` mapping. So you may extend or overwrite
+      here.
 
     ``ignore``
-      This updates the inherited ``ignore`` set. You only can add new
-      ignorables here.
+      This updates the ``ignore`` set. You only can add new ignorables
+      here.
 
     ``consider``
       ``consider`` removes template names from the ignore list again. It
-      accepts an iterable of template names. It takes precedence over
-      names listed in ``ignore``.
+      accepts an iterable of template names. ``consider`` takes
+      precedence over names listed in ``ignore``.
+
+  Example:
+
+  .. sourcecode:: python
+
+    # at a central place:
+    loader = Loader(...)
+    layout = Layout(loader, 'layout.html')
+
+    # and later somewhere else:
+    tpl_index = layout('index.html')
+
+    # and for another page:
+    tpl_imprint = layout('imprint.html')
 
 
 .. method:: Layout.extend(*base, **kwargs)
@@ -276,7 +291,7 @@ The layout object then provides the following methods:
 
   This method is to derive from a layout in order to create a new one,
   typically more specialized than the original one. The parameters are
-  similar to the constructor:
+  similar to the ones of :meth:`Layout.__call__`.
 
   ``*base``
     This is a list of base template names, which *extends* the list
@@ -294,11 +309,31 @@ The layout object then provides the following methods:
 
     ``consider``
       ``consider`` removes template names from the ignore list again. It
-      accepts an iterable of template names. It takes precedence over
-      names listed in ``ignore``.
+      accepts an iterable of template names. ``consider`` takes
+      precedence over names listed in ``ignore``.
 
   The :meth:`Layout.extend` method returns a new layout object.
 
+  Example:
+
+  .. sourcecode:: python
+
+    # at a central place:
+    loader = Loader(...)
+    html_layout = Layout(loader)
+
+    # main layout fetching headers & footers & stuff
+    main_layout = html_layout.extend('layout.html')
+
+    # iframe layout starting blank
+    iframe_layout = html_layout.extend('iframe_layout.html')
+
+    # and later somewhere else:
+    tpl_index = main_layout('index.html')
+    tpl_imprint = main_layout('imprint.html')
+
+    # and for an included page
+    tpl_some_frame = iframe_layout('some_frame.html')
 
 
 .. vim: ft=rest tw=72
