@@ -200,14 +200,14 @@ three functions:
 
     Create template lists based on a start configuration
 
-The :class:`Layout` class is tailored for day to day template list
-maintenance. Its task is to eventually emit template lists. It aims to
-do so based on input as minimal as possible (so you can focus on more
-important things). In order to achieve this, it is possible to derive
-new layout instances from existing ones, using the :meth:`extend`
-method. For bigger setups it is actually recommended to use this
-technique to start with a single layout, which defines the loader and
-then build up a hierarchy from there.
+The :tdi:`tdi.tools.template./Layout` class is tailored for day to day
+template list maintenance. Its task is to eventually emit template
+lists. It aims to do so based on input as minimal as possible (so you
+can focus on more important things). In order to achieve this, it is
+possible to derive new layout instances from existing ones, using the
+:meth:`Layout.extend` method. For bigger setups it is actually
+recommended to use this technique to start with a single layout, which
+defines the loader and then build up a hierarchy from there.
 
 The layout constructor takes the following parameters (which are passed
 to every derivation, too):
@@ -247,8 +247,8 @@ The layout object then provides the following methods:
 
   Create a template list from this layout
 
-  The :meth:`Layout.__call__` method is used to actually produce
-  a template list. The parameters are:
+  The :tdi:`tdi.tools.template./Layout.__call__` method is used to
+  actually produce a template list. The parameters are:
 
   ``*names``
     This is a list of base template names, which *extends* the list
@@ -289,9 +289,10 @@ The layout object then provides the following methods:
 
   Extend the layout and create a new one.
 
-  This method is to derive from a layout in order to create a new one,
-  typically more specialized than the original one. The parameters are
-  similar to the ones of :meth:`Layout.__call__`.
+  :tdi:`tdi.tools.template.Layout./extend` is to derive from a layout in
+  order to create a new one, typically more specialized than the
+  original one. The parameters are similar to the ones of
+  :meth:`Layout.__call__`.
 
   ``*base``
     This is a list of base template names, which *extends* the list
@@ -312,7 +313,7 @@ The layout object then provides the following methods:
       accepts an iterable of template names. ``consider`` takes
       precedence over names listed in ``ignore``.
 
-  The :meth:`Layout.extend` method returns a new layout object.
+  The :meth:`Layout.extend` method returns a new :class:`Layout` object.
 
   Example:
 
@@ -334,6 +335,38 @@ The layout object then provides the following methods:
 
     # and for an included page
     tpl_some_frame = iframe_layout('some_frame.html')
+
+
+``TemplateList`` Class
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. class:: TemplateList(*args, **kwargs)
+
+  Container for template names
+
+.. class:: TemplateListProxy(creator, autoreload)
+
+  Proxy :class:`TemplateList` instances for lazy creation
+
+:tdi:`tdi.tools.template./TemplateList` instances are created by
+:class:`Layout` objects. Depending on the configured laziness they are
+either returned directly or indirectly via a
+:tdi:`tdi.tools.template./TemplateListProxy` object. Since the latter
+proxies all relevant methods to the :class:`TemplateList`, both classes
+effectively behave the same way.
+
+:class:`TemplateList` extends python's ``list`` by the following items:
+
+- The constructor accepts a ``MISSING`` argument, which should contain
+  an iterable of all unresolved overlay names (this is the list, the
+  :func:`discover` function returns). The argument is copied into a list
+  and stored in the ``missing`` attribute.
+
+- The ``__repr__`` method emits the ``MISSING`` argument and also always
+  pretty-prints the list contents.
+
+So if you'd like to see the resulting template list of a particular
+page, just print the template list in order to get all relevant information.
 
 
 .. vim: ft=rest tw=72
