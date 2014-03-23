@@ -145,7 +145,7 @@ three functions:
                 yield name
 
   It yields relative normalized paths (to all html files below a specified
-  directory and ignores version control directories. Note that
+  directory) and ignores version control directories. Note that
   case-sensitivity matters are not addressed here for clarity.
 
 ``load``
