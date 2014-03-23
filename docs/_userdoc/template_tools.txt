@@ -270,6 +270,15 @@ The layout object then provides the following methods:
       accepts an iterable of template names. ``consider`` takes
       precedence over names listed in ``ignore``.
 
+  Depending on the laziness the :meth:`__call__` method calls
+  ``TemplateList.discover`` or returns a proxy which defers this call
+  until the first access. (``TemplateList`` may be changed via the
+  ``cls`` argument of the constructor.)
+
+  Whenever ``TemplateList.discover`` is called, it may raise
+  ``TemplateUndecided`` or ``DependencyCycle`` exceptions, in case
+  something goes wrong.
+
   Example:
 
   .. sourcecode:: python
@@ -363,10 +372,16 @@ effectively behave the same way.
   and stored in the ``missing`` attribute.
 
 - The ``__repr__`` method emits the ``MISSING`` argument and also always
-  pretty-prints the list contents.
+  pretty-prints the list contents.  So if you'd like to see the
+  resulting template list of a particular page, just print the template
+  list object in order to get all relevant information.
 
-So if you'd like to see the resulting template list of a particular
-page, just print the template list in order to get all relevant information.
+- It provides a ``discover`` classmethod which is called by the
+  :class:`Layout` class. The ``discover`` method is a small wrapper
+  around the global :func:`discover` function and works as an
+  alternative constructor for the :class:`TemplateList` class. This
+  ``discover`` method is also responsible for raising
+  ``TemplateUndecided`` exceptions.
 
 
 .. vim: ft=rest tw=72

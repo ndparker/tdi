@@ -156,6 +156,42 @@ class TemplateList(list):
             _pprint.pformat(self.missing)
         )
 
+    @classmethod
+    def discover(cls, loader, names, use=None, ignore=None):
+        """
+        Disover templates and create a new template list
+
+        :Parameters:
+          `loader` : `Loader`
+            Template loader
+
+          `names` : ``iterable``
+            Base names. These templates are always added first, in order and
+            define the initial list of overlays to discover.
+
+          `use` : ``dict``
+            Extra target mapping (overlay name -> template name). This is
+            used, before the global overlay mapping is asked. Pass ambiguous
+            overlay decisions here, or disable certain overlays by passing
+            ``None`` as name.
+
+          `ignore` : ``iterable``
+            List of template names to ignore completely.
+
+        :Return: Template list
+        :Rtype: `TemplateList`
+
+        :Exceptions:
+         - `TemplateUndecided` : Ambiguous template decisions
+         - `DependencyCycle` : A dependency cycle occured
+        """
+        result, missing, undecided = discover(
+            loader, names, use=use, ignore=ignore
+        )
+        if undecided:
+            raise TemplateUndecided(undecided)
+        return cls(result, MISSING=missing)
+
 
 class Layout(object):
     """
@@ -258,19 +294,6 @@ class Layout(object):
             use=newuse, ignore=newignore, cls=self._cls, lazy=self._lazy
         ))
 
-    def _make_creator(self, base, use, ignore):
-        """ Make a new template list creator """
-        cls, loader = self._cls, self._loader
-        def creator():
-            """ Create """
-            result, missing, undecided = discover(
-                loader, base, use=use, ignore=ignore
-            )
-            if undecided:
-                raise TemplateUndecided(undecided)
-            return cls(result, MISSING=missing)
-        return creator
-
     def __call__(self, *names, **kwargs):
         """
         Create a template list from this layout
@@ -311,7 +334,14 @@ class Layout(object):
             ignore -= set(consider)
 
         lazy, autoreload = self._lazy, self._loader.autoreload()
-        creator = self._make_creator(base, use, ignore)
+        def make_creator(base, use, ignore):
+            """ Make a new template list creator """
+            cls, loader = self._cls, self._loader
+            def creator():
+                """ Create """
+                return cls.discover(loader, base, use=use, ignore=ignore)
+            return creator
+        creator = make_creator(base, use, ignore)
         if not lazy and not autoreload:
             return creator()
         result = TemplateListProxy(creator, autoreload)
@@ -363,6 +393,9 @@ def discover(loader, names, use=None, ignore=None):
     :Return: list(template names), set(missing overlays),
              dict(undecidable overlays -> possible template names)
     :Rtype: ``tuple``
+
+    :Exceptions:
+     - `DependencyCycle` : A dependency cycle occured
     """
     # pylint: disable = R0912
 
