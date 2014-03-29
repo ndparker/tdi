@@ -45,8 +45,21 @@ Documentation
 
     topics
 
+
 Working Example
 ---------------
+
+The following code renders a calendar, i.e. days of a month specified by
+the caller.
+
+The code is intended to give you a good impression of how |TDI| looks
+like and feels like. It also tries to present many of |TDI|'s features
+at once. When you read the documentation, feel free to :doc:`pick it up
+<examples>` and play around with it.
+
+If you don't want to review the example now, :ref:`just skip it
+<learnmore>`\.
+
 
 layout.html
 +++++++++++
@@ -76,6 +89,13 @@ Result
 .. literalinclude:: ../examples/out/calendar.out
     :language: html
 
+With some simple CSS applied the table might look like this:
+
+.. raw:: html
+    :file: ../examples/out/calendar2.out
+
+
+.. _learnmore:
 
 Learn More
 ----------

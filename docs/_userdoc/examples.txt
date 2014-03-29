@@ -29,6 +29,9 @@ Homepage
 - `Calendar <../examples/calendar.py>`_ (`Output
   <../examples/out/calendar.out>`__)
 
+- `Calendar (table only for direct inclusion) <../examples/calendar2.py>`_ (`Output
+  <../examples/out/calendar2.out>`__)
+
 
 Basic Templating
 ~~~~~~~~~~~~~~~~
