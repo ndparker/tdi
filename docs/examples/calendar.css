@@ -1,0 +1,31 @@
+table.calendar{
+    border: none;
+    border-spacing: none;
+    border-collapse: collapse;
+    color: #000;
+}
+table.calendar tr.legend{
+    border-bottom: 1px solid #aaa;
+}
+table.calendar th{
+    background-color: inherit;
+    text-align: right;
+    padding: 0.2em;
+    margin: 0;
+}
+table.calendar td{
+    text-align: right;
+    width: 2.5em;
+    padding: 0.2em;
+    margin: 0;
+}
+table.calendar td.weekend{
+    font-weight: bold;
+    background-color: #dedede;
+}
+table.calendar td.today{
+    background-color: #888;
+}
+table.calendar td.fill{
+    color: #aaa;
+}

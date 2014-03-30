@@ -12,6 +12,15 @@ from tdi import filters as _filters
 from tdi import html as _html
 from tdi.tools import html as _html_tools
 
+# We use the same input files like calendar.py on purpose,
+# which is to produce the same output under all circumstances.
+#
+# So, we use the filtering feature to add a tdi attribute to
+# the table start tag, which is needed to address the table for
+# partial rendering (startnode='table' in the render call).
+#
+# Also this is a good small example for writing filters.
+#
 class TableFilter(_filters.BaseEventFilter):
     def handle_starttag(self, name, attr, closed, data):
         if name == 'table':

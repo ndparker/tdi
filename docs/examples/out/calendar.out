@@ -1,8 +1,10 @@
 <html>
 <head>
     <title>Januar 2014</title>
+    <link ref="stylesheet" type="text/css" href="calendar.css">
 </head>
 <body>
+<h1>Januar 2014</h1>
 <table class="calendar">
     <tr class="legend"><th>Mo</th><th>Di</th><th>Mi</th><th>Do</th>
         <th>Fr</th><th>Sa</th><th>So</th>

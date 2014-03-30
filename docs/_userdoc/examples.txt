@@ -26,10 +26,17 @@ by chapter.
 Homepage
 ~~~~~~~~
 
-- `Calendar <../examples/calendar.py>`_ (`Output
+- `Calendar <../examples/calendar.py>`_ (`layout.html
+  <../examples/layout.html>`__, `calendar.html
+  <../examples/calendar.html>`__, `calendar.css
+  <../examples/calendar.css>`__, `Output
   <../examples/out/calendar.out>`__)
 
-- `Calendar (table only for direct inclusion) <../examples/calendar2.py>`_ (`Output
+- `Calendar table alone for direct inclusion
+  <../examples/calendar2.py>`_ (`layout.html
+  <../examples/layout.html>`__, `calendar.html
+  <../examples/calendar.html>`__, `calendar.css
+  <../examples/calendar.css>`__, `Output
   <../examples/out/calendar2.out>`__)
 
 
