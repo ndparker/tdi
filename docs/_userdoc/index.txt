@@ -201,13 +201,6 @@ Author Information
 Acknowledgements
 ----------------
 
-First of all I'd like to thank the author of `HTMLTemplate
-<http://py-templates.sourceforge.net/>`_. At the time I started
-experimenting with document tree based template systems, *HTMLTemplate*
-was short-listed. However, it had a different license back then, which
-was unacceptable for my purposes and also missing some features, so
-|TDI| was grown in the first place.
-
 Various people helped developing and improving |TDI| itself. They are
 listed in alphabetical order:
 
@@ -217,6 +210,13 @@ listed in alphabetical order:
 - Jens Michlo
 - Javier 'Jay' Rodriguez-Stegmaier
 - Roland Sommer
+
+Last but not least I'd like to thank the author of `HTMLTemplate
+<http://py-templates.sourceforge.net/>`_. At the time I started
+experimenting with document tree based template systems, *HTMLTemplate*
+was short-listed. However, it had a different license back then, which
+was unacceptable for my purposes and also missing some features, so
+|TDI| was grown in the first place.
 
 ----
 
