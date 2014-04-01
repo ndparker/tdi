@@ -28,7 +28,7 @@ Template Data Interface (TDI).
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 __license__ = "Apache License, Version 2.0"
-__version__ = ('0.9.9.7', False, 4807)
+__version__ = ('0.9.9.8', False, 4808)
 
 from tdi import util as _util
 from tdi._exceptions import * # pylint: disable = W0401, W0614, W0622
