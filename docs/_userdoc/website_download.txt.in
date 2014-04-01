@@ -27,7 +27,7 @@ Current Stable Version
 .. begin dev
 
 Current Development Version
-'''''''''''''''''''''''''''
++++++++++++++++++++++++++++
 
 - `tdi-@@DEVVERSION@@.tar.lzma <http://storage.perlig.de/tdi/@@PATH@@tdi-@@DEVVERSION@@.tar.lzma>`_
 - `tdi-@@DEVVERSION@@.tar.bz2 <http://storage.perlig.de/tdi/@@PATH@@tdi-@@DEVVERSION@@.tar.bz2>`_
@@ -62,7 +62,7 @@ the PGP signature of that file. The file is signed by André Malo, Key-ID
 .. sourcecode:: console
 
     $ gpg --verify tdi-@@VERSION@@.digests
-    gpg: Signature made Sun May 12 15:08:56 2013 CEST using DSA key ID 8103A37E
+    gpg: Signature made Wed Apr  2 00:41:45 2014 CEST using DSA key ID 8103A37E
     gpg: Good signature from "Andre Malo <nd@apache.org>"
     gpg:                 aka "Andr\xe9\x20Malo <nd@perlig.de>"
     gpg:                 aka "Andre Malo <ndparker@gmx.net>"
