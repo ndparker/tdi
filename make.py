@@ -81,7 +81,7 @@ class Check(Target):
 
         from _setup.dev import analysis
         term.green('Linting tdi sources...')
-        res = analysis.pylint('_pkg/pylint.conf', 'tdi')
+        res = analysis.pylint('pylintrc', 'tdi')
         if res == 2:
             make.warn('pylint not found', self.NAME)
 
