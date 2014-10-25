@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -28,7 +28,7 @@ Node Tree Finalization.
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
-# pylint: disable = W0212 
+# pylint: disable = W0212
 # Access to a protected member _udict of a client class
 
 import itertools as _it
@@ -77,6 +77,7 @@ def finalize(udict, encoder, decoder):
         else:
             overlay = dispatch(stack, kind, node)
             if overlay is not None:
+                # pylint: disable = W0633
                 oname, onode, otarget, osource = overlay
                 if not otarget:
                     if oname in sources:
@@ -142,7 +143,7 @@ def _dispatch(stack, kind, node):
     # ignored and warned about.
     overlay, (_, otarget, osource, oname) = None, udict['overlay']
     if oname is not None:
-        if not otarget and stack[-1][4] is not None: # inside separator?
+        if not otarget and stack[-1][4] is not None:  # inside separator?
             NodeWarning.emit(
                 "Ignoring source overlay %r in separator node %r" % (
                     oname, stack[-1][4],
@@ -206,9 +207,9 @@ def _finish_level(stack, encoder, decoder):
     udict['decoder'] = decoder
     udict['modelscope'] = scope
     if 'attr_' in udict:
-        udict['attr'] = dict((decoder.normalize(key), (key, value))
-            for key, value in udict['attr_']
-        )
+        udict['attr'] = dict((
+            decoder.normalize(key), (key, value)
+        ) for key, value in udict['attr_'])
         del udict['attr_']
 
     # Fast exit: Optimize for text-only content

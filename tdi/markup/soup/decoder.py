@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2013
+ Copyright 2013 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -105,5 +105,5 @@ class XMLDecoder(object):
 from tdi import c
 c = c.load('impl')
 if c is not None:
-    HTMLDecoder, XMLDecoder = c.HTMLDecoder, c.XMLDecoder
+    HTMLDecoder, XMLDecoder = c.HTMLDecoder, c.XMLDecoder  # noqa
 del c

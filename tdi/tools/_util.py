@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -38,7 +38,7 @@ def _make_norm_enc():
     aliases = _encodings.aliases.aliases.get
     get_alias = lambda x: aliases(x, x)
 
-    def norm_enc(encoding): # pylint: disable = W0621
+    def norm_enc(encoding):  # pylint: disable = W0621
         """ Return normalized unaliased encoding name """
         if not isinstance_(encoding, unicode_):
             encoding = str_(encoding).decode('latin-1')

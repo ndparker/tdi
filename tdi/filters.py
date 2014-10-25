@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -134,7 +134,7 @@ class BaseEventFilter(object):
 from tdi import c
 c = c.load('impl')
 if c is not None:
-    BaseEventFilter = c.BaseEventFilter
+    BaseEventFilter = c.BaseEventFilter  # noqa
 del c
 
 

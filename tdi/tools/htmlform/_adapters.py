@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2007 - 2013
+ Copyright 2007 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -59,7 +59,7 @@ class DictParameterAdapter(object):
         """ :See: ``tdi.tools.htmlform.ParameterAdapterInterface`` """
         return self.param.get(name, default)
 
-    def getlist(self, name): # pylint: disable = E0202
+    def getlist(self, name):
         """ :See: ``tdi.tools.htmlform.ParameterAdapterInterface`` """
         if name in self.param:
             return [self.param[name]]
@@ -138,7 +138,7 @@ class MultiDictParameterAdapter(object):
         except IndexError:
             return default
 
-    def getlist(self, name): # pylint: disable = E0202
+    def getlist(self, name):
         """ :See: ``tdi.tools.htmlform.ParameterAdapterInterface`` """
         return self.param.getall(name)
 
@@ -147,12 +147,10 @@ class NullParameterAdapter(object):
     """ This adapter just returns nothing """
     __implements__ = [ParameterAdapterInterface]
 
-    def getlist(self, name):
+    def getlist(self, name):  # pylint: disable = W0613
         """ :See: `ParameterAdapterInterface.getlist` """
-        # pylint: disable = W0613
         return []
 
-    def getfirst(self, name, default=None):
+    def getfirst(self, name, default=None):  # pylint: disable = W0613
         """ :See: `ParameterAdapterInterface.getfirst` """
-        # pylint: disable = W0613
         return default

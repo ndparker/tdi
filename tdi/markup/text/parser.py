@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2012 - 2013
+ Copyright 2012 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -141,7 +141,6 @@ class TextLexer(object):
         self.state = state
         return False
 
-
     #: Regex matcher for a start tag
     #:
     #: :Type: ``callable``
@@ -179,7 +178,6 @@ class TextLexer(object):
             )
         \]
     ''', _re.X | _re.S).match
-
 
     #: Regex iterator for extracting start tag attributes
     #:
@@ -241,7 +239,7 @@ class TextLexer(object):
                     if value:
                         value = value.strip()
                     attr.append((key.strip(), value))
-                else: # bug protection for Python < 2.3.5 (fixed in rev 37262)
+                else:  # bug in Python < 2.3.5 (fixed in rev 37262)
                     break
 
         self.state = self.TEXT
@@ -268,7 +266,6 @@ class TextLexer(object):
         self.state = self.TEXT
         self._listener.handle_endtag(name, data)
         return False
-
 
     #: Regex searcher for finding the end of a comment
     #:
@@ -335,6 +332,7 @@ class TextLexer(object):
 _LEXERS = []
 _STATES = []
 for _idx, (_statename, _funcname) in enumerate([
+    # pylint: disable = C0330, C0326
     ('FINAL',    '_lex_final'),
     ('TEXT',     '_lex_text'),
     ('MARKUP',   '_lex_markup'),
@@ -347,9 +345,9 @@ for _idx, (_statename, _funcname) in enumerate([
     _LEXERS.append(_funcname)
     _STATES.append(_statename)
 
-TextLexer._LEXERS = tuple(_LEXERS) # pylint: disable = W0212
-TextLexer._STATES = tuple(_STATES) # pylint: disable = W0212
-del _idx, _statename, _funcname, _LEXERS, _STATES # pylint: disable = W0631
+TextLexer._LEXERS = tuple(_LEXERS)  # pylint: disable = W0212
+TextLexer._STATES = tuple(_STATES)  # pylint: disable = W0212
+del _idx, _statename, _funcname, _LEXERS, _STATES  # pylint: disable = W0631
 
 
 class TextParser(object):

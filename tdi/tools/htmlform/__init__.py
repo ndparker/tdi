@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2012 - 2013
+ Copyright 2012 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -31,19 +31,19 @@ _all = []
 
 # pylint: disable = W0401, W0614
 from tdi.tools.htmlform._adapters import __all__
-from tdi.tools.htmlform._adapters import *
+from tdi.tools.htmlform._adapters import *  # noqa
 _all.extend(__all__)
 
 from tdi.tools.htmlform._interfaces import __all__
-from tdi.tools.htmlform._interfaces import *
+from tdi.tools.htmlform._interfaces import *  # noqa
 _all.extend(__all__)
 
 from tdi.tools.htmlform._processors import __all__
-from tdi.tools.htmlform._processors import *
+from tdi.tools.htmlform._processors import *  # noqa
 _all.extend(__all__)
 
 from tdi.tools.htmlform._main import __all__
-from tdi.tools.htmlform._main import *
+from tdi.tools.htmlform._main import *  # noqa
 _all.extend(__all__)
 
 __all__ = _all

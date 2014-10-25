@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2007 - 2013
+ Copyright 2007 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -33,13 +33,14 @@ import textwrap as _textwrap
 
 def make_input(type_, doc_extra, *keywords, **kwargs):
     """ Make <input> control method """
-    # pylint: disable = W0122, C0103, E0213, E1101, R0912
+    # pylint: disable = R0912, C0330
+
     type_id = type_.replace('-', '_')
     keywords = dict([(word, True) for word in keywords])
     if kwargs.get('assert_upload'):
         doc_extra += ('\n\n'
             r'''    :Note: This is only possible if the class '''
-                r'''was initialized''' '\n'
+                r'''was initialized''' '\n'  # noqa
             r'''           with ``upload=True``.'''
         )
     if doc_extra and not doc_extra.startswith('\n'):
@@ -175,7 +176,7 @@ def make_input(type_, doc_extra, *keywords, **kwargs):
     elif 'value' not in words and 'raw' in words:
         raise AssertionError("Unexpected keyword: raw (no value)")
 
-    s8, s12 = ' ' * 8, ' ' * 12
+    s8, s12 = ' ' * 8, ' ' * 12  # pylint: disable = C0103
     code = _textwrap.dedent(r'''
     def %(ti)s(%(p)s):
         """
@@ -192,7 +193,7 @@ def make_input(type_, doc_extra, *keywords, **kwargs):
 
         node[u'type'] = u%(t)r
     %(name)s%(readonly)s%(disabled)s%(required)s%(autocomplete)s'''
-        '''%(autofocus)s'''
+        '''%(autofocus)s'''  # noqa
         '''%(placeholder)s%(pattern)s%(list)s%(dirname)s%(mul)s'''
         '''%(min)s%(max)s%(step)s'''
         '''%(simpval)s%(rawlenval)s%(rawval)s%(lenval)s%(val)s%(noval)s'''
@@ -434,5 +435,5 @@ def make_input(type_, doc_extra, *keywords, **kwargs):
             r'''        node[u'height'] = unicode(height)''' '\n'
             or '',
     )
-    exec code
+    exec code  # pylint: disable = W0122
     return locals()[type_id]

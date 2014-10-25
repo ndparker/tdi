@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2013
+ Copyright 2013 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -77,5 +77,5 @@ class TextDecoder(object):
 from tdi import c
 c = c.load('impl')
 if c is not None:
-    TextDecoder = c.TextDecoder
+    TextDecoder = c.TextDecoder  # noqa
 del c

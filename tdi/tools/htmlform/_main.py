@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2007 - 2013
+ Copyright 2007 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -39,7 +39,8 @@ def normalize_newlines():
     """ Make newline normalizer """
     SUB_U = _re.compile(ur'\r?\n|\r').sub
     SUB_S = _re.compile(r'\r?\n|\r').sub
-    def normalize_newlines(value): # pylint: disable = W0621
+
+    def normalize_newlines(value):  # pylint: disable = W0621
         """
         Normalize the newlines of a string
 
@@ -65,7 +66,8 @@ def normalize_whitespaces():
     """ Make whitespace normalizer """
     SUB_U = _re.compile(ur'\s').sub
     SUB_S = _re.compile(r'\s').sub
-    def normalize_whitespaces(value): # pylint: disable = W0621
+
+    def normalize_whitespaces(value):  # pylint: disable = W0621
         """
         Normalize the whitespaces of a string
 
@@ -116,7 +118,6 @@ class HTMLForm(object):
       `_post_proc` : `PostProcInterface`
         Post set node processing callable
     """
-    # pylint: disable = R0912, R0913
 
     def __init__(self, action=None, method='get', param=None, upload=False,
                  accept_charset='utf-8', xhtml=True, pre_proc=None,
@@ -156,7 +157,6 @@ class HTMLForm(object):
           `post_proc` : `PostProcInterface`
             Post set node processing callable
         """
-        # pylint: disable = R0913
         self._action = action
         self._method = upload and 'post' or method
         if param is None:
@@ -171,8 +171,9 @@ class HTMLForm(object):
             def pre_proc_(method, node, *args):
                 """ Pre proc wrapper """
                 node, kwargs = pre_proc(method, node, dict(args))
-                return (node,) + tuple([kwargs.get(key, val)
-                    for key, val in args])
+                return (node,) + tuple([
+                    kwargs.get(key, val) for key, val in args
+                ])
         self._pre_proc = pre_proc_
         self._post_proc = post_proc
 
@@ -194,7 +195,8 @@ class HTMLForm(object):
     def accept_charset(self):
         """ Accept-charset getter """
         return self._charset
-    accept_charset = property(accept_charset,
+    accept_charset = property(
+        accept_charset,
         doc="Accepted charset of the form"
     )
 
@@ -288,9 +290,11 @@ class HTMLForm(object):
             Default "rawness" value for the hidden field list
         """
         # pylint: disable = R0912
+
         pre_proc = self._pre_proc
         if pre_proc is not None:
-            node, hidden, hidden_, raw = pre_proc('form', node,
+            node, hidden, hidden_, raw = pre_proc(
+                'form', node,
                 ('hidden', hidden), ('hidden_', hidden_), ('raw', raw),
             )
 
@@ -364,7 +368,8 @@ class HTMLForm(object):
         """
         pre_proc = self._pre_proc
         if pre_proc is not None:
-            node, name, value, raw = pre_proc('hidden', node,
+            node, name, value, raw = pre_proc(
+                'hidden', node,
                 ('name', name), ('value', value), ('raw', raw),
             )
 
@@ -381,98 +386,120 @@ class HTMLForm(object):
         if post_proc is not None:
             post_proc('hidden', node, dict(name=name, value=value, raw=raw))
 
-    text = make_input('text', '',
+    text = make_input(
+        'text', '',
         'name', 'value', 'maxlength', 'readonly', 'disabled', 'required',
         'autocomplete', 'placeholder', 'list', 'pattern', 'dirname',
         'autofocus', 'raw',
     )
-    search = make_input('search', '(HTML5)',
+    search = make_input(
+        'search', '(HTML5)',
         'name', 'value', 'maxlength', 'readonly', 'disabled', 'required',
         'autocomplete', 'placeholder', 'list', 'pattern',
         'dirname', 'autofocus', 'raw',
     )
-    tel = make_input('tel', '(HTML5)',
+    tel = make_input(
+        'tel', '(HTML5)',
         'name', 'value', 'maxlength', 'readonly', 'disabled', 'required',
         'autocomplete', 'placeholder', 'list', 'pattern', 'autofocus', 'raw',
     )
-    url = make_input('url', '(HTML5)',
+    url = make_input(
+        'url', '(HTML5)',
         'name', 'value', 'maxlength', 'readonly', 'disabled', 'required',
         'autocomplete', 'placeholder', 'list', 'pattern', 'autofocus', 'raw',
     )
-    email = make_input('email', '(HTML5)',
+    email = make_input(
+        'email', '(HTML5)',
         'name', 'value', 'maxlength', 'readonly', 'disabled', 'required',
         'autocomplete', 'placeholder', 'list', 'pattern',
         'multiple', 'autofocus', 'raw',
     )
-    password = make_input('password', '',
+    password = make_input(
+        'password', '',
         'name', 'maxlength', 'readonly', 'disabled', 'required',
         'autocomplete', 'placeholder', 'pattern', 'autofocus',
     )
-    datetime = make_input('datetime', '(HTML5)\n\n    '
-        '(e.g. ``1979-10-14T12:00:00.001-04:00``)',
+    datetime = make_input(
+        'datetime', '(HTML5)\n\n    '
+            '(e.g. ``1979-10-14T12:00:00.001-04:00``)',  # noqa pylint: disable = C0330
         'name', 'value', 'readonly', 'disabled', 'required', 'autocomplete',
         'list', 'max', 'min', 'step', 'autofocus', 'raw',
     )
-    date = make_input('date', '(HTML5)\n\n    (e.g. ``1979-10-14``)',
+    date = make_input(
+        'date', '(HTML5)\n\n    (e.g. ``1979-10-14``)',
         'name', 'value', 'readonly', 'disabled', 'required', 'autocomplete',
         'list', 'max', 'min', 'step', 'autofocus', 'raw',
     )
-    month = make_input('month', '(HTML5)\n\n    (e.g. ``1979-10``)',
+    month = make_input(
+        'month', '(HTML5)\n\n    (e.g. ``1979-10``)',
         'name', 'value', 'readonly', 'disabled', 'required', 'autocomplete',
         'list', 'max', 'min', 'step', 'autofocus', 'raw',
     )
-    week = make_input('week', '(HTML5)\n\n    (e.g. ``1979-W42``)',
+    week = make_input(
+        'week', '(HTML5)\n\n    (e.g. ``1979-W42``)',
         'name', 'value', 'readonly', 'disabled', 'required', 'autocomplete',
         'list', 'max', 'min', 'step', 'autofocus', 'raw',
     )
-    time = make_input('time', '(HTML5)\n\n    (e.g. ``12:00:00.001``)',
+    time = make_input(
+        'time', '(HTML5)\n\n    (e.g. ``12:00:00.001``)',
         'name', 'value', 'readonly', 'disabled', 'required', 'autocomplete',
         'list', 'max', 'min', 'step', 'autofocus', 'raw',
     )
-    datetime_local = make_input('datetime-local', '(HTML5)\n\n    '
-        '(e.g. ``1979-10-14T12:00:00.001``)',
+    datetime_local = make_input(
+        'datetime-local', '(HTML5)\n\n    '
+            '(e.g. ``1979-10-14T12:00:00.001``)',  # noqa pylint: disable = C0330
         'name', 'value', 'readonly', 'disabled', 'required', 'autocomplete',
         'list', 'max', 'min', 'step', 'autofocus', 'raw',
     )
-    number = make_input('number', '(HTML5)',
+    number = make_input(
+        'number', '(HTML5)',
         'name', 'value', 'readonly', 'disabled', 'required', 'autocomplete',
         'placeholder', 'list', 'max', 'min', 'step', 'autofocus', 'raw',
     )
-    range = make_input('range', '(HTML5)',
+    range = make_input(
+        'range', '(HTML5)',
         'name', 'value', 'disabled', 'autocomplete', 'list', 'max',
         'autofocus', 'min', 'step', 'raw',
     )
-    color = make_input('color', '(HTML5)\n\n    (e.g. ``#D4D0C8``)',
+    color = make_input(
+        'color', '(HTML5)\n\n    (e.g. ``#D4D0C8``)',
         'name', 'value', 'disabled', 'autocomplete', 'list', 'raw',
         'autofocus',
     )
-    checkbox = make_input('checkbox', '',
+    checkbox = make_input(
+        'checkbox', '',
         'name', 'value', 'disabled', 'required', 'selected', 'autofocus',
         value_default=u'1', multi_selected=True,
     )
-    radio = make_input('radio', '',
+    radio = make_input(
+        'radio', '',
         'name', 'value', 'disabled', 'required', 'selected', 'autofocus',
         value_default=None, multi_selected=False,
     )
-    file = make_input('file', '',
+    file = make_input(
+        'file', '',
         'name', 'accept', 'disabled', 'required', 'multiple', 'autofocus',
         assert_upload=True,
     )
-    submit = make_input('submit', '',
+    submit = make_input(
+        'submit', '',
         'name', 'value', 'disabled', 'action', 'enctype', 'method',
         'novalidate', 'target', 'autofocus',
         simple_value=True, name_optional=True,
     )
-    image = make_input('image', '',
+    image = make_input(
+        'image', '',
         'name', 'disabled', 'alt', 'src', 'width', 'height', 'action',
         'enctype', 'method', 'novalidate', 'target', 'autofocus',
         name_optional=True,
     )
-    reset = make_input('reset', '',
+    reset = make_input(
+        'reset', '',
         'value', 'disabled', 'autofocus',
         simple_value=True,
     )
-    button = make_input('button', '',
+    button = make_input(
+        'button', '',
         'name', 'value', 'disabled', 'autofocus',
         simple_value=True, name_optional=True,
     )
@@ -526,17 +553,26 @@ class HTMLForm(object):
           `raw` : ``bool``
             Is the value to be treated raw?
         """
+        # pylint: disable = R0912, R0913
+
         pre_proc = self._pre_proc
         if pre_proc is not None:
             (
                 node, name, value, maxlength, readonly, disabled,
                 required, placeholder, dirname, autofocus, raw
-            ) = pre_proc('textarea', node,
-                ('name', name), ('value', value), ('maxlength',
-                maxlength), ('readonly', readonly), ('disabled',
-                disabled), ('required', required), ('placeholder',
-                placeholder), ('dirname', dirname), ('autofocus',
-                autofocus), ('raw', raw)
+            ) = pre_proc(
+                'textarea', node,
+
+                ('name', name),
+                ('value', value),
+                ('maxlength', maxlength),
+                ('readonly', readonly),
+                ('disabled', disabled),
+                ('required', required),
+                ('placeholder', placeholder),
+                ('dirname', dirname),
+                ('autofocus', autofocus),
+                ('raw', raw),
             )
 
         if name is not None:
@@ -650,19 +686,24 @@ class HTMLForm(object):
             be an ``iterable`` containing multiple selected values in this
             case.
         """
-        # pylint: disable = R0914
-        # (too many local variables. well.)
+        # pylint: disable = R0912, R0914
 
         pre_proc = self._pre_proc
         if pre_proc is not None:
             (
                 node, name, options, selected, option, disabled,
                 required, autofocus, multiple
-            ) = pre_proc('select', node,
-                ('name', name), ('options', options), ('selected',
-                selected), ('option', option), ('disabled',
-                disabled), ('required', required), ('autofocus',
-                autofocus), ('multiple', multiple)
+            ) = pre_proc(
+                'select', node,
+
+                ('name', name),
+                ('options', options),
+                ('selected', selected),
+                ('option', option),
+                ('disabled', disabled),
+                ('required', required),
+                ('autofocus', autofocus),
+                ('multiple', multiple),
             )
 
         if name is not None:
@@ -697,7 +738,7 @@ class HTMLForm(object):
                     selected = self._param.getlist(name)
                 selected_ = dict([(item, None) for item in selected])
         else:
-            del node[u'multiple'] # just in case
+            del node[u'multiple']  # just in case
             if options is not None:
                 if selected is None:
                     selected = self._param.getfirst(name)
@@ -718,7 +759,9 @@ class HTMLForm(object):
                     is_selected = unicode(value) in selected_
                 else:
                     is_selected = unicode(desc) in selected_
-                self.option(subnode, value,
+                self.option(
+                    subnode, value,
+
                     description=desc,
                     selected=is_selected,
                     disabled=disabled and disabled[0] or None,
@@ -730,16 +773,23 @@ class HTMLForm(object):
         """
         :Deprecated: Use ``select`` with a true ``multiple`` argument instead.
         """
+        # pylint: disable = R0912
+
         pre_proc = self._pre_proc
         if pre_proc is not None:
             (
                 node, name, options, selected, option, disabled,
                 required, autofocus
-            ) = pre_proc('multiselect', node,
-                ('name', name), ('options', options), ('selected',
-                selected), ('option', option), ('disabled',
-                disabled), ('required', required), ('autofocus',
-                autofocus)
+            ) = pre_proc(
+                'multiselect', node,
+
+                ('name', name),
+                ('options', options),
+                ('selected', selected),
+                ('option', option),
+                ('disabled', disabled),
+                ('required', required),
+                ('autofocus', autofocus)
             )
 
         if name is not None:
@@ -788,7 +838,9 @@ class HTMLForm(object):
                     is_selected = unicode(value) in selected_
                 else:
                     is_selected = unicode(desc) in selected_
-                self.option(subnode, value,
+                self.option(
+                    subnode, value,
+
                     description=desc,
                     selected=is_selected,
                     disabled=disabled and disabled[0] or None,
@@ -837,8 +889,12 @@ class HTMLForm(object):
         if pre_proc is not None:
             (
                 node, id, options, option
-            ) = pre_proc('datalist', node,
-                ('id', id), ('options', options), ('option', option)
+            ) = pre_proc(
+                'datalist', node,
+
+                ('id', id),
+                ('options', options),
+                ('option', option),
             )
 
         if id is not None:
@@ -861,9 +917,11 @@ class HTMLForm(object):
         if options is not None:
             for subnode, tup in optnode.iterate(options):
                 value, desc, disabled = tup[0], tup[1], tup[2:]
-                self.option(subnode, value,
+                self.option(
+                    subnode, value,
+
                     label=desc,
-                    disabled=disabled and disabled[0] or None
+                    disabled=disabled and disabled[0] or None,
                 )
 
     def option(self, node, value, description=None, selected=None,
@@ -895,14 +953,20 @@ class HTMLForm(object):
             Label attribute (HTML5). If omitted or ``None``, any existing
             attribute is deleted.
         """
+        # pylint: disable = R0912
+
         pre_proc = self._pre_proc
         if pre_proc is not None:
             (
                 node, value, description, selected, disabled, label
-            ) = pre_proc('option', node,
-                ('value', value), ('description', description),
-                ('selected', selected), ('disabled', disabled), ('label',
-                label)
+            ) = pre_proc(
+                'option', node,
+
+                ('value', value),
+                ('description', description),
+                ('selected', selected),
+                ('disabled', disabled),
+                ('label', label),
             )
 
         if value is None:
@@ -965,10 +1029,14 @@ class HTMLForm(object):
         if pre_proc is not None:
             (
                 node, name, keytype, challenge, disabled, autofocus
-            ) = pre_proc('keygen', node,
-                ('name', name), ('keytype', keytype), ('challenge',
-                challenge), ('disabled', disabled), ('autofocus',
-                autofocus)
+            ) = pre_proc(
+                'keygen', node,
+
+                ('name', name),
+                ('keytype', keytype),
+                ('challenge', challenge),
+                ('disabled', disabled),
+                ('autofocus', autofocus),
             )
 
         if name is not None:

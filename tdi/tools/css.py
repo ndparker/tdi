@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -195,7 +195,7 @@ class CSSInlineFilter(_filters.BaseEventFilter):
         self._collecting = False
         self._buffer = []
         self._starttag = None
-        self._modify = modifier # pylint-similar: tdi.tools.css
+        self._modify = modifier
         self._normalize = self.builder.decoder.normalize
         if standalone:
             self._attribute = None
@@ -244,9 +244,9 @@ class CSSInlineFilter(_filters.BaseEventFilter):
             style = self._modify(cleanup(style))
 
             if not style and self._strip:
-                attrdict = dict((normalize(name), val)
-                    for name, val in self._starttag[1]
-                )
+                attrdict = dict((
+                    normalize(name), val
+                ) for name, val in self._starttag[1])
                 if self._attribute is None or self._attribute not in attrdict:
                     return
 
@@ -286,12 +286,13 @@ def MinifyFilter(builder, minifier=None, standalone=False):
         attributes.
     """
     # pylint: disable = C0103
+
     if minifier is None:
         minifier = minify
     return CSSInlineFilter(builder, minify, standalone=standalone)
 
 
-def CDATAFilter(builder, standalone=False): # pylint: disable = C0103
+def CDATAFilter(builder, standalone=False):  # pylint: disable = C0103
     """
     TDI filter for adding failsafe CDATA containers around CSS styles
 

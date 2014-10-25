@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -81,7 +81,7 @@ def _make_escape_inlined():
     subber = lambda m: u'-' + u'\\-' * len_(m.group(1))
     subber_b = lambda m: '-' + '\\-' * len_(m.group(1))
 
-    def escape_inlined(toescape, encoding=None): # pylint: disable = W0621
+    def escape_inlined(toescape, encoding=None):  # pylint: disable = W0621
         """
         Escape value for inlining
 
@@ -98,12 +98,14 @@ def _make_escape_inlined():
         :Rtype: ``basestring``
         """
         if isinstance_(toescape, unicode_):
-            return (dash_sub(subber, toescape)
+            return (
+                dash_sub(subber, toescape)
                 .replace(u'</', u'<\\/')
                 .replace(u']]>', u']\\]>')
             )
         elif encoding is None:
-            return (dash_sub_b(subber_b, str_(toescape))
+            return (
+                dash_sub_b(subber_b, str_(toescape))
                 .replace('</', '<\\/')
                 .replace(']]>', ']\\]>')
             )
@@ -111,7 +113,8 @@ def _make_escape_inlined():
         # dumb default. Doesn't hurt here, but avoids failures.
         if norm_enc(encoding) == 'ascii':
             encoding = 'latin-1'
-        return (dash_sub(subber, str_(toescape).decode(encoding))
+        return (
+            dash_sub(subber, str_(toescape).decode(encoding))
             .replace(u'</', u'<\\/')
             .replace(u']]>', u']\\]>')
         ).encode(encoding)
@@ -202,7 +205,6 @@ escape_string = _make_escape_string()
 def _make_replace():
     """ Make replace function """
     # pylint: disable = R0912
-    # (too many branches)
 
     default_sub = _re.compile(ur'__(?P<name>[^_]*(?:_[^_]+)*)__').sub
     escape_string_, getattr_, unicode_ = escape_string, getattr, unicode
@@ -287,6 +289,7 @@ def _make_replace():
         :Rtype: ``basestring``
         """
         # pylint: disable = W0621
+
         if not holders:
             return script
         isuni = isinstance_(script, unicode_)
@@ -315,8 +318,8 @@ def _make_replace():
             """ Substitution function without checking .as_json() """
             name = match.group(u'name')
             if name and name in holders:
-                return escape_string_(holders[name],
-                    encoding=encoding, inlined=inlined
+                return escape_string_(
+                    holders[name], encoding=encoding, inlined=inlined
                 ).decode('ascii')
             return match.group(0)
 
@@ -327,10 +330,11 @@ def _make_replace():
                 value = holders[name]
                 method = getattr_(value, 'as_json', None)
                 if method is None:
-                    return escape_string_(value,
-                        encoding=encoding, inlined=inlined
+                    return escape_string_(
+                        value, encoding=encoding, inlined=inlined
                     ).decode('ascii')
-                value = small_sub(big_sub(unicode_(method(inlined=False))
+                value = small_sub(big_sub(
+                    unicode_(method(inlined=False))
                     .encode(json_encoding, 'backslashreplace')
                     .decode(json_encoding)
                 ))
@@ -406,7 +410,9 @@ def fill(node, holders, pattern=None, as_json=True):
         Check the placeholder values for an ``as_json`` method? See the
         description of the `holders` parameter for details.
     """
-    node.raw.content = replace(node.raw.content, holders,
+    node.raw.content = replace(
+        node.raw.content,
+        holders,
         pattern=pattern,
         as_json=as_json,
         inlined=True,
@@ -546,7 +552,8 @@ class LiteralJSON(object):
             if encoding is None:
                 encoding = 'utf-8'
             json = json.decode(encoding)
-        return (json
+        return (
+            json
             .replace(u'\u2028', u'\\u2028')
             .replace(u'\u2029', u'\\u2029')
         )
@@ -618,10 +625,11 @@ class SimpleJSON(object):
         :Rtype: ``unicode``
         """
         try:
-            import json as _json # pylint: disable = F0401
+            import json as _json
         except ImportError:
-            import simplejson as _json # pylint: disable = F0401
-        json = _json.dumps(self._content,
+            import simplejson as _json
+        json = _json.dumps(
+            self._content,
             separators=(',', ':'),
             ensure_ascii=False,
             encoding=self._str_encoding,
@@ -632,7 +640,8 @@ class SimpleJSON(object):
             inlined = self._inlined
         if inlined:
             json = escape_inlined(json)
-        return (json
+        return (
+            json
             .replace(u'\u2028', u'\\u2028')
             .replace(u'\u2029', u'\\u2029')
         )
@@ -821,7 +830,7 @@ class JSInlineFilter(_filters.BaseEventFilter):
         self._collecting = False
         self._buffer = []
         self._starttag = None
-        self._modify = modifier # pylint-similar: tdi.tools.javascript
+        self._modify = modifier
         self._normalize = self.builder.decoder.normalize
         if standalone:
             self._attribute = None
@@ -870,9 +879,9 @@ class JSInlineFilter(_filters.BaseEventFilter):
             script = self._modify(script)
 
             if not script and self._strip:
-                attrdict = dict((normalize(name), val)
-                    for name, val in self._starttag[1]
-                )
+                attrdict = dict((
+                    normalize(name), val
+                ) for name, val in self._starttag[1])
                 if normalize('src') not in attrdict:
                     if self._attribute is None or \
                             self._attribute not in attrdict:
@@ -911,14 +920,15 @@ def MinifyFilter(builder, minifier=None, standalone=False):
         Standalone context? In this case, we won't watch out for TDI
         attributes.
     """
-    # pylint: disable = C0103, C0322
+    # pylint: disable = C0103
+
     if minifier is None:
         minifier = minify
     work = lambda x, m=minifier, c=cleanup: m(c(x))
     return JSInlineFilter(builder, work, standalone=standalone)
 
 
-def CDATAFilter(builder, standalone=False): # pylint: disable = C0103
+def CDATAFilter(builder, standalone=False):  # pylint: disable = C0103
     """
     TDI filter for adding failsafe CDATA containers around scripts
 

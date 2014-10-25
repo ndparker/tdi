@@ -70,6 +70,7 @@ class TemplateListProxy(object):
             create = creator
         else:
             self.__list = None
+
             def create():
                 """ self-destroying creator """
                 if self.__list is None:
@@ -125,7 +126,7 @@ class TemplateList(list):
     """
     missing = None
 
-    def __init__(*args, **kwargs): # pylint: disable = E0211
+    def __init__(*args, **kwargs):  # pylint: disable = E0211
         """
         Initialization
 
@@ -334,9 +335,11 @@ class Layout(object):
             ignore -= set(consider)
 
         lazy, autoreload = self._lazy, self._loader.autoreload()
+
         def make_creator(base, use, ignore):
             """ Make a new template list creator """
             cls, loader = self._cls, self._loader
+
             def creator():
                 """ Create """
                 return cls.discover(loader, base, use=use, ignore=ignore)
@@ -346,7 +349,7 @@ class Layout(object):
             return creator()
         result = TemplateListProxy(creator, autoreload)
         if not lazy:
-            iter(result) # trigger list creation
+            iter(result)  # trigger list creation
         return result
 
 
@@ -486,7 +489,7 @@ class Loader(object):
         Selector
     """
 
-    def __init__(self, list, load, select): # pylint: disable = W0622
+    def __init__(self, list, load, select):  # pylint: disable = W0622
         """
         Initialization
 

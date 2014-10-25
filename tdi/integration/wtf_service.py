@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2010 - 2013
+ Copyright 2010 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -85,7 +85,7 @@ from tdi.tools import htmlform as _htmlform
 
 def _resource():
     """ Load resource service """
-    from __svc__.wtf import resource
+    from __svc__.wtf import resource  # pylint: disable = F0401
     return resource
 
 
@@ -117,7 +117,7 @@ class RequestParameterAdapter(object):
             return self.param[name]
         return default
 
-    def getlist(self, name): # pylint: disable = E0202
+    def getlist(self, name):  # pylint: disable = E0202
         """ :See: ``tdi.tools.htmlform.ParameterAdapterInterface`` """
         return self.param.multi(name)
 
@@ -174,7 +174,8 @@ class DirectoryTemplateLister(object):
 
         for base in self._dirs:
             baselen = len(_os.path.join(base, ''))
-            reldir = lambda x: x[baselen:]
+            reldir = lambda x: x[baselen:]  # pylint: disable = W0640
+
             def onerror(_):
                 """ Error handler """
                 raise
@@ -253,8 +254,9 @@ class GlobalTemplate(object):
           `filters` : ``dict``
             Filter factories to apply
         """
-        self._dirs = list(_it.chain(*[_resource()[location]
-            for location in locations]))
+        self._dirs = list(_it.chain(*[
+            _resource()[location] for location in locations
+        ]))
         self.autoreload = autoreload
         self.require_scopes = require_scopes
         self.require_methods = require_methods
@@ -281,6 +283,7 @@ class GlobalTemplate(object):
                 getattr(_markup_factory, which).replace(**kwargs)
             )
             sfactory = factory.replace(overlay_eventfilters=[])
+
             def load(names):
                 """ Actual loader """
                 res = factory.from_streams(names, streamopen=streamopen)
@@ -308,17 +311,20 @@ class GlobalTemplate(object):
                 _util.load_dotted, filter(None, opt(filters, args) or ())
             ) or None
 
-        self.html, self.html_file = loader('html',
+        self.html, self.html_file = loader(
+            'html',
             post_load=load('html', 'template'),
             eventfilters=load('html', 'load'),
             overlay_eventfilters=load('html', 'overlay'),
         )
-        self.xml, self.xml_file = loader('xml',
+        self.xml, self.xml_file = loader(
+            'xml',
             post_load=load('xml', 'template'),
             eventfilters=load('xml', 'load'),
             overlay_eventfilters=load('xml', 'overlay'),
         )
-        self.text, self.text_file = loader('text',
+        self.text, self.text_file = loader(
+            'text',
             post_load=load('text', 'template'),
             eventfilters=load('text', 'load'),
             overlay_eventfilters=load('text', 'overlay'),
@@ -375,7 +381,7 @@ class GlobalTemplate(object):
                     mode=mode, buffering=buffering, blockiter=blockiter
                 ), loc.filename
             except IOError, e:
-                if e[0] == _errno.ENOENT:
+                if e.args[0] == _errno.ENOENT:
                     continue
                 raise
         raise IOError(_errno.ENOENT, name)
@@ -403,7 +409,8 @@ class ResponseFactory(object):
 
         def adapter(model):
             """ Adapter factory """
-            return _model_adapters.RenderAdapter(model,
+            return _model_adapters.RenderAdapter(
+                model,
                 requiremethods=global_template.require_methods,
                 requirescopes=global_template.require_scopes,
             )
@@ -425,12 +432,14 @@ class ResponseFactory(object):
                 """
                 return global_template.html(names)
             return load_html
+
         def render_html(response):
             """ Response factory for ``render_html`` """
             return self._render_factory(
                 response, global_template.html, adapter,
                 "render_html", 'text/html'
             )
+
         def pre_render_html(response):
             """ Response factory for ``pre_render_html`` """
             return self._render_factory(
@@ -455,12 +464,14 @@ class ResponseFactory(object):
                 """
                 return global_template.xml(names)
             return load_xml
+
         def render_xml(response):
             """ Response factory for ``render_xml`` """
             return self._render_factory(
                 response, global_template.xml, adapter,
                 "render_xml", 'text/xml'
             )
+
         def pre_render_xml(response):
             """ Response factory for ``pre_render_xml`` """
             return self._render_factory(
@@ -485,12 +496,14 @@ class ResponseFactory(object):
                 """
                 return global_template.text(names)
             return load_text
+
         def render_text(response):
             """ Response factory for ``render_text`` """
             return self._render_factory(
                 response, global_template.text, adapter,
                 "render_text", 'text/plain'
             )
+
         def pre_render_text(response):
             """ Response factory for ``pre_render_text`` """
             return self._render_factory(
@@ -584,12 +597,13 @@ class ResponseFactory(object):
                     prerender, startnode=startnode,
                     adapter=_model_adapters.RenderAdapter.for_prerender,
                 )]
-            return [tpl.render_string(model, adapter=adapter,
-                startnode=startnode, prerender=prerender,
+            return [tpl.render_string(
+                model,
+                adapter=adapter, startnode=startnode, prerender=prerender,
             )]
         try:
-            render_func.__name__ = func_name # pylint: disable = W0622
-        except TypeError: # python 2.3 doesn't allow changing names
+            render_func.__name__ = func_name  # pylint: disable = W0622
+        except TypeError:  # python 2.3 doesn't allow changing names
             pass
         return render_func
 
@@ -652,7 +666,7 @@ class TDIService(object):
     def __init__(self, config, opts, args):
         """ Initialization """
         # pylint: disable = W0613
-        self._global =  GlobalTemplate(
+        self._global = GlobalTemplate(
             config.tdi.locations,
             config.tdi('autoreload', False),
             config.tdi('require_scopes', False),

@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -112,9 +112,9 @@ def class_del(node, *class_):
 
 def _make_multiline():
     """ Make multiline encoder """
-    # pylint: disable = W0621
 
     divmod_, len_ = divmod, len
+
     def space_func(match):
         """ Space filler """
         length, rest = divmod_(len_(match.group(0)), 2)
@@ -145,7 +145,9 @@ def _make_multiline():
         :Return: The multilined content
         :Rtype: ``str``
         """
-        content = (content
+        # pylint: disable = W0621
+        content = (
+            content
             .replace(u'&', u'&amp;')
             .replace(u'<', u'&lt;')
             .replace(u'>', u'&gt;')
@@ -309,7 +311,8 @@ class MinifyFilter(_filters.BaseEventFilter):
             if stack and \
                     (self._dtd.cdata(stack[-1]) or stack[-1] == 'pre'):
                 if stack[-1] == 'pre':
-                    buf = [line.rstrip()
+                    buf = [
+                        line.rstrip()
                         for line in buf.rstrip().splitlines(False)
                     ]
                 elif stack[-1] in ('script', 'style'):

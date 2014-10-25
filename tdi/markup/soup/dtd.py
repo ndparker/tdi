@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -73,6 +73,8 @@ class HTMLDTD(object):
     #:
     #: :Type: ``tuple``
     _OPTIONAL = tuple({
+        # pylint: disable = C0326
+
         'html':     ('html',),
         'head':     ('html', 'body', 'head',),
         'body':     ('html', 'body', 'head',),
@@ -112,19 +114,18 @@ class HTMLDTD(object):
             for name, forbidden in self._OPTIONAL
         ]).get
         if self.__class__ == HTMLDTD:
-            import operator as _operator
-
             self.cdata = dict_([
                 (item, None) for item in self._CDATA
             ]).__contains__
             self.empty = empty = dict_([
                 (item, None) for item in self._EMPTY
             ]).__contains__
+
             def nestable(outer, inner):
                 """ :See: `tdi.interfaces.DTDInterface.nestable` """
                 opt = optional(outer)
                 if opt is not None:
-                    return not(opt(inner))
+                    return not(opt(inner))  # pylint: disable = C0325
                 elif empty(outer):
                     return False
                 return True
@@ -138,21 +139,21 @@ class HTMLDTD(object):
             ]).__contains__
             self._optional = optional
 
-    def cdata(self, name): # pylint: disable = E0202
+    def cdata(self, name):  # pylint: disable = E0202
         """ :See: `tdi.interfaces.DTDInterface.cdata` """
         return self._cdata(name)
 
-    def nestable(self, outer, inner): # pylint: disable = E0202
+    def nestable(self, outer, inner):  # pylint: disable = E0202
         """ :See: `tdi.interfaces.DTDInterface.nestable` """
         opt = self._optional(outer)
         if opt is not None:
-            return not(opt(inner))
+            return not(opt(inner))  # pylint: disable = C0325
         elif self._empty(outer):
             return False
 
         return True
 
-    def empty(self, name): # pylint: disable = E0202
+    def empty(self, name):  # pylint: disable = E0202
         """ :See: `tdi.interfaces.DTDInterface.empty` """
         return self._empty(name)
 

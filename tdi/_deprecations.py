@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2010 - 2012
+ Copyright 2010 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -35,14 +35,17 @@ from tdi.tools import htmlform as _htmlform
 from tdi.tools import javascript as _javascript
 
 
-_escape.decode_html = _util.Deprecator(_html.decode,
+_escape.decode_html = _util.Deprecator(
+    _html.decode,
     "tdi.tools.escape.decode_html has been moved to tdi.tools.html.decode."
 )
-_escape.multiline_to_html = _util.Deprecator(_html.multiline,
+_escape.multiline_to_html = _util.Deprecator(
+    _html.multiline,
     "tdi.tools.escape.multiline_to_html has been moved to "
     "tdi.tools.html.multiline."
 )
-_escape.escape_js = _util.Deprecator(_javascript.escape_string,
+_escape.escape_js = _util.Deprecator(
+    _javascript.escape_string,
     "tdi.tools.escape.escape_js is deprecated. "
     "Use tdi.tools.javascript.escape_string instead."
 )

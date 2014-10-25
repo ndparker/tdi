@@ -18,6 +18,8 @@ ignore=
     _tdi_impl.so,
     _tdi_rjsmin.so,
     _tdi_rcssmin.so,
+    rjsmin.py,
+    rcssmin.py,
 
 
 # Pickle collected data for later comparisons.

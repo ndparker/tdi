@@ -1,4 +1,4 @@
-# -*- coding: ascii -*- pylint: disable = C0302
+# -*- coding: ascii -*-  pylint: disable = C0302
 u"""
 :Copyright:
 

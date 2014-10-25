@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2013
+ Copyright 2013 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -31,8 +31,9 @@ __all__ = ['html', 'xml', 'text']
 
 from tdi import factory as _factory
 
+
 class _soup(object):
-    from tdi.markup.soup import (
+    from tdi.markup.soup import (  # noqa
         builder,
         decoder,
         encoder,
@@ -40,8 +41,9 @@ class _soup(object):
         parser,
     )
 
+
 class _text(object):
-    from tdi.markup.text import (
+    from tdi.markup.text import (  # noqa
         builder,
         decoder,
         encoder,

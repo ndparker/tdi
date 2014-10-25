@@ -1,7 +1,7 @@
 # -*- coding: ascii -*-
 u"""
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -46,7 +46,6 @@ def _make_decode():
     isinstance_ = isinstance
     default_entities = dict(_htmlentities.htmlentities)
 
-    # pylint: disable = W0621
     def decode(value, encoding='latin-1', errors='strict', entities=None):
         """
         Decode HTML encoded text
@@ -86,12 +85,13 @@ def _make_decode():
         :Return: The decoded content
         :Rtype: ``unicode``
         """
-        # pylint: disable = E1101
-        # pylint: disable = R0912
+        # pylint: disable = W0621
+
         if not isinstance_(value, unicode_):
             value = str_(value).decode(encoding, errors)
         if entities is None:
             entities = default_entities
+
         def subber(match):
             """ Substituter """
             name = match.group(1)

@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2007 - 2013
+ Copyright 2007 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -31,7 +31,7 @@ __all__ = ['TabIndexer']
 
 import itertools as _it
 
-from tdi.tools.htmlform._interfaces import PostProcInterface
+from tdi.tools.htmlform import _interfaces
 
 
 class TabIndexer(object):
@@ -42,7 +42,7 @@ class TabIndexer(object):
       `next_index` : ``callable``
         Function to deliver the next index
     """
-    __implements__ = [PostProcInterface]
+    __implements__ = [_interfaces.PostProcInterface]
 
     def __init__(self, start=1):
         """

@@ -58,7 +58,6 @@ class RenderAdapter(object):
         :Rtype: `ModelAdapterInterface`
         """
         # pylint: disable = R0912
-        # (too many branches)
 
         self = object.__new__(cls)
 
@@ -67,13 +66,14 @@ class RenderAdapter(object):
         getattr_ = getattr
         models = {'': model}
 
-        class unset(object): # pylint: disable = C0103, C0111
+        class unset(object):  # pylint: disable = C0103, C0111
             pass
         unset = unset()
 
         def new(model):
             """ Create adapter for a new model """
-            return cls(model,
+            return cls(
+                model,
                 requiremethods=requiremethods,
                 requirescopes=requirescopes,
             )
@@ -184,6 +184,7 @@ class PreRenderWrapper(object):
         :Rtype: `ModelAdapterInterface`
         """
         # pylint: disable = R0912
+
         self = object.__new__(cls)
 
         scope_attr = 'tdi:scope'
@@ -294,6 +295,6 @@ class PreRenderWrapper(object):
 from tdi import c
 c = c.load('impl')
 if c is not None:
-    RenderAdapter = c.RenderAdapter
-    PreRenderWrapper = c.PreRenderWrapper
+    RenderAdapter = c.RenderAdapter  # noqa
+    PreRenderWrapper = c.PreRenderWrapper  # noqa
 del c

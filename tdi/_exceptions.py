@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2007 - 2013
+ Copyright 2007 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -39,20 +39,26 @@ class Error(Exception):
 class TemplateError(Error):
     """ Error in a template """
 
+
 class TemplateEncodingError(TemplateError):
     """ Template encoding error """
+
 
 class TemplateAttributeError(TemplateError):
     """ A tdi attribute could not be parsed """
 
+
 class TemplateAttributeEmptyError(TemplateAttributeError):
     """ A tdi attribute was empty """
+
 
 class TemplateReloadError(TemplateError):
     """ Error during template reload """
 
+
 class TemplateFactoryError(TemplateError):
     """ Template factory misuse """
+
 
 class OverlayError(TemplateError):
     """ Error in overlay work """
@@ -61,8 +67,10 @@ class OverlayError(TemplateError):
 class NodeError(Error):
     """ Error in node processing """
 
+
 class NodeTreeError(NodeError):
     """ The node tree was tried to be modified after it was finalized """
+
 
 class NodeNotFoundError(NodeError):
     """ node was not found """
@@ -71,6 +79,7 @@ class NodeNotFoundError(NodeError):
 class ModelError(Error):
     """ Base error for model errors """
 
+
 class ModelMissingError(ModelError):
     """ A required model method was missing """
 
@@ -78,11 +87,14 @@ class ModelMissingError(ModelError):
 class LexerError(Error):
     """ Lexer Error """
 
+
 class LexerEOFError(LexerError):
     """ Unexpected EOF """
 
+
 class LexerStateError(LexerError):
     """ Invalid state change """
+
 
 class LexerFinalizedError(LexerStateError):
     """ Lexer was already finalized """
@@ -90,6 +102,7 @@ class LexerFinalizedError(LexerStateError):
 
 class DependencyError(Error):
     """ A dependency error occured """
+
 
 class DependencyCycle(DependencyError):
     """
@@ -99,7 +112,7 @@ class DependencyCycle(DependencyError):
     """
 
 
-class Warning(Warning): # pylint: disable = W0622
+class Warning(Warning):  # pylint: disable = W0622
     """ Base warning for this package """
 
     def emit(cls, message, stacklevel=1):
@@ -108,11 +121,13 @@ class Warning(Warning): # pylint: disable = W0622
     emit = classmethod(emit)
 
 
-class DeprecationWarning(Warning): # pylint: disable = W0622
+class DeprecationWarning(Warning):  # pylint: disable = W0622
     """ TDI specific deprecation warning """
+
 
 class NodeWarning(Warning):
     """ A (non-fatal) inconsistency in the nodetree occured """
+
 
 class AutoUpdateWarning(Warning):
     """ An auto update error occured after the template was first loaded """

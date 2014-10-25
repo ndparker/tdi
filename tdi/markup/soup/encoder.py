@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -65,7 +65,8 @@ class SoupEncoder(object):
     def attribute(self, value):
         """ :See: `EncoderInterface` """
         if isinstance(value, unicode):
-            value = (value
+            value = (
+                value
                 .replace(u'&', u'&amp;')
                 .replace(u'<', u'&lt;')
                 .replace(u'>', u'&gt;')
@@ -73,7 +74,8 @@ class SoupEncoder(object):
                 .encode(self.encoding, 'xmlcharrefreplace')
             )
         else:
-            value = (value
+            value = (
+                value
                 .replace('&', '&amp;')
                 .replace('<', '&lt;')
                 .replace('>', '&gt;')
@@ -85,13 +87,15 @@ class SoupEncoder(object):
     def content(self, value):
         """ :See: `EncoderInterface` """
         if isinstance(value, unicode):
-            return (value
+            return (
+                value
                 .replace(u'&', u'&amp;')
                 .replace(u'<', u'&lt;')
                 .replace(u'>', u'&gt;')
                 .encode(self.encoding, 'xmlcharrefreplace')
             )
-        return (value
+        return (
+            value
             .replace('&', '&amp;')
             .replace('<', '&lt;')
             .replace('>', '&gt;')
@@ -109,5 +113,5 @@ class SoupEncoder(object):
 from tdi import c
 c = c.load('impl')
 if c is not None:
-    SoupEncoder = c.SoupEncoder
+    SoupEncoder = c.SoupEncoder  # noqa
 del c

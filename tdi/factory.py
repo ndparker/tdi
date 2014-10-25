@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -109,7 +109,6 @@ class Loader(object):
             Chunk size when reading templates
         """
         # pylint: disable = R0913
-        # (too many arguments)
 
         self._args = dict(locals())
         del self._args['self']
@@ -158,17 +157,17 @@ class Loader(object):
 
         self._new_parser = make_parser
 
+    @_util.Property
     def args():
         """
         The initialization arguments
 
         :Type: ``dict``
         """
-        # pylint: disable = E0211, C0111, W0212, W0612
+        # pylint: disable = E0211, C0111, W0612, W0212
         def fget(self):
             return dict(self._args)
         return locals()
-    args = _util.Property(args)
 
     def persist(self, filename, encoding, opener):
         """
@@ -275,7 +274,7 @@ def file_opener(filename, mtime, check_only=False):
         if mtime is not None and xtime is not None and mtime == xtime:
             stream, _ = None, stream.close()
         return stream, xtime
-    except: # pylint: disable = W0702
+    except:  # pylint: disable = W0702
         e = _sys.exc_info()
         try:
             stream.close()
@@ -313,6 +312,7 @@ def overlay(templates):
 #: :Type: Lock
 _global_lock = _threading.Lock()
 
+
 def _memoize(func):
     """
     Decorate a factory method call to possibly memoize the result
@@ -325,10 +325,11 @@ def _memoize(func):
     :Rtype: ``callable``
     """
     name = func.__name__
+
     def proxy(*args, **kwargs):
         """ Proxy """
         self, key = args[0], kwargs.pop('key', None)
-        cache = self._cache # pylint: disable = W0212
+        cache = self._cache  # pylint: disable = W0212
         if cache is None or key is None:
             return func(*args, **kwargs)
         lock, key = getattr(cache, 'lock', None), (name, key)
@@ -458,7 +459,6 @@ class Factory(object):
             off.
         """
         # pylint: disable = R0913
-        # (too many arguments)
 
         self._loader = Loader(
             parser=parser,
@@ -549,8 +549,7 @@ class Factory(object):
         :Return: New factory instance
         :Rtype: `Factory`
         """
-        # pylint: disable = R0913, R0912
-        # (too many arguments, branches)
+        # pylint: disable = R0912, R0913
 
         args = self._loader.args
         if autoupdate is None:
@@ -608,7 +607,6 @@ class Factory(object):
           - `Error` : An error occured while loading the template
           - `IOError` : Error while opening/reading the file
         """
-        # pylint: disable = E0202
         if encoding is None:
             encoding = self._default_encoding
         return self.from_opener(file_opener, filename, encoding=encoding)
@@ -633,7 +631,6 @@ class Factory(object):
         :Return: The new `Template` instance
         :Rtype: `Template`
         """
-        # pylint: disable = E0202
         if encoding is None:
             encoding = self._default_encoding
         loader = self._loader.persist(filename, encoding, opener)
@@ -671,7 +668,6 @@ class Factory(object):
         :Return: The new `Template` instance
         :Rtype: `Template`
         """
-        # pylint: disable = E0202
         if encoding is None:
             encoding = self._default_encoding
         if filename is None:
@@ -718,7 +714,6 @@ class Factory(object):
         :Return: The new `Template` instance
         :Rtype: `Template`
         """
-        # pylint: disable = E0202
         if encoding is None:
             encoding = self._default_encoding
         if filename is None:
@@ -751,7 +746,8 @@ class Factory(object):
             encoding = self._default_encoding
         if basedir is not None:
             names = [_os.path.join(basedir, name) for name in names]
-        return overlay([self.from_file(name, encoding=encoding, key=name)
+        return overlay([
+            self.from_file(name, encoding=encoding, key=name)
             for name in names
         ])
     from_files = _memoize(from_files)
@@ -785,16 +781,17 @@ class Factory(object):
         :Return: The final template
         :Rtype: `Template`
         """
-        # pylint: disable = E0202
         if encoding is None:
             encoding = self._default_encoding
         if streamopen is None:
             streamopen = lambda x: ((file_opener, x), x)
+
         def tpls():
             """ Get templates """
             for item in streams:
                 tup = streamopen(item)
                 if len(tup) == 4:
+                    # pylint: disable = W0632
                     filename, stream, mtime, opener = tup
                     try:
                         import warnings as _warnings
@@ -807,12 +804,13 @@ class Factory(object):
                             stream, encoding, filename, mtime, opener
                         )
                     finally:
-                        stream.close() # pylint: disable = E1103
+                        stream.close()
                     yield tpl
                     continue
 
                 tup, key = tup
                 if len(tup) == 3:
+                    # pylint: disable = W0632
                     stream, filename, mtime = tup
                     try:
                         tpl = self.from_stream(

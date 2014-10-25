@@ -31,7 +31,7 @@ __license__ = "Apache License, Version 2.0"
 __version__ = ('0.9.9.8', False, 4809)
 
 from tdi import util as _util
-from tdi._exceptions import * # pylint: disable = W0401, W0614, W0622
+from tdi._exceptions import *  # noqa pylint: disable = W0622, W0401, W0614
 from tdi.markup import factory as _factory
 
 #: Version of the TDI package
@@ -57,4 +57,4 @@ text = _factory.text
 __all__ = _util.find_public(globals())
 del _util, _factory
 
-from tdi import _deprecations # pylint: disable = W0611
+from tdi import _deprecations  # noqa pylint: disable = W0611

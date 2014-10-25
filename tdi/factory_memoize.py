@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -70,7 +70,6 @@ class MemoizedFactory(object):
                 memoizer=None):
         """ Create factory with replaced parameters """
         # pylint: disable = R0913
-        # (too many arguments)
 
         return self.__class__(self._factory.replace(
             autoupdate=autoupdate,
@@ -91,8 +90,8 @@ class MemoizedFactory(object):
         """ Build template from file """
         if key is None:
             key = filename
-        return self._factory.from_file(filename, encoding=encoding,
-            key=key
+        return self._factory.from_file(
+            filename, encoding=encoding, key=key
         )
     _copy_doc(from_file)
 
@@ -101,9 +100,13 @@ class MemoizedFactory(object):
         """ Build template from stream """
         if key is None:
             key = filename
-        return self._factory.from_stream(stream, encoding=encoding,
-            filename=filename, mtime=mtime, opener=opener,
-            key=key
+        return self._factory.from_stream(
+            stream,
+            encoding=encoding,
+            filename=filename,
+            mtime=mtime,
+            opener=opener,
+            key=key,
         )
     _copy_doc(from_stream)
 
@@ -111,8 +114,8 @@ class MemoizedFactory(object):
         """ Build template from stream opener """
         if key is None:
             key = filename
-        return self._factory.from_opener(opener, filename, encoding=encoding,
-            key=key
+        return self._factory.from_opener(
+            opener, filename, encoding=encoding, key=key
         )
     _copy_doc(from_opener)
 
@@ -121,9 +124,12 @@ class MemoizedFactory(object):
         """ Build template from string """
         if key is None:
             key = filename
-        return self._factory.from_string(data, encoding=encoding,
-            filename=filename, mtime=mtime,
-            key=key
+        return self._factory.from_string(
+            data,
+            encoding=encoding,
+            filename=filename,
+            mtime=mtime,
+            key=key,
         )
     _copy_doc(from_string)
 
@@ -131,9 +137,11 @@ class MemoizedFactory(object):
         """ Load templates from files and overlay them """
         if key is None:
             key = (basedir,) + tuple(names)
-        return self._factory.from_files(names, encoding=encoding,
+        return self._factory.from_files(
+            names,
+            encoding=encoding,
             basedir=basedir,
-            key=key
+            key=key,
         )
     _copy_doc(from_files)
 
@@ -146,8 +154,10 @@ class MemoizedFactory(object):
                 hash(key)
             except TypeError:
                 key = None
-        return self._factory.from_streams(streams, encoding=encoding,
+        return self._factory.from_streams(
+            streams,
+            encoding=encoding,
             streamopen=streamopen,
-            key=key
+            key=key,
         )
     _copy_doc(from_streams)

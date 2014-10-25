@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -33,6 +33,9 @@ from tdi import _finalize
 from tdi import _nodetree
 from tdi import util as _util
 
+# pylint: disable = W0212
+# access to _udict
+
 
 class RawNode(object):
     """
@@ -52,16 +55,19 @@ class RawNode(object):
           `node` : `Node`
             The original node
         """
-        self._udict = node._udict # pylint: disable = W0212
+        self._udict = node._udict
 
+    @_util.Property
     def content():
         """
         Raw content
 
         :Type: ``str``
         """
-        # pylint: disable = E0211, W0212, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612
+
         unicode_, str_, isinstance_ = unicode, str, isinstance
+
         def fset(self, content):
             udict = self._udict
             if isinstance_(content, unicode_):
@@ -70,34 +76,34 @@ class RawNode(object):
                 cont = str_(content)
             udict['content'] = (cont, cont)
             udict['namedict'] = {}
+
         def fget(self):
             return self._udict['content'][0]
         return locals()
-    content = _util.Property(content)
 
+    @_util.Property
     def encoder():
         """
         Output encoder
 
         :Type: `EncoderInterface`
         """
-        # pylint: disable = E0211, W0212, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612
         def fget(self):
             return self._udict['encoder']
         return locals()
-    encoder = _util.Property(encoder)
 
+    @_util.Property
     def decoder():
         """
         Input decoder
 
         :Type: `DecoderInterface`
         """
-        # pylint: disable = E0211, W0212, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612
         def fget(self):
             return self._udict['decoder']
         return locals()
-    decoder = _util.Property(decoder)
 
     def __setitem__(self, name, value):
         """
@@ -193,6 +199,7 @@ class Node(object):
     _usernode = True
     __slots__ = ['content', 'raw', 'ctx', '_model', '_udict']
 
+    @_util.Property
     def content():
         """
         Node content
@@ -207,56 +214,58 @@ class Node(object):
 
         :Type: ``basestring`` or ``None``
         """
-        # pylint: disable = E0211, W0212, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612
         basestring_, isinstance_, str_ = basestring, isinstance, str
+
         def fset(self, content):
             if not isinstance_(content, basestring_):
                 content = str_(content)
             udict = self._udict
             udict['content'] = (udict['encoder'].content(content), None)
             udict['namedict'] = {}
+
         def fget(self):
             return self._udict['content'][0]
         return locals()
-    content = _util.Property(content)
 
+    @_util.Property
     def hiddenelement():
         """
         Hidden node markup?
 
         :Type: ``bool``
         """
-        # pylint: disable = E0211, W0212, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612
         def fset(self, value):
             self._udict['noelement'] = value and True or False
+
         def fget(self):
             return self._udict['noelement']
         return locals()
-    hiddenelement = _util.Property(hiddenelement)
 
+    @_util.Property
     def closedelement():
         """
         Self-closed element? (read-only)
 
         :Type: ``bool``
         """
-        # pylint: disable = E0211, W0212, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612
         def fget(self):
             return self._udict['closed']
         return locals()
-    closedelement = _util.Property(closedelement)
 
+    @_util.Property
     def raw():
         """
         Raw node
 
         :Type: `RawNode`
         """
-        # pylint: disable = E0211, W0212, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612
         def fget(self):
             return RawNode(self)
         return locals()
-    raw = _util.Property(raw)
 
     def __new__(cls, node, model, ctx=None, light=False):
         """
@@ -281,7 +290,6 @@ class Node(object):
         :Return: The node instance
         :Rtype: `Node`
         """
-        # pylint: disable = W0212
         if light:
             if not node._udict.get('callback'):
                 node.ctx = ctx
@@ -317,7 +325,6 @@ class Node(object):
         :Exceptions:
           - `NodeNotFoundError` : The subnode was not found
         """
-        # pylint: disable = W0212
         udict = self._udict
         try:
             name = str(name)
@@ -325,7 +332,7 @@ class Node(object):
         except (UnicodeError, KeyError):
             raise NodeNotFoundError(name)
 
-        while idx < 0: # walk through transparent "nodes"
+        while idx < 0:  # walk through transparent "nodes"
             kind, result = udict['nodes'][-1 - idx]
             if not result._usernode:
                 result = Node(result, self._model, self.ctx)
@@ -444,32 +451,32 @@ class Node(object):
 
             repeat(self, callback, itemlist, *fixed, separate=None)
 
-        Examples:
+        Examples::
 
-        >>> def render_foo(self, node):
-        >>>     def callback(node, item):
-        >>>         ...
-        >>>     node.repeat(callback, [1, 2, 3, 4])
+            def render_foo(self, node):
+                def callback(node, item):
+                    ...
+                node.repeat(callback, [1, 2, 3, 4])
 
-        >>> def render_foo(self, node):
-        >>>     def callback(node, item):
-        >>>         ...
-        >>>     def sep(node):
-        >>>         ...
-        >>>     node.repeat(callback, [1, 2, 3, 4], separate=sep)
+            def render_foo(self, node):
+                def callback(node, item):
+                    ...
+                def sep(node):
+                    ...
+                node.repeat(callback, [1, 2, 3, 4], separate=sep)
 
-        >>> def render_foo(self, node):
-        >>>     def callback(node, item, foo, bar):
-        >>>         ...
-        >>>     node.repeat(callback, [1, 2, 3, 4], "foo", "bar")
+            def render_foo(self, node):
+                def callback(node, item, foo, bar):
+                    ...
+                node.repeat(callback, [1, 2, 3, 4], "foo", "bar")
 
-        >>> def render_foo(self, node):
-        >>>     def callback(node, item, foo, bar):
-        >>>         ...
-        >>>     def sep(node):
-        >>>         ...
-        >>>     node.repeat(callback, [1, 2, 3, 4], "foo", "bar",
-        >>>                 separate=sep)
+            def render_foo(self, node):
+                def callback(node, item, foo, bar):
+                    ...
+                def sep(node):
+                    ...
+                node.repeat(callback, [1, 2, 3, 4], "foo", "bar",
+                            separate=sep)
 
         :Parameters:
           `callback` : ``callable``
@@ -571,18 +578,19 @@ class Node(object):
                  updated parameters)
         :Rtype: `Node`
         """
-        # pylint: disable = E0203
-        # pylint: disable = W0201, W0212
         udict = other._udict.copy()
         udict['attr'] = udict['attr'].copy()
         ctx, deep, TEXT = self.ctx, _nodetree.copydeep, _nodetree.TEXT_NODE
         model = self._model
 
-        udict['nodes'] = [(kind, (kind != TEXT and node._usernode) and
-            deep(node, model, ctx, Node) or node
+        udict['nodes'] = [(
+            # pylint: disable = C0330
+            kind,
+            (kind != TEXT and node._usernode) and
+                deep(node, model, ctx, Node) or node  # noqa
         ) for kind, node in udict['nodes']]
 
-        udict['name'] = self._udict['name'] # name stays the same
+        udict['name'] = self._udict['name']  # name stays the same
         udict['callback'] = callback
         udict['complete'] = fixed
 
@@ -642,7 +650,6 @@ class Node(object):
         :Return: The rendered node, type depends on ``decode`` keyword
         :Rtype: ``basestring``
         """
-        # pylint: disable = W0212
         decode = kwargs.pop('decode', True)
         decode_errors = kwargs.pop('decode_errors', 'strict')
         model = kwargs.pop('model', None)
@@ -687,13 +694,14 @@ class TemplateNode(object):
     ctx = None
     _usernode = False
 
+    @_util.Property
     def endtag():
         """
         End tag of the node
 
         :Type: ``str``
         """
-        # pylint: disable = E0211, W0212, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612
         def fset(self, data):
             if self._finalized:
                 raise NodeTreeError("Tree was already finalized")
@@ -704,10 +712,10 @@ class TemplateNode(object):
             if not isinstance(data, str):
                 raise NodeTreeError("Endtag data must be a string")
             self._udict['endtag'] = data
+
         def fget(self):
             return self._udict.get('endtag')
         return locals()
-    endtag = _util.Property(endtag)
 
     def __init__(self, tagname, attr, special, closed):
         """
@@ -853,57 +861,57 @@ class Root(TemplateNode):
     """
     _sources, _targets = None, None
 
+    @_util.Property
     def encoder():
         """
         Output encoder
 
         :Type: `EncoderInterface`
         """
-        # pylint: disable = E0211, W0212, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612
         def fget(self):
             return self._udict['encoder']
         return locals()
-    encoder = _util.Property(encoder)
 
+    @_util.Property
     def decoder():
         """
         Input decoder
 
         :Type: `DecoderInterface`
         """
-        # pylint: disable = E0211, W0212, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612
         def fget(self):
             return self._udict['decoder']
         return locals()
-    decoder = _util.Property(decoder)
 
+    @_util.Property
     def source_overlay_names():
         """
         Source overlay names
 
         :Type: iterable
         """
-        # pylint: disable = E0211, W0212, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612
         def fget(self):
             if self._sources is None:
                 return ()
             return self._sources.iterkeys()
         return locals()
-    source_overlay_names = _util.Property(source_overlay_names)
 
+    @_util.Property
     def target_overlay_names():
         """
         Target overlay names
 
         :Type: iterable
         """
-        # pylint: disable = E0211, W0212, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612
         def fget(self):
             if self._targets is None:
                 return ()
             return self._targets.iterkeys()
         return locals()
-    target_overlay_names = _util.Property(target_overlay_names)
 
     def __init__(self):
         """ Initialization """
@@ -965,7 +973,6 @@ class Root(TemplateNode):
         :Exceptions:
           - `NodeTreeError` : Finalization error
         """
-        # pylint: disable = W0212
         if not self._finalized:
             raise NodeTreeError("Tree was not finalized yet.")
         if not other._finalized:
@@ -1009,8 +1016,7 @@ class Root(TemplateNode):
 from tdi import c
 c = c.load('impl')
 if c is not None:
-    Root, Node, RawNode, TemplateNode = (
+    Root, Node, RawNode, TemplateNode = (  # noqa
         c.Root, c.Node, c.RawNode, c.TemplateNode
     )
-    del _nodetree
 del c

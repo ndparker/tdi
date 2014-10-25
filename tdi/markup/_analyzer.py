@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -193,6 +193,7 @@ class AttributeAnalyzer(object):
             raise TemplateAttributeError(
                 "Invalid %s attribute %r" % (name, value)
             )
+
         def uni2str(value):
             """ Simple None-aware encoder """
             if value is None:
@@ -281,5 +282,5 @@ c = c.load('impl')
 if c is not None:
     DEFAULT_ANALYZER = c.AttributeAnalyzer
 else:
-    DEFAULT_ANALYZER = AttributeAnalyzer
+    DEFAULT_ANALYZER = AttributeAnalyzer  # pylint: disable = C0103
 del c

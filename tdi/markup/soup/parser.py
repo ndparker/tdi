@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -366,7 +366,7 @@ class SoupLexer(object):
                     if value:
                         value = value.strip()
                     attr.append((key.strip(), value))
-                else: # bug protection for Python < 2.3.5 (fixed in rev 37262)
+                else:  # bug in Python < 2.3.5 (fixed in rev 37262)
                     break
 
         self._state = self.TEXT
@@ -399,7 +399,6 @@ class SoupLexer(object):
             self._state = self.TEXT
             self._listener.handle_endtag(name, data)
         return False
-
 
     #: Regex searcher for finding the end of a comment
     #:
@@ -488,7 +487,7 @@ class SoupLexer(object):
         match = self._MSECTION_MATCH(data)
         if match is None:
             match = self._MSECTIONINVALID_MATCH(data)
-            if match is not None: # pass invalid msection as text
+            if match is not None:  # pass invalid msection as text
                 pos = match.end()
                 self._buffer = data[pos:]
                 data = data[:pos]
@@ -572,6 +571,7 @@ class SoupLexer(object):
         )
         >
     ''', _re.X).match
+
     def _lex_decl(self):
         """
         Declaration lexer
@@ -657,6 +657,7 @@ class SoupLexer(object):
 _LEXERS = []
 _STATES = []
 for _idx, (_statename, _funcname) in enumerate([
+    # pylint: disable = C0330, C0326
     ('FINAL',    '_lex_final'),
     ('TEXT',     '_lex_text'),
     ('CDATA',    '_lex_cdata'),
@@ -673,9 +674,9 @@ for _idx, (_statename, _funcname) in enumerate([
     _LEXERS.append(_funcname)
     _STATES.append(_statename)
 
-SoupLexer._LEXERS = tuple(_LEXERS) # pylint: disable = W0212
-SoupLexer._STATES = tuple(_STATES) # pylint: disable = W0212
-del _idx, _statename, _funcname, _LEXERS, _STATES # pylint: disable = W0631
+SoupLexer._LEXERS = tuple(_LEXERS)  # pylint: disable = W0212
+SoupLexer._STATES = tuple(_STATES)  # pylint: disable = W0212
+del _idx, _statename, _funcname, _LEXERS, _STATES  # pylint: disable = W0631
 
 
 from tdi import c
@@ -683,7 +684,7 @@ c = c.load('impl')
 if c is not None:
     DEFAULT_LEXER = c.SoupLexer
 else:
-    DEFAULT_LEXER = SoupLexer
+    DEFAULT_LEXER = SoupLexer  # pylint: disable = C0103
 del c
 
 
@@ -916,10 +917,10 @@ class SoupParser(object):
             self.listener.handle_endtag(tagstack.pop()[1], '')
 
 
-from tdi import c # pylint: disable = W0404
+from tdi import c  # pylint: disable = W0404
 c = c.load('impl')
 if c is not None:
     DEFAULT_PARSER = c.SoupParser
 else:
-    DEFAULT_PARSER = SoupParser
+    DEFAULT_PARSER = SoupParser  # pylint: disable = C0103
 del c

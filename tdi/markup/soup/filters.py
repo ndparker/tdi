@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -133,7 +133,7 @@ class EncodingDetectFilter(_filters.BaseEventFilter):
         """
         match = self._PI_MATCH(str(data))
         if match:
-            encoding = 'utf-8' # xml default
+            encoding = 'utf-8'  # xml default
             for match in self._PI_ATT_ITER(match.group('attr')):
                 key, value = match.group('name', 'value')
                 if key or value:
@@ -152,5 +152,5 @@ class EncodingDetectFilter(_filters.BaseEventFilter):
 from tdi import c
 c = c.load('impl')
 if c is not None:
-    EncodingDetectFilter = c.SoupEncodingDetectFilter
+    EncodingDetectFilter = c.SoupEncodingDetectFilter  # noqa
 del c

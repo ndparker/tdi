@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -63,65 +63,65 @@ class Template(object):
         '__weakref__', 'filename', 'mtime', 'factory', 'loader', '_tree'
     )
 
+    @_util.Property
     def tree():
         """
         Prepared node tree
 
         :Type: `tdi.nodetree.Root`
         """
-        # pylint: disable = E0211, W0212, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612, W0212
         def fget(self):
             return self._prerender(None, None)
         return locals()
-    tree = _util.Property(tree)
 
+    @_util.Property
     def virgin_tree():
         """
         The node tree without overlay filters
 
         :Type: `tdi.nodetree.Root`
         """
-        # pylint: disable = E0211, W0212, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612, W0212
         def fget(self):
             return self._tree[0]
         return locals()
-    virgin_tree = _util.Property(virgin_tree)
 
+    @_util.Property
     def encoding():
         """
         The template encoding
 
         :Type: ``str``
         """
-        # pylint: disable = E0211, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612
         def fget(self):
             return self.virgin_tree.encoder.encoding
         return locals()
-    encoding = _util.Property(encoding)
 
+    @_util.Property
     def source_overlay_names():
         """
         Source overlay names
 
         :Type: iterable
         """
-        # pylint: disable = E0211, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612
         def fget(self):
             return self.virgin_tree.source_overlay_names
         return locals()
-    source_overlay_names = _util.Property(source_overlay_names)
 
+    @_util.Property
     def target_overlay_names():
         """
         Target overlay names
 
         :Type: iterable
         """
-        # pylint: disable = E0211, W0612, C0111
+        # pylint: disable = E0211, C0111, W0612
         def fget(self):
             return self.virgin_tree.target_overlay_names
         return locals()
-    target_overlay_names = _util.Property(target_overlay_names)
 
     def __init__(self, tree, filename, mtime, factory, loader=None):
         """
@@ -214,12 +214,10 @@ class Template(object):
             return tree
         ffactory = factory.replace(**factory.overlay_filters)
         return ffactory.from_string(''.join(list(tree.render(
-            _model_adapters.RenderAdapter.for_prerender(None,
-                attr=dict(
-                    scope=ffactory.builder().analyze.scope,
-                    tdi=ffactory.builder().analyze.attribute,
-                )
-            )
+            _model_adapters.RenderAdapter.for_prerender(None, attr=dict(
+                scope=ffactory.builder().analyze.scope,
+                tdi=ffactory.builder().analyze.attribute,
+            ))
         ))), encoding=tree.encoder.encoding).virgin_tree
 
     def _prerender(self, model, adapter):
@@ -290,7 +288,8 @@ class Template(object):
             scope=factory.builder().analyze.scope,
             tdi=factory.builder().analyze.attribute,
         ))
-        tree = factory.from_string(''.join(list(ftree.render(adapted))),
+        tree = factory.from_string(
+            ''.join(list(ftree.render(adapted))),
             encoding=ftree.encoder.encoding
         ).tree
 

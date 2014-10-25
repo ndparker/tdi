@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -65,7 +65,8 @@ class TextEncoder(object):
     def attribute(self, value):
         """ :See: `EncoderInterface` """
         if isinstance(value, unicode):
-            value = (value
+            value = (
+                value
                 .replace(u'"', u'\\"')
                 .encode(self.encoding, 'strict')
             )
@@ -76,7 +77,8 @@ class TextEncoder(object):
     def content(self, value):
         """ :See: `EncoderInterface` """
         if isinstance(value, unicode):
-            return (value
+            return (
+                value
                 .encode(self.encoding, 'strict')
             )
         return value
@@ -93,5 +95,5 @@ class TextEncoder(object):
 from tdi import c
 c = c.load('impl')
 if c is not None:
-    TextEncoder = c.TextEncoder
+    TextEncoder = c.TextEncoder  # noqa
 del c

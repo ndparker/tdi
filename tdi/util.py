@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -58,15 +58,16 @@ def _make_parse_content_type():
     }
 
     typere = _re.compile(
-        r'\s*([^;/\s]+/[^;/\s]+)((?:\s*;\s*%(key)s\s*=\s*%(val)s)*)\s*$' %
-        {'key': tokenres, 'val': valueres,}
+        r'\s*([^;/\s]+/[^;/\s]+)((?:\s*;\s*%(key)s\s*=\s*%(val)s)*)\s*$' % {
+            'key': tokenres, 'val': valueres,
+        }
     )
     pairre = _re.compile(r'\s*;\s*(%(key)s)\s*=\s*(%(val)s)' % {
         'key': tokenres, 'val': valueres
     })
     stripre = _re.compile(r'\r?\n')
 
-    def parse_content_type(value): # pylint: disable = W0621
+    def parse_content_type(value):  # pylint: disable = W0621
         """
         Parse a content type
 
@@ -147,6 +148,7 @@ class Version(tuple):
         :Rtype: `version`
         """
         # pylint: disable = W0613
+
         tup = []
         versionstring = versionstring.strip()
         if versionstring:
@@ -176,6 +178,7 @@ class Version(tuple):
             Internal revision
         """
         # pylint: disable = W0613
+
         super(Version, self).__init__()
         self.major, self.minor, self.patch = self[:3]
         self.is_dev = bool(is_dev)
@@ -229,12 +232,12 @@ def find_public(space):
     :Return: List of public names
     :Rtype: ``list``
     """
-    if space.has_key('__all__'):
+    if '__all__' in space:
         return list(space['__all__'])
     return [key for key in space.keys() if not key.startswith('_')]
 
 
-def Property(func): # pylint: disable = C0103
+def Property(func):  # pylint: disable = C0103
     """
     Property with improved docs handling
 
@@ -277,6 +280,7 @@ def decorating(decorated, extra=None):
     :Rtype: ``callable``
     """
     # pylint: disable = R0912
+
     def flat_names(args):
         """ Create flat list of argument names """
         for arg in args:
@@ -316,11 +320,11 @@ def decorating(decorated, extra=None):
             kwnames = argspec[0][-len(argspec[3]):]
         else:
             kwnames = None
-        passed = _inspect.formatargspec(argspec[0], argspec[1], argspec[2],
-            kwnames, formatvalue=lambda value: '=' + value
+        passed = _inspect.formatargspec(
+            argspec[0], argspec[1], argspec[2], kwnames,
+            formatvalue=lambda value: '=' + value
         )
-        # pylint: disable = W0122
-        exec "def %s%s: return %s%s" % (
+        exec "def %s%s: return %s%s" % (  # pylint: disable = W0122
             name, _inspect.formatargspec(*argspec), proxy_name, passed
         ) in space
         wrapper = space[name]
@@ -366,13 +370,14 @@ class Deprecator(object):
         :Return: Deprecator instance
         :Rtype: `Deprecator`
         """
-        # pylint: disable = W0613
         if type(todeprecate) is _types.MethodType:
             call = cls(todeprecate.im_func, message=message)
+
             @decorating(todeprecate.im_func)
             def func(*args, **kwargs):
                 """ Wrapper to build a new method """
-                return call(*args, **kwargs) # pylint: disable = E1102
+                return call(*args, **kwargs)  # pylint: disable = E1102
+
             return _types.MethodType(func, None, todeprecate.im_class)
         elif cls == Deprecator and callable(todeprecate):
             res = CallableDeprecator(todeprecate, message=message)
@@ -571,7 +576,7 @@ class DependencyGraph(object):
         roots = list(set(outgoing.iterkeys()) - set(incoming.iterkeys()))
         leaves = set(incoming.iterkeys()) - set(outgoing.iterkeys())
 
-        roots.sort() # ensure stable output
+        roots.sort()  # ensure stable output
         roots = _collections.deque(roots)
         roots_push, roots_pop = roots.appendleft, roots.pop
         result_push, opop, ipop = result.append, outgoing.pop, incoming.pop
@@ -580,7 +585,7 @@ class DependencyGraph(object):
             if node not in leaves:
                 result_push(node)
             children = list(opop(node, ()))
-            children.sort() # ensure stable output
+            children.sort()  # ensure stable output
             for child in children:
                 parents = incoming[child]
                 parents.remove(node)
@@ -592,7 +597,7 @@ class DependencyGraph(object):
             raise AssertionError("Graph not resolved (this is a bug).")
 
         leaves = list(leaves)
-        leaves.sort() # ensure stable output
+        leaves.sort()  # ensure stable output
         return result + leaves
 
     def _check_cycle(self, node):

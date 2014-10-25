@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -48,7 +48,7 @@ This module provides node tree management.
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
-# pylint: disable = W0212 
+# pylint: disable = W0212
 # Access to a protected member _udict of a client class
 
 import itertools as _it
@@ -163,7 +163,7 @@ def _repeat(node, user_node, model, callback, itemlist, fixed, separate):
     idx, item = itemlist.next()
     udict, CB = node._udict, CB_NODE
     try:
-        del udict['callback'] # just make sure
+        del udict['callback']  # just make sure
     except KeyError:
         pass
     udict['repeated'] = None
@@ -244,9 +244,12 @@ def copydeep(node, model, ctx, user_node):
     udict = nodecopy._udict
     if udict['content'][0] is None:
         TEXT, deep = TEXT_NODE, copydeep
-        udict['nodes'] = [(kind, (kind != TEXT and node._usernode) and
-            deep(node, model, ctx, user_node) or node
-        ) for kind, node in udict['nodes']]
+        udict['nodes'] = [(
+            # pylint: disable = C0330
+            kind,
+            (kind != TEXT and node._usernode) and
+                deep(node, model, ctx, user_node) or node
+        ) for kind, node in udict['nodes']]  # noqa
 
     return nodecopy
 
@@ -266,6 +269,7 @@ def represent(udict, verbose):
     :Rtype: ``list``
     """
     # pylint: disable = R0912
+
     _len, _iter, exhausted = len, iter, StopIteration
     TEXT, SEP = TEXT_NODE, SEP_NODE
     stack = []
@@ -297,7 +301,7 @@ def represent(udict, verbose):
             content = ":" + content
         if not verbose and udict['sep'] is not None:
             content += " (:)"
-        if verbose and udict['overlay'][3]: # [3] == oname
+        if verbose and udict['overlay'][3]:  # [3] == oname
             oresult = udict['overlay'][3]
             if udict['overlay'][0]:
                 oresult = '-%s' % oresult
@@ -426,6 +430,7 @@ def findnode(current, nodestring):
       - `NodeNotFoundError` : Node not found
     """
     # pylint: disable = R0912
+
     if nodestring is None:
         return current
     names = nodestring.split('.')
@@ -592,7 +597,7 @@ def render(startnode, model, user_node):
                             tnode, user_node, model, *udict['repeated']
                         )).next, None))
                         depth_done = False
-                        next_node = True # Ignore original node.
+                        next_node = True  # Ignore original node.
                         break
 
                     elif user_control and 'callback' in udict:
@@ -626,13 +631,12 @@ def render(startnode, model, user_node):
                 continue
 
             ctx = tnode.ctx
-            nodes = [
-                (subkind, subkind != TEXT
-                    and user_node(subnode, model, ctx,
-                                  subnode._usernode)
+            nodes = [(
+                # noqa pylint: disable = C0330
+                subkind,
+                subkind != TEXT
+                    and user_node(subnode, model, ctx, subnode._usernode)
                     or subnode
-                )
-                for subkind, subnode in udict['nodes']
-            ]
+            ) for subkind, subnode in udict['nodes']]
             push((depth_done, _iter(nodes).next, endtag))
             depth_done = done or depth_done
