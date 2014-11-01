@@ -26,14 +26,15 @@ u"""
 This module provides the logic to build a nodetree out of parser
 events.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
 import re as _re
 
-from tdi._exceptions import TemplateAttributeError
-from tdi._exceptions import TemplateAttributeEmptyError
-from tdi import interfaces as _interfaces
+from .._exceptions import TemplateAttributeError, TemplateAttributeEmptyError
+from .. import interfaces as _interfaces
 
 
 class AttributeAnalyzer(object):
@@ -277,7 +278,7 @@ class AttributeAnalyzer(object):
         return reduced, result
 
 
-from tdi import c
+from .. import c
 c = c.load('impl')
 if c is not None:
     DEFAULT_ANALYZER = c.AttributeAnalyzer

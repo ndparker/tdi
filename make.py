@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: ascii -*-
 #
-# Copyright 2006 - 2013
+# Copyright 2006 - 2014
 # Andr\xe9 Malo or his licensors, as applicable
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,6 +43,8 @@ class Target(make.Target):
             'docs': 'docs',
             'examples': 'docs/examples',
             'tests': 'tests',
+            'nose_tests': 'tests/nosed',
+            'coverage': 'docs/coverage',
             'apidoc': 'docs/apidoc',
             'userdoc': 'docs/userdoc',
             'userdoc_source': 'docs/_userdoc',
@@ -152,10 +154,28 @@ class Entities(Target):
         open(path, 'w').write(u'\n'.join(result) + '\n')
 
 
+class NoseTest(Target):
+    """ Run the nose tests """
+    NAME = "nose-test"
+    DEPS = ["compile-quiet"]
+
+    def run(self):
+        if shell.spawn(
+                'nosetests',
+                '-c', 'package.cfg',
+                self.dirs['nose_tests'], self.dirs['lib']):
+            raise RuntimeError('tests failed')
+
+    def clean(self, scm, dist):
+        term.green("Removing coverage files...")
+        shell.rm_rf(self.dirs['coverage'])
+        shell.rm('.coverage')
+
+
 class Test(Target):
     """ Test the code """
     NAME = "test"
-    DEPS = ["system-test", "example-test"]
+    DEPS = ["nose-test", "system-test", "example-test"]
 
 
 class ExampleTest(Target):

@@ -25,13 +25,15 @@ u"""
 
 Text Parser.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
 import re as _re
 
-from tdi._exceptions import LexerEOFError, LexerFinalizedError
-from tdi import interfaces as _interfaces
+from ..._exceptions import LexerEOFError, LexerFinalizedError
+from ... import interfaces as _interfaces
 
 
 class TextLexer(object):

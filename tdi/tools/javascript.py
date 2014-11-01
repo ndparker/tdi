@@ -25,14 +25,16 @@ u"""
 
 Javascript Tools.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
 import re as _re
 
-from tdi import filters as _filters
-from tdi import _htmldecode
-from tdi.tools._util import norm_enc as _norm_enc
+from .. import filters as _filters
+from .. import _htmldecode
+from ._util import norm_enc as _norm_enc
 
 
 def _make_big_sub_b():
@@ -771,7 +773,7 @@ def minify(script, encoding=None):
     :Return: The minified JS, typed as input
     :Rtype: ``basestring``
     """
-    from tdi.tools import rjsmin as _rjsmin
+    from . import rjsmin as _rjsmin
 
     isuni = isinstance(script, unicode)
     if not isuni and encoding is not None:

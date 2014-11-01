@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -19,11 +19,12 @@ u"""
  See the License for the specific language governing permissions and
  limitations under the License.
 
-============
- Deprecated
-============
+=======================
+ TDI Integration Tests
+=======================
 
-Deprecated.
+TDI Integration Tests.
 """
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
+__license__ = "Apache License, Version 2.0"

@@ -25,6 +25,8 @@ u"""
 
 HTML Tools.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 __all__ = [
@@ -39,18 +41,18 @@ try:
 except ImportError:
     import StringIO as _string_io
 
-from tdi import LexerError
-from tdi import factory as _factory
-from tdi import filters as _filters
-from tdi import interfaces as _interfaces
-from tdi.markup.soup import dtd as _dtd
-from tdi.markup.soup import encoder as _encoder
-from tdi.markup.soup import decoder as _decoder
-from tdi.markup.soup import parser as _parser
-from tdi.tools import css as _css
-from tdi.tools import javascript as _javascript
-from tdi._htmldecode import decode
-from tdi._htmlentities import htmlentities as entities
+from .._exceptions import LexerError
+from .. import factory as _factory
+from .. import filters as _filters
+from .. import interfaces as _interfaces
+from ..markup.soup import dtd as _dtd
+from ..markup.soup import encoder as _encoder
+from ..markup.soup import decoder as _decoder
+from ..markup.soup import parser as _parser
+from . import css as _css
+from . import javascript as _javascript
+from .._htmldecode import decode
+from .._htmlentities import htmlentities as entities
 
 
 #: HTML named character references, generated from

@@ -25,6 +25,8 @@ u"""
 
 Template Factories.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
@@ -39,10 +41,10 @@ try:
 except ImportError:
     import dummy_threading as _threading
 
-from tdi._exceptions import TemplateFactoryError
-from tdi import filters as _filters
-from tdi import template as _template
-from tdi import util as _util
+from ._exceptions import TemplateFactoryError
+from . import filters as _filters
+from . import template as _template
+from . import _util
 
 
 class Loader(object):

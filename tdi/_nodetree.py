@@ -45,6 +45,8 @@ This module provides node tree management.
   `DONE_NODE` : ``int``
     Already processed node
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
@@ -53,7 +55,7 @@ __docformat__ = "restructuredtext en"
 
 import itertools as _it
 
-from tdi._exceptions import NodeNotFoundError, NodeTreeError
+from ._exceptions import NodeNotFoundError, NodeTreeError
 
 
 TEXT_NODE, PROC_NODE, SEP_NODE, CB_NODE, DONE_NODE = xrange(5)

@@ -25,18 +25,19 @@ u"""
 
 Template Objects.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 __all__ = ['Template', 'OverlayTemplate', 'AutoUpdate']
 
 import sys as _sys
 
-from tdi._exceptions import Error
-from tdi._exceptions import TemplateReloadError
-from tdi._exceptions import AutoUpdateWarning
-from tdi._exceptions import OverlayError
-from tdi import model_adapters as _model_adapters
-from tdi import util as _util
+from ._exceptions import (
+    Error, TemplateReloadError, AutoUpdateWarning, OverlayError
+)
+from . import model_adapters as _model_adapters
+from . import _util
 
 
 class Template(object):

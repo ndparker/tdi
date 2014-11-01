@@ -30,8 +30,73 @@ __docformat__ = "restructuredtext en"
 
 import re as _re
 
-from tdi import util as _util
-from tdi import filters as _filters
+from ... import filters as _filters
+
+
+def _make_parse_content_type():
+    """
+    Make content type parser
+
+    :Return: parse_content_type
+    :Rtype: ``callable``
+    """
+    # These are a bit more lenient than RFC 2045.
+    tokenres = r'[^\000-\040()<>@,;:\\"/[\]?=]+'
+    qcontent = r'[^\000\\"]'
+    qsres = r'"%(qc)s*(?:\\"%(qc)s*)*"' % {'qc': qcontent}
+    valueres = r'(?:%(token)s|%(quoted-string)s)' % {
+        'token': tokenres, 'quoted-string': qsres,
+    }
+
+    typere = _re.compile(
+        r'\s*([^;/\s]+/[^;/\s]+)((?:\s*;\s*%(key)s\s*=\s*%(val)s)*)\s*$' % {
+            'key': tokenres, 'val': valueres,
+        }
+    )
+    pairre = _re.compile(r'\s*;\s*(%(key)s)\s*=\s*(%(val)s)' % {
+        'key': tokenres, 'val': valueres
+    })
+    stripre = _re.compile(r'\r?\n')
+
+    def _parse_content_type(value):  # pylint: disable = W0621
+        """
+        Parse a content type
+
+        :Warning: comments are not recognized (yet?)
+
+        :Parameters:
+          `value` : ``basestring``
+            The value to parse - must be ascii compatible
+
+        :Return: The parsed header (``(value, {key, [value, value, ...]})``)
+                 or ``None``
+        :Rtype: ``tuple``
+        """
+        try:
+            if isinstance(value, unicode):
+                value.encode('ascii')
+            else:
+                value.decode('ascii')
+        except (AttributeError, UnicodeError):
+            return None
+
+        match = typere.match(value)
+        if not match:
+            return None
+
+        parsed = (match.group(1).lower(), {})
+        match = match.group(2)
+        if match:
+            for key, val in pairre.findall(match):
+                if val[:1] == '"':
+                    val = stripre.sub(r'', val[1:-1]).replace(r'\"', '"')
+                parsed[1].setdefault(key.lower(), []).append(val)
+
+        return parsed
+
+    return _parse_content_type
+
+_parse_content_type = _make_parse_content_type()
 
 
 class EncodingDetectFilter(_filters.BaseEventFilter):
@@ -78,7 +143,7 @@ class EncodingDetectFilter(_filters.BaseEventFilter):
                         if ctype.startswith('"') or ctype.startswith("'"):
                             ctype = ctype[1:-1].strip()
 
-                        parsed = _util.parse_content_type(ctype)
+                        parsed = _parse_content_type(ctype)
                         if parsed is not None:
                             encoding = parsed[1].get('charset')
                             if encoding:
@@ -149,7 +214,7 @@ class EncodingDetectFilter(_filters.BaseEventFilter):
             self.builder.handle_encoding(encoding)
         self.builder.handle_pi(data)
 
-from tdi import c
+from ... import c
 c = c.load('impl')
 if c is not None:
     EncodingDetectFilter = c.SoupEncodingDetectFilter  # noqa

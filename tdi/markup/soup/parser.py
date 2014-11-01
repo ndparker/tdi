@@ -42,14 +42,16 @@ implicitly closed elements. Furthermore it knows about CDATA elements like
 The actual semantics are provided by a DTD query class (implementing
 `DTDInterface`.)
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
 import re as _re
 
-from tdi._exceptions import LexerEOFError, LexerFinalizedError
-from tdi.markup.soup import dtd as _dtd
-from tdi import interfaces as _interfaces
+from ..._exceptions import LexerEOFError, LexerFinalizedError
+from ... import interfaces as _interfaces
+from . import dtd as _dtd
 
 
 class SoupLexer(object):
@@ -679,7 +681,7 @@ SoupLexer._STATES = tuple(_STATES)  # pylint: disable = W0212
 del _idx, _statename, _funcname, _LEXERS, _STATES  # pylint: disable = W0631
 
 
-from tdi import c
+from ... import c
 c = c.load('impl')
 if c is not None:
     DEFAULT_LEXER = c.SoupLexer
@@ -917,7 +919,7 @@ class SoupParser(object):
             self.listener.handle_endtag(tagstack.pop()[1], '')
 
 
-from tdi import c  # pylint: disable = W0404
+from ... import c  # pylint: disable = W0404
 c = c.load('impl')
 if c is not None:
     DEFAULT_PARSER = c.SoupParser

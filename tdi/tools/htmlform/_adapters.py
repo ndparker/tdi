@@ -25,6 +25,8 @@ u"""
 
 Form helper classes.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 __all__ = [
@@ -32,7 +34,7 @@ __all__ = [
     'MultiDictParameterAdapter', 'NullParameterAdapter',
 ]
 
-from tdi.tools.htmlform._interfaces import ParameterAdapterInterface
+from ._interfaces import ParameterAdapterInterface
 
 
 class DictParameterAdapter(object):

@@ -103,7 +103,7 @@ def _make_cssmin(python_only=False):
     # (too many anything)
 
     if not python_only:
-        from tdi import c
+        from .. import c
         rcssmin = c.load('rcssmin')
         if rcssmin is not None:
             return rcssmin.cssmin

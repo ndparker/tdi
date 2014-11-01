@@ -57,6 +57,8 @@ Configuration
   #
   # template filters work on the final template object
 """
+from __future__ import absolute_import
+
 __docformat__ = "restructuredtext en"
 __author__ = u"Andr\xe9 Malo"
 
@@ -74,13 +76,50 @@ try:
 except ImportError:
     _wtf_services = None
 
-from tdi import factory as _factory
-from tdi import factory_memoize as _factory_memoize
-from tdi import interfaces as _interfaces
-from tdi import model_adapters as _model_adapters
-from tdi import util as _util
-from tdi.markup import factory as _markup_factory
-from tdi.tools import htmlform as _htmlform
+from .. import factory as _factory
+from .. import factory_memoize as _factory_memoize
+from .. import interfaces as _interfaces
+from .. import model_adapters as _model_adapters
+from ..markup import factory as _markup_factory
+from ..tools import htmlform as _htmlform
+
+
+def _load_dotted(name):
+    """
+    Load a dotted name
+
+    The dotted name can be anything, which is passively resolvable (i.e.
+    without the invocation of a class to get their attributes or the like).
+    For example, `name` could be 'tdi.integration.wtf_service._load_dotted'
+    and would return this very function. It's assumed that the first part of
+    the `name` is always is a module.
+
+    :Parameters:
+      `name` : ``str``
+        The dotted name to load
+
+    :Return: The loaded object
+    :Rtype: any
+
+    :Exceptions:
+     - `ImportError` : A module in the path could not be loaded
+    """
+    components = name.split('.')
+    path = [components.pop(0)]
+    obj = __import__(path[0])
+    while components:
+        comp = components.pop(0)
+        path.append(comp)
+        try:
+            obj = getattr(obj, comp)
+        except AttributeError:
+            __import__('.'.join(path))
+            try:
+                obj = getattr(obj, comp)
+            except AttributeError:
+                raise ImportError('.'.join(path))
+
+    return obj
 
 
 def _resource():
@@ -308,7 +347,7 @@ class GlobalTemplate(object):
         def load(*args):
             """ Actually load factories """
             return map(
-                _util.load_dotted, filter(None, opt(filters, args) or ())
+                _load_dotted, filter(None, opt(filters, args) or ())
             ) or None
 
         self.html, self.html_file = loader(

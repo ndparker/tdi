@@ -4,6 +4,8 @@ Makefile
 dist
 build
 __pycache__
+.coverage
+docs/coverage/
 docs/_userdoc/_build/
 docs/apidoc/
 docs/userdoc/

@@ -26,6 +26,8 @@ u"""
 This module provides the base classes and concrete implementations for
 filters.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
@@ -131,7 +133,7 @@ class BaseEventFilter(object):
         return getattr(self.builder, name)
 
 
-from tdi import c
+from . import c
 c = c.load('impl')
 if c is not None:
     BaseEventFilter = c.BaseEventFilter  # noqa

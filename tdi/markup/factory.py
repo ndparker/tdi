@@ -25,15 +25,17 @@ u"""
 
 Default Soup Template Factory.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 __all__ = ['html', 'xml', 'text']
 
-from tdi import factory as _factory
+from .. import factory as _factory
 
 
 class _soup(object):
-    from tdi.markup.soup import (  # noqa
+    from .soup import (  # noqa
         builder,
         decoder,
         encoder,
@@ -43,7 +45,7 @@ class _soup(object):
 
 
 class _text(object):
-    from tdi.markup.text import (  # noqa
+    from .text import (  # noqa
         builder,
         decoder,
         encoder,

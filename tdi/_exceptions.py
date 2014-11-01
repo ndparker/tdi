@@ -26,10 +26,24 @@ u"""
 The module provides all exceptions and warnings used throughout the
 `tdi` package.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
+import contextlib as _contextlib
+import sys as _sys
 import warnings as _warnings
+
+
+@_contextlib.contextmanager
+def reraise():
+    """ Reraise the currently active exception when exiting the context """
+    exc = _sys.exc_info()
+    try:
+        yield None
+    finally:
+        raise exc[0], exc[1], exc[2]
 
 
 class Error(Exception):
@@ -113,12 +127,43 @@ class DependencyCycle(DependencyError):
 
 
 class Warning(Warning):  # pylint: disable = W0622
-    """ Base warning for this package """
+    """
+    Base warning for this package
 
-    def emit(cls, message, stacklevel=1):
-        """ Emit a warning of this very category """
+    >>> with _warnings.catch_warnings(record=True) as record:
+    ...     Warning.emit('my message')
+    ...     assert len(record) == 1
+    ...     str(record[0].message)
+    'my message'
+
+    >>> _warnings.simplefilter('error')
+    >>> Warning.emit('lalala')
+    Traceback (most recent call last):
+    ...
+    Warning: lalala
+    """
+
+    @classmethod
+    def emit(cls, message, stacklevel=1):  # pragma: no cover
+        """
+        Emit a warning of this very category
+
+        This method is pure convenience. It saves you the unfriendly
+        ``warnings.warn`` syntax (and the ``warnings`` import).
+
+        :Parameters:
+          `message` : any
+            The warning message
+
+          `stacklevel` : ``int``
+            Number of stackframes to go up in order to place the warning
+            source. This is useful for generic warning-emitting helper
+            functions. The stacklevel of *this* helper function is already
+            taken into account.
+        """
+        # Note that this method cannot be code-covered, probably because of
+        # the stack magic.
         _warnings.warn(message, cls, max(1, stacklevel) + 1)
-    emit = classmethod(emit)
 
 
 class DeprecationWarning(Warning):  # pylint: disable = W0622

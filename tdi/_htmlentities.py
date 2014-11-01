@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2012 - 2013
+ Copyright 2012 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,6 +25,8 @@ u"""
 
 HTML5 named character references.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 

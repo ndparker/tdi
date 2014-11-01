@@ -25,14 +25,16 @@ u"""
 
 Form helper classes.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 __all__ = ['normalize_newlines', 'normalize_whitespaces', 'HTMLForm']
 
 import re as _re
 
-from tdi.tools.htmlform._adapters import NullParameterAdapter
-from tdi.tools.htmlform._input_field_generator import make_input
+from ._adapters import NullParameterAdapter
+from ._input_field_generator import make_input
 
 
 def normalize_newlines():
@@ -750,85 +752,6 @@ class HTMLForm(object):
                 name=name, options=options, selected=selected,
                 option=option, disabled=disabled, required=required,
                 autofocus=autofocus, multiple=multiple
-            ))
-
-        if options is not None:
-            for subnode, tup in optnode.iterate(options):
-                value, desc, disabled = tup[0], tup[1], tup[2:]
-                if value is not None:
-                    is_selected = unicode(value) in selected_
-                else:
-                    is_selected = unicode(desc) in selected_
-                self.option(
-                    subnode, value,
-
-                    description=desc,
-                    selected=is_selected,
-                    disabled=disabled and disabled[0] or None,
-                )
-
-    def multiselect(self, node, name, options=None, selected=None,
-                    option="option", disabled=None, required=None,
-                    autofocus=None):
-        """
-        :Deprecated: Use ``select`` with a true ``multiple`` argument instead.
-        """
-        # pylint: disable = R0912
-
-        pre_proc = self._pre_proc
-        if pre_proc is not None:
-            (
-                node, name, options, selected, option, disabled,
-                required, autofocus
-            ) = pre_proc(
-                'multiselect', node,
-
-                ('name', name),
-                ('options', options),
-                ('selected', selected),
-                ('option', option),
-                ('disabled', disabled),
-                ('required', required),
-                ('autofocus', autofocus)
-            )
-
-        if name is not None:
-            node[u'name'] = name
-        if disabled is not None:
-            if disabled:
-                node[u'disabled'] = self._xhtml and u'disabled' or None
-            else:
-                del node[u'disabled']
-        if required is not None:
-            if required:
-                node[u'required'] = self._xhtml and u'required' or None
-            else:
-                del node[u'required']
-        if autofocus is not None:
-            if autofocus:
-                node[u'autofocus'] = self._xhtml and u'autofocus' or None
-            else:
-                del node[u'autofocus']
-
-        if options is not None:
-            options = list(options)
-            partnodes = option.split('.')
-            partnodes.reverse()
-            optnode = node(partnodes.pop())
-            while partnodes:
-                optnode = optnode(partnodes.pop())
-        node[u'multiple'] = self._xhtml and u'multiple' or None
-        if options is not None:
-            if selected is None:
-                selected = self._param.getlist(name)
-            selected_ = dict([(item, None) for item in selected])
-
-        post_proc = self._post_proc
-        if post_proc is not None:
-            post_proc('multiselect', node, dict(
-                name=name, options=options, selected=selected,
-                option=option, disabled=disabled, required=required,
-                autofocus=autofocus
             ))
 
         if options is not None:

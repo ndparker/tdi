@@ -25,16 +25,20 @@ u"""
 
 Template Tools.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
 import pprint as _pprint
 
-from tdi import _exceptions
-from tdi import util as _util
+from .._exceptions import (  # noqa pylint: disable = W0611
+    DependencyError, DependencyCycle
+)
+from .. import _graph
 
 
-class TemplateUndecided(_exceptions.DependencyError):
+class TemplateUndecided(DependencyError):
     """
     Template could not be determined, because the decision is ambiguous
 
@@ -412,7 +416,7 @@ def discover(loader, names, use=None, ignore=None):
     names.reverse()
     dep = names.pop()
     use, ignore = dict(use or ()), set(ignore or ())
-    targets, graph = set(overlays(dep)[0]), _util.DependencyGraph()
+    targets, graph = set(overlays(dep)[0]), _graph.DependencyGraph()
 
     # initial templates
     while names:

@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2013
+ Copyright 2006 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -26,15 +26,17 @@ u"""
 This module provides the logic to build a nodetree out of parser
 events.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
 import codecs as _codecs
 
-from tdi._exceptions import TemplateEncodingError
-from tdi import interfaces as _interfaces
-from tdi import nodetree as _nodetree
-from tdi.markup import _analyzer
+from ..._exceptions import TemplateEncodingError
+from ... import interfaces as _interfaces
+from ... import nodetree as _nodetree
+from .. import _analyzer
 
 
 class SoupBuilder(object):

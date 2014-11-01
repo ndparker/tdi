@@ -25,13 +25,15 @@ u"""
 
 This module provides node tree management.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
-from tdi._exceptions import NodeNotFoundError, NodeTreeError
-from tdi import _finalize
-from tdi import _nodetree
-from tdi import util as _util
+from ._exceptions import NodeNotFoundError, NodeTreeError
+from . import _finalize
+from . import _nodetree
+from . import _util
 
 # pylint: disable = W0212
 # access to _udict
@@ -1013,7 +1015,7 @@ class Root(TemplateNode):
         )
 
 
-from tdi import c
+from . import c
 c = c.load('impl')
 if c is not None:
     Root, Node, RawNode, TemplateNode = (  # noqa

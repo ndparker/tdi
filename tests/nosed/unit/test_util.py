@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -19,11 +19,36 @@ u"""
  See the License for the specific language governing permissions and
  limitations under the License.
 
-============
- Deprecated
-============
+=====================
+ Tests for tdi._util
+=====================
 
-Deprecated.
+Tests for tdi._util
 """
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
+
+import types as _types
+
+from nose.tools import (  # pylint: disable = E0611
+    assert_equals,
+)
+
+from tdi import _util
+
+
+def test_find_public_symbols():
+    """ find_public finds all non underscored symbols """
+    mod = _types.ModuleType('lala')
+    mod.a = 1
+    mod._b = 2  # pylint: disable = W0212
+
+    assert_equals(_util.find_public(vars(mod)), ['a'])
+
+
+def test_find_public_all():
+    """ find_public passes __all__ """
+    mod = _types.ModuleType('lala')
+    mod.__all__ = ['_b', 'c']
+
+    assert_equals(_util.find_public(vars(mod)), ['_b', 'c'])

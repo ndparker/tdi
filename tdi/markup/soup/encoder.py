@@ -25,10 +25,12 @@ u"""
 
 This module provides output encoding logic.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
-from tdi import interfaces as _interfaces
+from ... import interfaces as _interfaces
 
 
 class SoupEncoder(object):
@@ -110,7 +112,7 @@ class SoupEncoder(object):
         return value
 
 
-from tdi import c
+from ... import c
 c = c.load('impl')
 if c is not None:
     SoupEncoder = c.SoupEncoder  # noqa

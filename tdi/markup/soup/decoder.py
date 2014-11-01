@@ -25,11 +25,13 @@ u"""
 
 Soup Input Decoders.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
-from tdi import _htmldecode as _htmldecode
-from tdi import interfaces as _interfaces
+from ... import _htmldecode as _htmldecode
+from ... import interfaces as _interfaces
 
 
 class HTMLDecoder(object):
@@ -102,7 +104,7 @@ class XMLDecoder(object):
         return _htmldecode.decode(value, self.encoding, errors=errors)
 
 
-from tdi import c
+from ... import c
 c = c.load('impl')
 if c is not None:
     HTMLDecoder, XMLDecoder = c.HTMLDecoder, c.XMLDecoder  # noqa

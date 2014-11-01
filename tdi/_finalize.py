@@ -25,6 +25,8 @@ u"""
 
 Node Tree Finalization.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
@@ -33,8 +35,8 @@ __docformat__ = "restructuredtext en"
 
 import itertools as _it
 
-from tdi._exceptions import NodeWarning, NodeTreeError
-from tdi import _nodetree
+from ._exceptions import NodeWarning, NodeTreeError
+from . import _nodetree
 
 
 def finalize(udict, encoder, decoder):

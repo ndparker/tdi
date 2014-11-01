@@ -26,10 +26,12 @@ u"""
 This module provides a collection of DTD query classes to be used with
 the soup parser.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
-from tdi import interfaces as _interfaces
+from ... import interfaces as _interfaces
 
 
 class HTMLDTD(object):

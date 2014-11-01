@@ -25,12 +25,14 @@ u"""
 
 Text Input Decoder.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
 import re as _re
 
-from tdi import interfaces as _interfaces
+from ... import interfaces as _interfaces
 
 
 #: Backslash-escape Substituter
@@ -74,7 +76,7 @@ class TextDecoder(object):
         return _SLASHSUB(ur'\1', value.decode(self.encoding, errors))
 
 
-from tdi import c
+from ... import c
 c = c.load('impl')
 if c is not None:
     TextDecoder = c.TextDecoder  # noqa

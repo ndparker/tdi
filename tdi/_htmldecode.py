@@ -24,19 +24,21 @@ u"""
 
 HTML Decoder.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
 import re as _re
 
-from tdi import _htmlentities
+from . import _htmlentities
 
 
 def _make_decode():
     """ Make decoder """
     # pylint: disable = R0912
 
-    from tdi import c
+    from . import c
     c = c.load('impl')
     if c is not None:
         return c.htmldecode

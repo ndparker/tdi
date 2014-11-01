@@ -25,11 +25,13 @@ u"""
 
 CSS Tools.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
-from tdi import filters as _filters
-from tdi.tools._util import norm_enc as _norm_enc
+from .. import filters as _filters
+from ._util import norm_enc as _norm_enc
 
 
 def cleanup(style, encoding=None):
@@ -136,7 +138,7 @@ def minify(style, encoding=None):
     :Return: Minified CSS, typed as input
     :Rtype: ``basestring``
     """
-    from tdi.tools import rcssmin as _rcssmin
+    from . import rcssmin as _rcssmin
 
     isuni = isinstance(style, unicode)
     if not isuni and encoding is not None:

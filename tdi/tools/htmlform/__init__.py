@@ -25,25 +25,27 @@ u"""
 
 HTMLForm abstraction.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 _all = []
 
 # pylint: disable = W0401, W0614
-from tdi.tools.htmlform._adapters import __all__
-from tdi.tools.htmlform._adapters import *  # noqa
+from ._adapters import __all__
+from ._adapters import *  # noqa
 _all.extend(__all__)
 
-from tdi.tools.htmlform._interfaces import __all__
-from tdi.tools.htmlform._interfaces import *  # noqa
+from ._interfaces import __all__
+from ._interfaces import *  # noqa
 _all.extend(__all__)
 
-from tdi.tools.htmlform._processors import __all__
-from tdi.tools.htmlform._processors import *  # noqa
+from ._processors import __all__
+from ._processors import *  # noqa
 _all.extend(__all__)
 
-from tdi.tools.htmlform._main import __all__
-from tdi.tools.htmlform._main import *  # noqa
+from ._main import __all__
+from ._main import *  # noqa
 _all.extend(__all__)
 
 __all__ = _all

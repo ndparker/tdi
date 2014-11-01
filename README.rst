@@ -41,12 +41,12 @@ at: <http://www.apache.org/licenses/LICENSE-2.0>.
 SYSTEM REQUIREMENTS
 -------------------
 
-You need python 2 (>= 2.4). Python 3 is NOT supported yet.
+You need python 2 (>= 2.6). Python 3 is NOT supported yet.
 
 The following python implementations are supported, too:
 
-- PyPy (1.9, 2.0)
-- Jython (2.5, 2.7)
+- PyPy (2.0)
+- Jython (2.7)
 
 
 INSTALLATION

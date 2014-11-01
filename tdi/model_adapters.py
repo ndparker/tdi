@@ -25,11 +25,13 @@ u"""
 
 Model adapter implementations.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
-from tdi import ModelMissingError
-from tdi import interfaces as _interfaces
+from ._exceptions import ModelMissingError
+from . import interfaces as _interfaces
 
 
 class RenderAdapter(object):
@@ -292,7 +294,7 @@ class PreRenderWrapper(object):
         return self
 
 
-from tdi import c
+from . import c
 c = c.load('impl')
 if c is not None:
     RenderAdapter = c.RenderAdapter  # noqa

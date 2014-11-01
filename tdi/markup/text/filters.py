@@ -2,7 +2,7 @@
 u"""
 :Copyright:
 
- Copyright 2013
+ Copyright 2013 - 2014
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,12 +25,14 @@ u"""
 
 Filters for text templates.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
 import re as _re
 
-from tdi import filters as _filters
+from ... import filters as _filters
 
 
 class EncodingDetectFilter(_filters.BaseEventFilter):

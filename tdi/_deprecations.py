@@ -25,32 +25,202 @@ u"""
 
 Deprecations.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
-from tdi import util as _util
-from tdi.tools import escape as _escape
-from tdi.tools import html as _html
-from tdi.tools import htmlform as _htmlform
-from tdi.tools import javascript as _javascript
+import os as _os
+import types as _types
+
+from . import _exceptions
+from . import _graph
+from . import _util
+from . import util as _old_util
+from . import _version
+from .integration import wtf_service as _wtf_service
+from .markup.soup import filters as _filters
 
 
-_escape.decode_html = _util.Deprecator(
-    _html.decode,
-    "tdi.tools.escape.decode_html has been moved to tdi.tools.html.decode."
-)
-_escape.multiline_to_html = _util.Deprecator(
-    _html.multiline,
-    "tdi.tools.escape.multiline_to_html has been moved to "
-    "tdi.tools.html.multiline."
-)
-_escape.escape_js = _util.Deprecator(
-    _javascript.escape_string,
-    "tdi.tools.escape.escape_js is deprecated. "
-    "Use tdi.tools.javascript.escape_string instead."
-)
-_htmlform.HTMLForm.multiselect = _util.Deprecator(
-    _htmlform.HTMLForm.multiselect,
-    "tdi.tools.htmlform.HTMLForm.multiselect is deprecated. Use the 'select' "
-    "method with a true 'multiple' attribute instead."
-)
+class Deprecator(object):
+    """
+    Deprecation proxy class
+
+    The class basically emits a deprecation warning on access.
+
+    :IVariables:
+      `__todeprecate` : any
+        Object to deprecate
+
+      `__warn` : ``callable``
+        Warn function
+    """
+    def __new__(cls, todeprecate, message=None):
+        """
+        Construct
+
+        :Parameters:
+          `todeprecate` : any
+            Object to deprecate
+
+          `message` : ``str``
+            Custom message. If omitted or ``None``, a default message is
+            generated.
+
+        :Return: Deprecator instance
+        :Rtype: `Deprecator`
+        """
+        if type(todeprecate) is _types.MethodType:
+            call = cls(todeprecate.im_func, message=message)
+
+            @_util.decorating(todeprecate.im_func)
+            def func(*args, **kwargs):
+                """ Wrapper to build a new method """
+                return call(*args, **kwargs)  # pylint: disable = E1102
+
+            return _types.MethodType(func, None, todeprecate.im_class)
+        elif cls == Deprecator and callable(todeprecate):
+            res = CallableDeprecator(todeprecate, message=message)
+            if type(todeprecate) is _types.FunctionType:
+                res = _util.decorating(todeprecate)(res)
+            return res
+        return object.__new__(cls)
+
+    def __init__(self, todeprecate, message=None):
+        """
+        Initialization
+
+        :Parameters:
+          `todeprecate` : any
+            Object to deprecate
+
+          `message` : ``str``
+            Custom message. If omitted or ``None``, a default message is
+            generated.
+        """
+        self.__todeprecate = todeprecate
+        if message is None:
+            if type(todeprecate) is _types.FunctionType:
+                name = todeprecate.__name__
+            else:
+                name = todeprecate.__class__.__name__
+            message = "%s.%s is deprecated." % (todeprecate.__module__, name)
+        if _os.environ.get('EPYDOC_INSPECTOR') == '1':
+            def warn():
+                """ Dummy to not clutter epydoc output """
+                pass
+        else:
+            def warn():
+                """ Emit the message """
+                _exceptions.DeprecationWarning.emit(message, stacklevel=3)
+        self.__warn = warn
+
+    def __getattr__(self, name):
+        """ Get attribute with deprecation warning """
+        self.__warn()
+        return getattr(self.__todeprecate, name)
+
+    def __iter__(self):
+        """ Get iterator with deprecation warning """
+        self.__warn()
+        return iter(self.__todeprecate)
+
+
+class CallableDeprecator(Deprecator):
+    """ Callable proxy deprecation class """
+
+    def __call__(self, *args, **kwargs):
+        """ Call with deprecation warning """
+        self._Deprecator__warn()
+        return self._Deprecator__todeprecate(*args, **kwargs)
+
+
+if True:
+    _old_util.CallableDeprecator = Deprecator(
+        CallableDeprecator,
+        "tdi.util.CallableDeprecator is no longer public. Don't use it."
+    )
+
+    _old_util.Deprecator = Deprecator(
+        Deprecator,
+        "tdi.util.Deprecator is no longer public. Don't use it."
+    )
+
+    _old_util.Version = Deprecator(
+        _version.Version,
+        "tdi.util.Version is no longer public. Don't use it."
+    )
+
+    _old_util.DependencyGraph = Deprecator(
+        _graph.DependencyGraph,
+        "tdi.util.DependencyGraph is no longer public. Don't use it."
+    )
+    _old_util.DependencyCycle = _graph.DependencyCycle
+
+    _old_util.parse_content_type = Deprecator(
+        _filters._parse_content_type,  # pylint: disable = W0212
+        "tdi.util.parse_content_type is no longer public. Don't use it."
+    )
+
+    _old_util.find_public = Deprecator(
+        _util.find_public,
+        "tdi.util.find_public is no longer public. Don't use it."
+    )
+
+    _old_util.Property = Deprecator(
+        _util.Property,
+        "tdi.util.Property is no longer public. Don't use it."
+    )
+
+    _old_util.decorating = Deprecator(
+        _util.decorating,
+        "tdi.util.decorating is no longer public. Don't use it."
+    )
+
+    _old_util.load_dotted = Deprecator(
+        _wtf_service._load_dotted,  # pylint: disable = W0212
+        "tdi.util.load_dotted is no longer public. Don't use it."
+    )
+
+    def make_dotted(name):
+        """
+        Generate a dotted module
+
+        :Parameters:
+          `name` : ``str``
+            Fully qualified module name (like ``tdi.util``)
+
+        :Return: The module object of the last part and the information
+                 whether the last part was newly added (``(module, bool)``)
+        :Rtype: ``tuple``
+
+        :Exceptions:
+         - `ImportError` : The module name was horribly invalid
+        """
+        import imp as _imp
+        import sys as _sys
+
+        sofar, parts = [], name.split('.')
+        oldmod = None
+        for part in parts:
+            if not part:
+                raise ImportError("Invalid module name %r" % (name,))
+            partname = ".".join(sofar + [part])
+            try:
+                # pylint: disable = E1102
+                fresh, mod = False, _old_util.load_dotted(partname)
+            except ImportError:
+                mod = _imp.new_module(partname)
+                mod.__path__ = []
+                fresh = mod == _sys.modules.setdefault(partname, mod)
+            if oldmod is not None:
+                setattr(oldmod, part, mod)
+            oldmod = mod
+            sofar.append(part)
+
+        return mod, fresh
+
+    _old_util.make_dotted = Deprecator(
+        make_dotted,
+        "tdi.util.make_dotted is no longer public. Don't use it."
+    )

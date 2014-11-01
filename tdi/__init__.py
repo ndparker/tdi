@@ -25,19 +25,22 @@ u"""
 
 Template Data Interface (TDI).
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 __license__ = "Apache License, Version 2.0"
 __version__ = ('0.9.9.8', False, 4809)
 
-from tdi import util as _util
-from tdi._exceptions import *  # noqa pylint: disable = W0622, W0401, W0614
-from tdi.markup import factory as _factory
+from . import _util
+from . import _version
+from ._exceptions import *  # noqa pylint: disable = W0622, W0401, W0614
+from .markup import factory as _factory
 
 #: Version of the TDI package
 #:
 #: :Type: `tdi.util.Version`
-version = _util.Version(*__version__)
+version = _version.Version(*__version__)
 
 #: HTML Template factory
 #:
@@ -55,6 +58,6 @@ xml = _factory.xml
 text = _factory.text
 
 __all__ = _util.find_public(globals())
-del _util, _factory
+del _factory
 
-from tdi import _deprecations  # noqa pylint: disable = W0611
+from . import _deprecations  # noqa pylint: disable = W0611

@@ -89,7 +89,7 @@ def _make_jsmin(python_only=False):
     """
     # pylint: disable = R0912, R0914, W0612
     if not python_only:
-        from tdi import c
+        from .. import c
         rjsmin = c.load('rjsmin')
         if rjsmin is not None:
             return rjsmin.jsmin

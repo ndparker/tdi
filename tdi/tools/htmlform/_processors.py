@@ -25,13 +25,15 @@ u"""
 
 HTML form processors.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 __all__ = ['TabIndexer']
 
 import itertools as _it
 
-from tdi.tools.htmlform import _interfaces
+from . import _interfaces
 
 
 class TabIndexer(object):

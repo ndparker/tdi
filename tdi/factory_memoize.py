@@ -25,6 +25,8 @@ u"""
 
 Factory Caching.
 """
+from __future__ import absolute_import
+
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
 
@@ -37,7 +39,7 @@ def _copy_doc(func):
       `func` : ``callable``
         The method's function
     """
-    from tdi import factory as _factory
+    from . import factory as _factory
     method = getattr(_factory.Factory, func.__name__, None)
     if method is not None:
         func.__doc__ = method.__doc__
