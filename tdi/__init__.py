@@ -32,9 +32,10 @@ __docformat__ = "restructuredtext en"
 __license__ = "Apache License, Version 2.0"
 __version__ = ('0.9.9.8', False, 4809)
 
-from . import _util
-from . import _version
-from ._exceptions import *  # noqa pylint: disable = W0622, W0401, W0614
+from tdi import _util
+from tdi import _version
+from tdi._exceptions import *  # noqa pylint: disable = W0622, W0401, W0614
+del reraise  # noqa
 from .markup import factory as _factory
 
 #: Version of the TDI package
@@ -60,4 +61,4 @@ text = _factory.text
 __all__ = _util.find_public(globals())
 del _factory
 
-from . import _deprecations  # noqa pylint: disable = W0611
+from tdi import _deprecations  # noqa pylint: disable = W0611

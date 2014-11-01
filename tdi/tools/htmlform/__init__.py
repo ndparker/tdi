@@ -29,24 +29,24 @@ from __future__ import absolute_import
 
 __author__ = u"Andr\xe9 Malo"
 __docformat__ = "restructuredtext en"
-_all = []
 
-# pylint: disable = W0401, W0614
-from ._adapters import __all__
-from ._adapters import *  # noqa
-_all.extend(__all__)
-
-from ._interfaces import __all__
-from ._interfaces import *  # noqa
-_all.extend(__all__)
-
-from ._processors import __all__
-from ._processors import *  # noqa
-_all.extend(__all__)
-
-from ._main import __all__
-from ._main import *  # noqa
-_all.extend(__all__)
-
-__all__ = _all
-del _all
+# pylint: disable = W0611
+from ._adapters import (  # noqa
+    DictParameterAdapter,
+    ListDictParameterAdapter,
+    MultiDictParameterAdapter,
+    NullParameterAdapter,
+)
+from ._processors import (  # noqa
+    TabIndexer,
+)
+from ._main import (  # noqa
+    HTMLForm,
+    normalize_newlines,
+    normalize_whitespaces,
+)
+from ._interfaces import (  # noqa
+    ParameterAdapterInterface,
+    PostProcInterface,
+    PreProcInterface,
+)
