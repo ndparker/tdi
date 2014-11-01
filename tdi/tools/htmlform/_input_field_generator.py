@@ -171,11 +171,11 @@ def make_input(type_, doc_extra, *keywords, **kwargs):
                 param.append('%s=None' % word)
             doc.append((word, wtype, docstring))
             words.append(word)
-    if keywords:
+    if keywords:  # pragma: no cover
         raise AssertionError("Unrecognized keywords: %s" % ', '.join(
             keywords.keys()
         ))
-    elif 'value' not in words and 'raw' in words:
+    elif 'value' not in words and 'raw' in words:  # pragma: no cover
         raise AssertionError("Unexpected keyword: raw (no value)")
 
     s8, s12 = ' ' * 8, ' ' * 12  # pylint: disable = C0103
