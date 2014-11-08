@@ -26,6 +26,7 @@ __author__ = "Andr\xe9 Malo"
 __author__ = getattr(__author__, 'decode', lambda x: __author__)('latin-1')
 __docformat__ = "restructuredtext en"
 
+import errno as _errno
 import os as _os
 import re as _re
 import sys as _sys
@@ -40,9 +41,11 @@ if _sys.version_info[0] == 3:
     cfgread = dict(encoding='utf-8')
     def textopen(*args):
         return open(*args, **cfgread)
+    exec ("def reraise(*e): raise e[1]")
 else:
     textopen = open
     cfgread = {}
+    exec ("def reraise(*e): raise e[0], e[1], e[2]")
 
 
 class Target(make.Target):
@@ -165,7 +168,7 @@ class Distribution(Target):
                     shell.rm(outfilename)
                 finally:
                     try:
-                        raise e[0], e[1], e[2]
+                        reraise(*e)
                     finally:
                         del e
         finally:
@@ -300,8 +303,8 @@ class Distribution(Target):
         c.set_armor(1)
         try:
             c.op_sign(fp, sig, sigmode)
-        except errors.GPGMEError, e:
-            make.fail(str(e))
+        except errors.GPGMEError:
+            make.fail(str(_sys.exc_info()[1]))
 
         sig.seek(0, 0)
         if detach:
@@ -1067,8 +1070,9 @@ class Version(Target):
             hasstable = False
             try:
                 fp = textopen(filename)
-            except IOError, e:
-                if e[0] != _errno.ENOENT:
+            except IOError:
+                e = _sys.argv[1]
+                if e.args[0] != _errno.ENOENT:
                     raise
             else:
                 try:
