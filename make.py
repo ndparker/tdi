@@ -22,10 +22,10 @@
 
 Build targets.
 """
-__author__ = u"Andr\xe9 Malo"
+__author__ = "Andr\xe9 Malo"
+__author__ = getattr(__author__, 'decode', lambda x: __author__)('latin-1')
 __docformat__ = "restructuredtext en"
 
-import errno as _errno
 import os as _os
 import re as _re
 import sys as _sys
@@ -34,6 +34,15 @@ from _setup import dist
 from _setup import shell
 from _setup import make
 from _setup import term
+
+
+if _sys.version_info[0] == 3:
+    cfgread = dict(encoding='utf-8')
+    def textopen(*args):
+        return open(*args, **cfgread)
+else:
+    textopen = open
+    cfgread = {}
 
 
 class Target(make.Target):
@@ -68,205 +77,6 @@ class Target(make.Target):
             'tdi.ebuild.in':
                 'tdi-%(VERSION)s.ebuild',
         }
-
-
-class Check(Target):
-    """ Check the python code """
-    NAME = "check"
-    DEPS = ["compile-quiet"]
-
-    def run(self):
-        fake = shell.native(self.dirs['fake'])
-        if fake in _sys.path:
-            _sys.path.remove(fake)
-        _sys.path.insert(0, fake)
-
-        from _setup.dev import analysis
-        term.green('Linting tdi sources...')
-        res = analysis.pylint('pylintrc', 'tdi')
-        if res == 2:
-            make.warn('pylint not found', self.NAME)
-
-
-class Entities(Target):
-    NAME = "entities"
-    DEPS = None
-
-    def run(self):
-        import json as _json
-        import urllib2 as _urllib2
-
-        entities = _json.load(_urllib2.urlopen(
-            'http://www.w3.org/TR/html5/entities.json'
-        ))
-
-        path = shell.native('%(lib)s/tdi/_htmlentities.py' % self.dirs)
-        lines = iter(open(path, 'r'))
-        result, seen = [], set()
-        sorter = lambda x: (x[0].lower(), x)
-        if u"'".encode('unicode_escape') == "'":
-            quote_u = lambda x: x.replace("'", "\\'")
-        else:
-            quote_u = lambda x: x
-        if "'".encode('string_escape') == "'":
-            quote_s = lambda x: x.replace("'", "\\'")
-        else:
-            quote_s = lambda x: x
-
-        for line in lines:
-            line = line.rstrip()
-            if line.startswith('htmlentities = {'):
-                result.append(line)
-                for line in lines:
-                    if line.startswith('}'):
-                        for key, spec in sorted(entities.items(), key=sorter):
-                            if key.startswith('&'):
-                                key = key[1:]
-                            if key.endswith(';'):
-                                key = key[:-1]
-                            if key in seen:
-                                continue
-                            seen.add(key)
-                            for cp in spec['codepoints']:
-                                if cp > 0xFFFF:
-                                    result.append(
-                                    '    %r: \'%s\'.decode("utf-16-le"),' % (
-                                        key,
-                                        quote_s((spec[u'characters']
-                                            .encode("utf-16-le")
-                                        ).encode('string_escape')),
-                                    )
-                                    )
-                                    break
-                            else:
-                                result.append('    %r: u\'%s\',' % (
-                                    key,
-                                    quote_u(spec[u'characters']
-                                        .encode('unicode_escape')
-                                    ),
-                                ))
-                        result.append(line.rstrip())
-                        break
-                for line in lines:
-                    result.append(line.rstrip())
-                break
-            result.append(line)
-        open(path, 'w').write(u'\n'.join(result) + '\n')
-
-
-class NoseTest(Target):
-    """ Run the nose tests """
-    NAME = "nose-test"
-    DEPS = ["compile-quiet"]
-
-    def run(self):
-        if shell.spawn(
-                'nosetests',
-                '-c', 'package.cfg',
-                self.dirs['nose_tests'], self.dirs['lib']):
-            raise RuntimeError('tests failed')
-
-    def clean(self, scm, dist):
-        term.green("Removing coverage files...")
-        shell.rm_rf(self.dirs['coverage'])
-        shell.rm('.coverage')
-
-
-class Test(Target):
-    """ Test the code """
-    NAME = "test"
-    DEPS = ["nose-test", "system-test", "example-test"]
-
-
-class ExampleTest(Target):
-    """ Test the example code """
-    NAME = "example-test"
-    DEPS = ["compile-quiet"]
-
-    def run(self):
-        if shell.spawn(_sys.executable, 'run_tests.py',
-            self.dirs['examples'], self.dirs['lib']
-        ): raise RuntimeError('tests failed')
-
-
-class SystemTest(Target):
-    """ Run the system tests """
-    NAME = "system-test"
-    DEPS = ["compile-quiet"]
-
-    def run(self):
-        if shell.spawn(_sys.executable, 'run_tests.py',
-            self.dirs['tests'], self.dirs['lib']
-        ): raise RuntimeError('tests failed')
-
-
-class Compile(Target):
-    """ Compile the python code """
-    NAME = "compile"
-    #DEPS = None
-
-    def run(self):
-        import setup
-
-        _old_argv = _sys.argv
-        try:
-            _sys.argv = ['setup.py', '-q', 'build']
-            if not self.HIDDEN:
-                _sys.argv.remove('-q')
-            setup.setup()
-            if 'java' not in _sys.platform.lower():
-                _sys.argv = [
-                    'setup.py', '-q', 'install_lib', '--install-dir',
-                    shell.native(self.dirs['lib']),
-                    '--optimize', '2',
-                ]
-                if not self.HIDDEN:
-                    _sys.argv.remove('-q')
-                setup.setup()
-        finally:
-            _sys.argv = _old_argv
-
-        for name in shell.files("%s/tdi" % self.dirs['lib'], '*.py'):
-            self.compile(name)
-        term.write("%(ERASE)s")
-
-        term.green("All files successfully compiled.")
-
-    def compile(self, name):
-        path = shell.native(name)
-        term.write("%(ERASE)s%(BOLD)s>>> Compiling %(name)s...%(NORMAL)s",
-            name=name)
-        from distutils import util
-        try:
-            from distutils import log
-        except ImportError:
-            util.byte_compile([path], verbose=0, force=True)
-        else:
-            log.set_verbosity(0)
-            util.byte_compile([path], force=True)
-
-    def clean(self, scm, dist):
-        term.green("Removing python byte code...")
-        for name in shell.files('.', '*.py[co]'):
-            shell.rm(name)
-        for name in shell.files('.', '*$py.class'):
-            shell.rm(name)
-
-        term.green("Removing c extensions...")
-        for name in shell.files('.', '*.so'):
-            shell.rm(name)
-        for name in shell.files('.', '*.pyd'):
-            shell.rm(name)
-
-        shell.rm_rf(self.dirs['build'])
-
-
-class CompileQuiet(Compile):
-    NAME = "compile-quiet"
-    HIDDEN = True
-
-    def clean(self, scm, dist):
-        pass
 
 
 class Distribution(Target):
@@ -325,7 +135,7 @@ class Distribution(Target):
             self.compress_external(filename, outfilename, 'gzip', '-c9')
         else:
             outfile = _gzip.GzipFile(filename, 'wb',
-                fileobj=open(outfilename, 'wb')
+                fileobj=textopen(outfilename, 'wb')
             )
             self.compress_internal(filename, outfile, outfilename)
         return 'gz'
@@ -340,7 +150,7 @@ class Distribution(Target):
         return None
 
     def compress_internal(self, filename, outfile, outfilename):
-        infile = open(filename, 'rb')
+        infile = textopen(filename, 'rb')
         try:
             try:
                 while 1:
@@ -379,7 +189,7 @@ class Distribution(Target):
         result = []
         for name, basenames in digestnames.items():
             result.append(_os.path.join(self.dirs['dist'], name + '.digests'))
-            fp = open(result[-1], 'wb')
+            fp = textopen(result[-1], 'wb')
             try:
                 fp.write(
                     '\n# The file may contain MD5, SHA1 and SHA256 digests\n'
@@ -406,7 +216,7 @@ class Distribution(Target):
         filename = shell.native(filename)
         term.green("%(digest)s-digesting %(name)s...",
             digest=name, name=_os.path.basename(filename))
-        fp = open(filename, 'rb')
+        fp = textopen(filename, 'rb')
         sig = hashfunc()
         block = fp.read(8192)
         while block:
@@ -416,7 +226,7 @@ class Distribution(Target):
         return sig.hexdigest()
 
         param = {'sig': sig.hexdigest(), 'file': _os.path.basename(filename)}
-        fp = open("%s.%s" % (filename, name), "w")
+        fp = textopen("%s.%s" % (filename, name), "w")
         fp.write("%(sig)s *%(file)s\n" % param)
         fp.close()
 
@@ -495,9 +305,9 @@ class Distribution(Target):
 
         sig.seek(0, 0)
         if detach:
-            open("%s.asc" % filename, "w").write(sig.read())
+            textopen("%s.asc" % filename, "w").write(sig.read())
         else:
-            open(filename, "w").write(sig.read())
+            textopen(filename, "w").write(sig.read())
 
         return True
 
@@ -528,6 +338,213 @@ class Distribution(Target):
     def clean(self, scm, dist):
         term.green("Removing dist files...")
         shell.rm_rf(self.dirs['dist'])
+
+
+class Check(Target):
+    """ Check the python code """
+    NAME = "check"
+    DEPS = ["compile-quiet"]
+
+    def run(self):
+        fake = shell.native(self.dirs['fake'])
+        if fake in _sys.path:
+            _sys.path.remove(fake)
+        _sys.path.insert(0, fake)
+
+        from _setup.dev import analysis
+        term.green('Linting tdi sources...')
+        res = analysis.pylint('pylintrc', 'tdi')
+        if res == 2:
+            make.warn('pylint not found', self.NAME)
+
+
+class Entities(Target):
+    NAME = "entities"
+    DEPS = None
+
+    def run(self):
+        import json as _json
+        try:
+            import urllib2 as _urllib
+        except ImportError:
+            from urllib import request as _urllib
+
+        entities = _json.load(_urllib.urlopen(
+            'http://www.w3.org/TR/html5/entities.json'
+        ))
+        u = lambda x: x.decode('utf-8')
+
+        path = shell.native('%(lib)s/tdi/_htmlentities.py' % self.dirs)
+        lines = iter(textopen(path, 'r'))
+        result, seen = [], set()
+        sorter = lambda x: (x[0].lower(), x)
+        if u("'").encode('unicode_escape') == "'":
+            quote_u = lambda x: x.replace("'", "\\'")
+        else:
+            quote_u = lambda x: x
+        if "'".encode('string_escape') == "'":
+            quote_s = lambda x: x.replace("'", "\\'")
+        else:
+            quote_s = lambda x: x
+
+        for line in lines:
+            line = line.rstrip()
+            if line.startswith('htmlentities = {'):
+                result.append(line)
+                for line in lines:
+                    if line.startswith('}'):
+                        for key, spec in sorted(entities.items(), key=sorter):
+                            if key.startswith('&'):
+                                key = key[1:]
+                            if key.endswith(';'):
+                                key = key[:-1]
+                            if key in seen:
+                                continue
+                            seen.add(key)
+                            for cp in spec['codepoints']:
+                                if cp > 0xFFFF:
+                                    result.append(
+                                    '    %r: \'%s\'.decode("utf-16-le"),' % (
+                                        key,
+                                        quote_s((spec[u('characters')]
+                                            .encode("utf-16-le")
+                                        ).encode('string_escape')),
+                                    )
+                                    )
+                                    break
+                            else:
+                                result.append('    %r: u\'%s\',' % (
+                                    key,
+                                    quote_u(spec[u('characters')]
+                                        .encode('unicode_escape')
+                                    ),
+                                ))
+                        result.append(line.rstrip())
+                        break
+                for line in lines:
+                    result.append(line.rstrip())
+                break
+            result.append(line)
+        textopen(path, 'w').write(
+            ((u('\n').join(result) + u('\n'))).encode('ascii')
+        )
+
+
+class Test(Target):
+    """ Test the code """
+    NAME = "test"
+    DEPS = ["nose-test", "system-test", "example-test"]
+
+
+class NoseTest(Target):
+    """ Run the nose tests """
+    NAME = "nose-test"
+    DEPS = ["compile-quiet"]
+
+    def run(self):
+        if shell.spawn(
+                'nosetests',
+                '-c', 'package.cfg',
+                self.dirs['nose_tests'], self.dirs['lib']):
+            raise RuntimeError('tests failed')
+
+    def clean(self, scm, dist):
+        term.green("Removing coverage files...")
+        shell.rm_rf(self.dirs['coverage'])
+        shell.rm('.coverage')
+
+
+class ExampleTest(Target):
+    """ Test the example code """
+    NAME = "example-test"
+    DEPS = ["compile-quiet"]
+
+    def run(self):
+        if shell.spawn(_sys.executable, 'run_tests.py',
+            self.dirs['examples'], self.dirs['lib']
+        ): raise RuntimeError('tests failed')
+
+
+class SystemTest(Target):
+    """ Run the system tests """
+    NAME = "system-test"
+    DEPS = ["compile-quiet"]
+
+    def run(self):
+        if shell.spawn(_sys.executable, 'run_tests.py',
+            self.dirs['tests'], self.dirs['lib']
+        ): raise RuntimeError('tests failed')
+
+
+class Compile(Target):
+    """ Compile the python code """
+    NAME = "compile"
+    #DEPS = None
+
+    def run(self):
+        import setup
+
+        _old_argv = _sys.argv
+        try:
+            _sys.argv = ['setup.py', '-q', 'build']
+            if not self.HIDDEN:
+                _sys.argv.remove('-q')
+            setup.setup()
+            if 'java' not in _sys.platform.lower():
+                _sys.argv = [
+                    'setup.py', '-q', 'install_lib', '--install-dir',
+                    shell.native(self.dirs['lib']),
+                    '--optimize', '2',
+                ]
+                if not self.HIDDEN:
+                    _sys.argv.remove('-q')
+                setup.setup()
+        finally:
+            _sys.argv = _old_argv
+
+        for name in shell.files("%s/tdi" % self.dirs['lib'], '*.py'):
+            self.compile(name)
+        term.write("%(ERASE)s")
+
+        term.green("All files successfully compiled.")
+
+    def compile(self, name):
+        path = shell.native(name)
+        term.write("%(ERASE)s%(BOLD)s>>> Compiling %(name)s...%(NORMAL)s",
+            name=name)
+        from distutils import util
+        try:
+            from distutils import log
+        except ImportError:
+            util.byte_compile([path], verbose=0, force=True)
+        else:
+            log.set_verbosity(0)
+            util.byte_compile([path], force=True)
+
+    def clean(self, scm, dist):
+        term.green("Removing python byte code...")
+        for name in shell.dirs('.', '__pycache__'):
+            shell.rm_rf(name)
+        for name in shell.files('.', '*.py[co]'):
+            shell.rm(name)
+        for name in shell.files('.', '*$py.class'):
+            shell.rm(name)
+
+        term.green("Removing c extensions...")
+        for name in shell.files('.', '*.so'):
+            shell.rm(name)
+        for name in shell.files('.', '*.pyd'):
+            shell.rm(name)
+
+        shell.rm_rf(self.dirs['build'])
+
+
+class CompileQuiet(Compile):
+    NAME = "compile-quiet"
+    HIDDEN = True
+
+    def clean(self, scm, dist):
+        pass
 
 
 class Doc(Target):
@@ -585,7 +602,7 @@ class Website(Target):
     def run(self):
         from _setup.util import SafeConfigParser as parser
         parser = parser()
-        parser.read('package.cfg')
+        parser.read('package.cfg', **cfgread)
         strversion = parser.get('package', 'version.number')
         shortversion = tuple(map(int, strversion.split('.')[:2]))
 
@@ -596,12 +613,12 @@ class Website(Target):
         )
         for filename in shell.files(
                 _os.path.join(self.dirs['_website'], 'src'), '*.txt'):
-            fp = open(filename, 'rb')
+            fp = textopen(filename, 'r')
             try:
                 content = fp.read().replace('../examples/', 'examples/')
             finally:
                 fp.close()
-            fp = open(filename, 'wb')
+            fp = textopen(filename, 'w')
             try:
                 fp.write(content)
             finally:
@@ -617,19 +634,19 @@ class Website(Target):
         filename = _os.path.join(
             self.dirs['_website'], 'src', 'website_download.txt'
         )
-        fp = open(filename)
+        fp = textopen(filename)
         try:
             download = fp.read()
         finally:
             fp.close()
         filename = _os.path.join(self.dirs['_website'], 'src', 'index.txt')
-        fp = open(filename)
+        fp = textopen(filename)
         try:
             indexlines = fp.readlines()
         finally:
             fp.close()
 
-        fp = open(filename, 'w')
+        fp = textopen(filename, 'w')
         try:
             for line in indexlines:
                 if line.startswith('.. placeholder: Download'):
@@ -661,7 +678,7 @@ class Website(Target):
                 self.dirs['_website'], 'src', 'doc-%d.%d' % shortversion
             )
         )
-        fp = open(_os.path.join(
+        fp = textopen(_os.path.join(
             self.dirs['_website'], 'src', 'conf.py'
         ), 'a')
         try:
@@ -727,7 +744,7 @@ class SVNRelease(Target):
         """ Tag release """
         from _setup.util import SafeConfigParser as parser
         parser = parser()
-        parser.read('package.cfg')
+        parser.read('package.cfg', **cfgread)
         strversion = parser.get('package', 'version.number')
         isdev = parser.getboolean('package', 'version.dev')
         revision = parser.getint('package', 'version.revision')
@@ -775,7 +792,7 @@ class SVNRelease(Target):
                     text.append(node.data)
         finally:
             info.unlink()
-        return u''.join(text).encode('utf-8')
+        return (''.decode('ascii')).join(text).encode('utf-8')
 
     def _check_committed(self):
         """ Check if everything is committed """
@@ -809,7 +826,7 @@ class GitRelease(Target):
         """ Tag release """
         from _setup.util import SafeConfigParser as parser
         parser = parser()
-        parser.read('package.cfg')
+        parser.read('package.cfg', **cfgread)
         strversion = parser.get('package', 'version.number')
         isdev = parser.getboolean('package', 'version.dev')
         revision = parser.getint('package', 'version.revision')
@@ -888,12 +905,12 @@ class SVNRevision(Target):
     def _revision_cfg(self, revision):
         """ Modify version in package.cfg """
         filename = 'package.cfg'
-        fp = open(filename)
+        fp = textopen(filename)
         try:
             initlines = fp.readlines()
         finally:
             fp.close()
-        fp = open(filename, 'w')
+        fp = textopen(filename, 'w')
         replaced = False
         try:
             for line in initlines:
@@ -917,12 +934,12 @@ class SimpleRevision(Target):
     def _revision_cfg(self):
         """ Modify version in package.cfg """
         filename = 'package.cfg'
-        fp = open(filename)
+        fp = textopen(filename)
         try:
             initlines = fp.readlines()
         finally:
             fp.close()
-        fp = open(filename, 'w')
+        fp = textopen(filename, 'w')
         revision, replaced = None, False
         try:
             for line in initlines:
@@ -954,7 +971,7 @@ class Version(Target):
     def run(self):
         from _setup.util import SafeConfigParser as parser
         parser = parser()
-        parser.read('package.cfg')
+        parser.read('package.cfg', **cfgread)
         strversion = parser.get('package', 'version.number')
         isdev = parser.getboolean('package', 'version.dev')
         revision = parser.getint('package', 'version.revision')
@@ -974,12 +991,12 @@ class Version(Target):
     def _version_init(self, strversion, isdev, revision):
         """ Modify version in __init__ """
         filename = _os.path.join(self.dirs['lib'], 'tdi', '__init__.py')
-        fp = open(filename)
+        fp = textopen(filename)
         try:
             initlines = fp.readlines()
         finally:
             fp.close()
-        fp = open(filename, 'w')
+        fp = textopen(filename, 'w')
         replaced = False
         try:
             for line in initlines:
@@ -991,19 +1008,19 @@ class Version(Target):
                 fp.write(line)
         finally:
             fp.close()
-        assert replaced, "__version__ not found in __init__"
+        assert replaced, "__version__ not found in rjsmin.py"
 
     def _version_changes(self, strversion, isdev, revision):
         """ Modify version in changes """
         filename = _os.path.join(shell.native(self.dirs['docs']), 'CHANGES')
         if isdev:
             strversion = "%s-dev-r%d" % (strversion, revision)
-        fp = open(filename)
+        fp = textopen(filename)
         try:
             initlines = fp.readlines()
         finally:
             fp.close()
-        fp = open(filename, 'w')
+        fp = textopen(filename, 'w')
         try:
             for line in initlines:
                 if line.rstrip() == "Changes with version":
@@ -1019,13 +1036,13 @@ class Version(Target):
         longversion = strversion
         if isdev:
             longversion = "%s-dev-r%d" % (strversion, revision)
-        fp = open(filename)
+        fp = textopen(filename)
         try:
             initlines = fp.readlines()
         finally:
             fp.close()
         replaced = 0
-        fp = open(filename, 'w')
+        fp = textopen(filename, 'w')
         try:
             for line in initlines:
                 if line.startswith('version'):
@@ -1049,7 +1066,7 @@ class Version(Target):
             oldstable = []
             hasstable = False
             try:
-                fp = open(filename)
+                fp = textopen(filename)
             except IOError, e:
                 if e[0] != _errno.ENOENT:
                     raise
@@ -1067,7 +1084,7 @@ class Version(Target):
                 VERSION = "%s-dev-%s" % (strversion, revision)
                 PATH='dev/'
         newdev = []
-        fp = open(filename + '.in')
+        fp = textopen(filename + '.in')
         try:
             if dllines:
                 for line in fp:
@@ -1084,7 +1101,7 @@ class Version(Target):
         finally:
             fp.close()
         instable, indev = [], []
-        fp = open(filename, 'w')
+        fp = textopen(filename, 'w')
         try:
             for line in dllines:
                 if instable:
@@ -1147,7 +1164,7 @@ class Manifest(Target):
     def run(self):
         term.green("Creating %(name)s...", name=self.NAME)
         dest = shell.native(self.NAME)
-        dest = open(dest, 'w')
+        dest = textopen(dest, 'w')
         for name in self.manifest_names():
             dest.write("%s\n" % name)
         dest.close()
