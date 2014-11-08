@@ -45,13 +45,13 @@ same results as the original ``jsmin.c``. It differs in the following ways:
 - rJSmin does not handle streams, but only complete strings. (However, the
   module provides a "streamy" interface).
 
-Since most parts of the logic are handled by the regex engine it's way
-faster than the original python port of ``jsmin.c`` by Baruch Even. The speed
-factor varies between about 6 and 55 depending on input and python version
-(it gets faster the more compressed the input already is). Compared to the
+Since most parts of the logic are handled by the regex engine it's way faster
+than the original python port of ``jsmin.c`` by Baruch Even. The speed factor
+varies between about 6 and 55 depending on input and python version (it gets
+faster the more compressed the input already is). Compared to the
 speed-refactored python port by Dave St.Germain the performance gain is less
-dramatic but still between 1.2 and 7. See the docs/BENCHMARKS file for
-details.
+dramatic but still between 3 and 50 (for huge inputs). See the docs/BENCHMARKS
+file for details.
 
 rjsmin.c is a reimplementation of rjsmin.py in C and speeds it up even more.
 
@@ -66,7 +66,7 @@ if __doc__:
 __author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 __license__ = "Apache License, Version 2.0"
-__version__ = '1.0.9'
+__version__ = '1.0.10'
 __all__ = ['jsmin']
 
 import re as _re
@@ -88,6 +88,7 @@ def _make_jsmin(python_only=False):
     :Rtype: ``callable``
     """
     # pylint: disable = R0912, R0914, W0612
+
     if not python_only:
         from .. import c
         rjsmin = c.load('rjsmin')
@@ -96,7 +97,7 @@ def _make_jsmin(python_only=False):
     try:
         xrange
     except NameError:
-        xrange = range # pylint: disable = W0622
+        xrange = range  # pylint: disable = W0622
 
     space_chars = r'[\000-\011\013\014\016-\040]'
 
@@ -148,8 +149,10 @@ def _make_jsmin(python_only=False):
                 last != first and chr(last) or ''
             ) for first, last in result])
 
-        return _re.sub(r'([\000-\040\047])', # for better portability
-            lambda m: '\\%03o' % ord(m.group(1)), (sequentize(result)
+        return _re.sub(
+            r'([\000-\040\047])',  # \047 for better portability
+            lambda m: '\\%03o' % ord(m.group(1)), (
+                sequentize(result)
                 .replace('\\', '\\\\')
                 .replace('[', '\\[')
                 .replace(']', '\\]')
@@ -183,6 +186,8 @@ def _make_jsmin(python_only=False):
     dull = r'[^\047"/\000-\040]'
 
     space_sub_simple = _re.compile((
+        # noqa pylint: disable = C0330
+
         r'(%(dull)s+)'
         r'|(%(strings)s%(dull)s*)'
         r'|(?<=%(preregex1)s)'
@@ -204,17 +209,27 @@ def _make_jsmin(python_only=False):
 
     def space_subber_simple(match):
         """ Substitution callback """
-        # pylint: disable = C0321, R0911
+        # pylint: disable = R0911
+
         groups = match.groups()
-        if groups[0]: return groups[0]
-        elif groups[1]: return groups[1]
-        elif groups[2]: return groups[2]
-        elif groups[3]: return groups[3]
-        elif groups[4]: return '\n'
-        elif groups[5] or groups[6] or groups[7]: return ' '
-        else: return ''
+        if groups[0]:
+            return groups[0]
+        elif groups[1]:
+            return groups[1]
+        elif groups[2]:
+            return groups[2]
+        elif groups[3]:
+            return groups[3]
+        elif groups[4]:
+            return '\n'
+        elif groups[5] or groups[6] or groups[7]:
+            return ' '
+        else:
+            return ''
 
     space_sub_banged = _re.compile((
+        # noqa pylint: disable = C0330
+
         r'(%(dull)s+)'
         r'|(%(strings)s%(dull)s*)'
         r'|(%(bang_comment)s%(dull)s*)'
@@ -237,18 +252,27 @@ def _make_jsmin(python_only=False):
 
     def space_subber_banged(match):
         """ Substitution callback """
-        # pylint: disable = C0321, R0911
-        groups = match.groups()
-        if groups[0]: return groups[0]
-        elif groups[1]: return groups[1]
-        elif groups[2]: return groups[2]
-        elif groups[3]: return groups[3]
-        elif groups[4]: return groups[4]
-        elif groups[5]: return '\n'
-        elif groups[6] or groups[7] or groups[8]: return ' '
-        else: return ''
+        # pylint: disable = R0911
 
-    def jsmin(script, keep_bang_comments=False): # pylint: disable = W0621
+        groups = match.groups()
+        if groups[0]:
+            return groups[0]
+        elif groups[1]:
+            return groups[1]
+        elif groups[2]:
+            return groups[2]
+        elif groups[3]:
+            return groups[3]
+        elif groups[4]:
+            return groups[4]
+        elif groups[5]:
+            return '\n'
+        elif groups[6] or groups[7] or groups[8]:
+            return ' '
+        else:
+            return ''
+
+    def jsmin(script, keep_bang_comments=False):  # pylint: disable = W0621
         r"""
         Minify javascript based on `jsmin.c by Douglas Crockford`_\.
 
@@ -336,6 +360,7 @@ def jsmin_for_posers(script, keep_bang_comments=False):
             r'*\*+)*/))+|(?:(?:(?://[^\r\n]*)?[\r\n])(?:[\000-\011\013\014\0'
             r'16-\040]|(?:/\*[^*]*\*+(?:[^/*][^*]*\*+)*/))*)+'
         )
+
         def subber(match):
             """ Substitution callback """
             groups = match.groups()
@@ -380,6 +405,7 @@ def jsmin_for_posers(script, keep_bang_comments=False):
             r':(?://[^\r\n]*)?[\r\n])(?:[\000-\011\013\014\016-\040]|(?:/\*('
             r'?!!)[^*]*\*+(?:[^/*][^*]*\*+)*/))*)+'
         )
+
         def subber(match):
             """ Substitution callback """
             groups = match.groups()
@@ -410,7 +436,7 @@ if __name__ == '__main__':
         )
         if '-p' in _sys.argv[1:] or '-bp' in _sys.argv[1:] \
                 or '-pb' in _sys.argv[1:]:
-            global jsmin # pylint: disable = W0603
+            global jsmin  # pylint: disable = W0603
             jsmin = _make_jsmin(python_only=True)
         _sys.stdout.write(jsmin(
             _sys.stdin.read(), keep_bang_comments=keep_bang_comments
