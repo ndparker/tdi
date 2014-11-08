@@ -38,11 +38,17 @@ from _setup import term
 
 
 if _sys.version_info[0] == 3:
+    py3 = 1
     cfgread = dict(encoding='utf-8')
     def textopen(*args):
         return open(*args, **cfgread)
-    exec ("def reraise(*e): raise e[1]")
+    exec ("def reraise(*e): raise e[1].with_traceback(e[2])")
 else:
+    py3 = 0
+    try:
+        True
+    except NameError:
+        exec ("True = 1; False = 0")
     textopen = open
     cfgread = {}
     exec ("def reraise(*e): raise e[0], e[1], e[2]")
@@ -372,23 +378,20 @@ class Entities(Target):
         except ImportError:
             from urllib import request as _urllib
 
-        entities = _json.load(_urllib.urlopen(
+        entities = _json.loads(_urllib.urlopen(
             'http://www.w3.org/TR/html5/entities.json'
-        ))
-        u = lambda x: x.decode('utf-8')
+        ).read().decode('utf-8'))
+        u = lambda x: getattr(x, 'decode', lambda _: x)('utf-8')
+        b = lambda x: getattr(x, 'encode', lambda _: x)('latin-1')
 
         path = shell.native('%(lib)s/tdi/_htmlentities.py' % self.dirs)
         lines = iter(textopen(path, 'r'))
         result, seen = [], set()
         sorter = lambda x: (x[0].lower(), x)
-        if u("'").encode('unicode_escape') == "'":
+        if u("'").encode('unicode_escape') == b("'"):
             quote_u = lambda x: x.replace("'", "\\'")
         else:
             quote_u = lambda x: x
-        if "'".encode('string_escape') == "'":
-            quote_s = lambda x: x.replace("'", "\\'")
-        else:
-            quote_s = lambda x: x
 
         for line in lines:
             line = line.rstrip()
@@ -409,17 +412,23 @@ class Entities(Target):
                                     result.append(
                                     '    %r: \'%s\'.decode("utf-16-le"),' % (
                                         key,
-                                        quote_s((spec[u('characters')]
+                                        quote_u(
+                                            spec[u('characters')]
                                             .encode("utf-16-le")
-                                        ).encode('string_escape')),
+                                            .decode('latin-1')
+                                            .encode('unicode_escape')
+                                            .decode('latin-1')
+                                        ),
                                     )
                                     )
                                     break
                             else:
                                 result.append('    %r: u\'%s\',' % (
                                     key,
-                                    quote_u(spec[u('characters')]
+                                    quote_u(
+                                        spec[u('characters')]
                                         .encode('unicode_escape')
+                                        .decode('latin-1')
                                     ),
                                 ))
                         result.append(line.rstrip())
@@ -428,9 +437,7 @@ class Entities(Target):
                     result.append(line.rstrip())
                 break
             result.append(line)
-        textopen(path, 'w').write(
-            ((u('\n').join(result) + u('\n'))).encode('ascii')
-        )
+        textopen(path, 'w').write((u('\n').join(result) + u('\n')))
 
 
 class Test(Target):
