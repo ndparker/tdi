@@ -542,8 +542,8 @@ static int
 starttag_attr(const char *buf, const char *sentinel, PyObject **attr_,
               int *closed)
 {
-    PyObject *attr, *name, *value, *tmp;
-    const char *p;
+    PyObject *attr, *name = NULL, *value = NULL, *tmp;
+    const char *p = NULL;
     int res;
 
     *closed = 0;
@@ -762,7 +762,7 @@ error:
 static int
 lex_COMMENT(tdi_soup_lexer *self)
 {
-    const char *buf, *p, *start = PyString_AS_STRING(self->buffer);
+    const char *buf = NULL, *p, *start = PyString_AS_STRING(self->buffer);
     const char *sentinel = start + PyString_GET_SIZE(self->buffer);
     PyObject *data, *tmp;
     tdi_lexer_event event;
@@ -898,7 +898,7 @@ lex_MSECTION(tdi_soup_lexer *self)
 {
     const char *buf, *p, *p1, *start = PyString_AS_STRING(self->buffer);
     const char *sentinel = start + PyString_GET_SIZE(self->buffer);
-    PyObject *data, *tmp, *name, *value;
+    PyObject *data, *tmp, *name = NULL, *value = NULL;
     tdi_lexer_event event;
     int res, emit = 0; /* 0 == msection, else == text */
 
