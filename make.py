@@ -1018,7 +1018,7 @@ class Version(Target):
                 fp.write(line)
         finally:
             fp.close()
-        assert replaced, "__version__ not found in rjsmin.py"
+        assert replaced, "__version__ not found in __init__.py"
 
     def _version_changes(self, strversion, isdev, revision):
         """ Modify version in changes """
@@ -1078,7 +1078,7 @@ class Version(Target):
             try:
                 fp = textopen(filename)
             except IOError:
-                e = _sys.argv[1]
+                e = _sys.exc_info()[1]
                 if e.args[0] != _errno.ENOENT:
                     raise
             else:
