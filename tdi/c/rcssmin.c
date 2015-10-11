@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 - 2014
+ * Copyright 2011 - 2015
  * Andr\xe9 Malo or his licensors, as applicable
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -57,7 +57,7 @@ static const unsigned short rcssmin_charmask[128] = {
      21,  21,  21,  21,  21,  21,  21,  21,
      21,  21,  21,  21,  21,  21,  21,  21,
      28, 469,   4,  85,  85,  85,  85,   4,
-    149, 277,  85, 469, 469, 117,  85,  84,
+    149, 277,  85,  84, 469, 117,  85,  84,
     115, 115, 115, 115, 115, 115, 115, 115,
     115, 115, 468, 340,  85, 469, 468,  85,
      84, 115, 115, 115, 115, 115, 115, 117,
