@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2010 - 2014
+ Copyright 2010 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,9 +25,10 @@ u"""
 
 Deprecations.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 import os as _os
@@ -70,13 +71,15 @@ class Deprecator(object):
         :Return: Deprecator instance
         :Rtype: `Deprecator`
         """
+        # pylint: disable = unidiomatic-typecheck
         if type(todeprecate) is _types.MethodType:
             call = cls(todeprecate.im_func, message=message)
 
             @_util.decorating(todeprecate.im_func)
             def func(*args, **kwargs):
                 """ Wrapper to build a new method """
-                return call(*args, **kwargs)  # pylint: disable = E1102
+                # pylint: disable = not-callable
+                return call(*args, **kwargs)
 
             return _types.MethodType(func, None, todeprecate.im_class)
         elif cls == Deprecator and callable(todeprecate):
@@ -100,6 +103,7 @@ class Deprecator(object):
         """
         self.__todeprecate = todeprecate
         if message is None:
+            # pylint: disable = unidiomatic-typecheck
             if type(todeprecate) is _types.FunctionType:
                 name = todeprecate.__name__
             else:
@@ -136,6 +140,8 @@ class CallableDeprecator(Deprecator):
 
 
 if True:
+    # pylint: disable = protected-access
+
     _old_util.CallableDeprecator = Deprecator(
         CallableDeprecator,
         "tdi.util.CallableDeprecator is no longer public. Don't use it."
@@ -158,7 +164,7 @@ if True:
     _old_util.DependencyCycle = _graph.DependencyCycle
 
     _old_util.parse_content_type = Deprecator(
-        _filters._parse_content_type,  # pylint: disable = W0212
+        _filters._parse_content_type,
         "tdi.util.parse_content_type is no longer public. Don't use it."
     )
 
@@ -178,7 +184,7 @@ if True:
     )
 
     _old_util.load_dotted = Deprecator(
-        _wtf_service._load_dotted,  # pylint: disable = W0212
+        _wtf_service._load_dotted,
         "tdi.util.load_dotted is no longer public. Don't use it."
     )
 
@@ -207,7 +213,7 @@ if True:
                 raise ImportError("Invalid module name %r" % (name,))
             partname = ".".join(sofar + [part])
             try:
-                # pylint: disable = E1102
+                # pylint: disable = not-callable
                 fresh, mod = False, _old_util.load_dotted(partname)
             except ImportError:
                 mod = _imp.new_module(partname)

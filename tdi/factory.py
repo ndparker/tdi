@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,9 +25,10 @@ u"""
 
 Template Factories.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 import os as _os
@@ -110,7 +111,7 @@ class Loader(object):
           `chunksize` : ``int``
             Chunk size when reading templates
         """
-        # pylint: disable = R0913
+        # pylint: disable = too-many-arguments
 
         self._args = dict(locals())
         del self._args['self']
@@ -166,7 +167,9 @@ class Loader(object):
 
         :Type: ``dict``
         """
-        # pylint: disable = E0211, C0111, W0612, W0212
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = protected-access, missing-docstring
+
         def fget(self):
             return dict(self._args)
         return locals()
@@ -274,9 +277,9 @@ def file_opener(filename, mtime, check_only=False):
         except (OSError, AttributeError):
             xtime = None
         if mtime is not None and xtime is not None and mtime == xtime:
-            stream, _ = None, stream.close()
+            stream, _ = None, stream.close()  # noqa
         return stream, xtime
-    except:  # pylint: disable = W0702
+    except:  # pylint: disable = bare-except
         e = _sys.exc_info()
         try:
             stream.close()
@@ -331,7 +334,7 @@ def _memoize(func):
     def proxy(*args, **kwargs):
         """ Proxy """
         self, key = args[0], kwargs.pop('key', None)
-        cache = self._cache  # pylint: disable = W0212
+        cache = self._cache  # pylint: disable = protected-access
         if cache is None or key is None:
             return func(*args, **kwargs)
         lock, key = getattr(cache, 'lock', None), (name, key)
@@ -460,7 +463,7 @@ class Factory(object):
             Memoizer to use. If omitted or ``None``, memoization is turned
             off.
         """
-        # pylint: disable = R0913
+        # pylint: disable = too-many-arguments
 
         self._loader = Loader(
             parser=parser,
@@ -551,7 +554,7 @@ class Factory(object):
         :Return: New factory instance
         :Rtype: `Factory`
         """
-        # pylint: disable = R0912, R0913
+        # pylint: disable = too-many-arguments, too-many-branches
 
         args = self._loader.args
         if autoupdate is None:
@@ -793,7 +796,7 @@ class Factory(object):
             for item in streams:
                 tup = streamopen(item)
                 if len(tup) == 4:
-                    # pylint: disable = W0632
+                    # pylint: disable = unbalanced-tuple-unpacking
                     filename, stream, mtime, opener = tup
                     try:
                         import warnings as _warnings
@@ -812,7 +815,7 @@ class Factory(object):
 
                 tup, key = tup
                 if len(tup) == 3:
-                    # pylint: disable = W0632
+                    # pylint: disable = unbalanced-tuple-unpacking
                     stream, filename, mtime = tup
                     try:
                         tpl = self.from_stream(

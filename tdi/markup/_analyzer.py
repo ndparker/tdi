@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -26,9 +26,10 @@ u"""
 This module provides the logic to build a nodetree out of parser
 events.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 import re as _re
@@ -283,5 +284,5 @@ c = c.load('impl')
 if c is not None:
     DEFAULT_ANALYZER = c.AttributeAnalyzer
 else:
-    DEFAULT_ANALYZER = AttributeAnalyzer  # pylint: disable = C0103
+    DEFAULT_ANALYZER = AttributeAnalyzer  # pylint: disable = invalid-name
 del c

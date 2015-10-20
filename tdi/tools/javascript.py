@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,9 +25,10 @@ u"""
 
 Javascript Tools.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 import re as _re
@@ -83,7 +84,7 @@ def _make_escape_inlined():
     subber = lambda m: u'-' + u'\\-' * len_(m.group(1))
     subber_b = lambda m: '-' + '\\-' * len_(m.group(1))
 
-    def escape_inlined(toescape, encoding=None):  # pylint: disable = W0621
+    def escape_inlined(toescape, encoding=None):
         """
         Escape value for inlining
 
@@ -99,6 +100,8 @@ def _make_escape_inlined():
         :Return: The escaped value, typed as input
         :Rtype: ``basestring``
         """
+        # pylint: disable = redefined-outer-name
+
         if isinstance_(toescape, unicode_):
             return (
                 dash_sub(subber, toescape)
@@ -168,7 +171,7 @@ def _make_escape_string():
         :Return: The escaped string (ascii)
         :Rtype: ``str``
         """
-        # pylint: disable = W0621
+        # pylint: disable = redefined-outer-name
 
         isuni = isinstance_(toescape, unicode_)
         if isuni or encoding is not None:
@@ -206,8 +209,6 @@ escape_string = _make_escape_string()
 
 def _make_replace():
     """ Make replace function """
-    # pylint: disable = R0912
-
     default_sub = _re.compile(ur'__(?P<name>[^_]*(?:_[^_]+)*)__').sub
     escape_string_, getattr_, unicode_ = escape_string, getattr, unicode
     isinstance_, escape_inlined_, str_ = isinstance, escape_inlined, str
@@ -290,7 +291,7 @@ def _make_replace():
         :Return: The modified script, typed as input
         :Rtype: ``basestring``
         """
-        # pylint: disable = W0621
+        # pylint: disable = redefined-outer-name
 
         if not holders:
             return script
@@ -679,7 +680,7 @@ def cleanup(script, encoding=None):
     :Return: The cleaned up buffer, typed as input
     :Rtype: ``basestring``
     """
-    # pylint: disable = R0912
+    # pylint: disable = too-many-branches
 
     isuni = isinstance(script, unicode)
     if not isuni:
@@ -922,7 +923,7 @@ def MinifyFilter(builder, minifier=None, standalone=False):
         Standalone context? In this case, we won't watch out for TDI
         attributes.
     """
-    # pylint: disable = C0103
+    # pylint: disable = invalid-name
 
     if minifier is None:
         minifier = minify
@@ -930,7 +931,7 @@ def MinifyFilter(builder, minifier=None, standalone=False):
     return JSInlineFilter(builder, work, standalone=standalone)
 
 
-def CDATAFilter(builder, standalone=False):  # pylint: disable = C0103
+def CDATAFilter(builder, standalone=False):
     """
     TDI filter for adding failsafe CDATA containers around scripts
 
@@ -942,4 +943,6 @@ def CDATAFilter(builder, standalone=False):  # pylint: disable = C0103
     See <http://lists.w3.org/Archives/Public/www-html/2002Apr/0053.html>
     for details.
     """
+    # pylint: disable = invalid-name
+
     return JSInlineFilter(builder, cdata, standalone=standalone)

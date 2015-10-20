@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,9 +25,10 @@ u"""
 
 Template Objects.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 __all__ = ['Template', 'OverlayTemplate', 'AutoUpdate']
 
@@ -71,7 +72,9 @@ class Template(object):
 
         :Type: `tdi.nodetree.Root`
         """
-        # pylint: disable = E0211, C0111, W0612, W0212
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = protected-access, missing-docstring
+
         def fget(self):
             return self._prerender(None, None)
         return locals()
@@ -83,7 +86,9 @@ class Template(object):
 
         :Type: `tdi.nodetree.Root`
         """
-        # pylint: disable = E0211, C0111, W0612, W0212
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = protected-access, missing-docstring
+
         def fget(self):
             return self._tree[0]
         return locals()
@@ -95,7 +100,9 @@ class Template(object):
 
         :Type: ``str``
         """
-        # pylint: disable = E0211, C0111, W0612
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = missing-docstring
+
         def fget(self):
             return self.virgin_tree.encoder.encoding
         return locals()
@@ -107,7 +114,9 @@ class Template(object):
 
         :Type: iterable
         """
-        # pylint: disable = E0211, C0111, W0612
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = missing-docstring
+
         def fget(self):
             return self.virgin_tree.source_overlay_names
         return locals()
@@ -119,7 +128,9 @@ class Template(object):
 
         :Type: iterable
         """
-        # pylint: disable = E0211, C0111, W0612
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = missing-docstring
+
         def fget(self):
             return self.virgin_tree.target_overlay_names
         return locals()
@@ -528,7 +539,7 @@ class AutoUpdate(object):
         :Exceptions:
           - `AttributeError` : not found
         """
-        # pylint: disable = W0212
+        # pylint: disable = protected-access
         return getattr(self.reload(force=False)._template, name)
 
     def autoupdate_factory(self, new):

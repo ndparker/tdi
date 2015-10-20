@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2014
+ Copyright 2014 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,40 +25,37 @@ u"""
 
 Tests for tdi.interfaces.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 
-from nose.tools import (  # pylint: disable = E0611
-    assert_true, assert_false
-)
+from nose.tools import assert_true, assert_false
 from .._util import Bunch
 
 from tdi import interfaces as _interfaces
 
-# pylint: disable = C0111, C1001, W0232
-
 
 # test interfaces
-class IF1(object):
+class IF1(object):  # pylint: disable = missing-docstring
     pass
 
 
-class IF2(object):
+class IF2(object):  # pylint: disable = missing-docstring
     pass
 
 
-class IF3(object):
+class IF3(object):  # pylint: disable = missing-docstring
     pass
 
 
-class IF4(IF2):
+class IF4(IF2):  # pylint: disable = missing-docstring
     pass
 
 
-class IF5:
+class IF5:  # pylint: disable = missing-docstring, old-style-class, no-init
     pass
 
 

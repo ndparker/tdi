@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -26,9 +26,10 @@ u"""
 This module provides a collection of DTD query classes to be used with
 the soup parser.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 from ... import interfaces as _interfaces
@@ -75,7 +76,7 @@ class HTMLDTD(object):
     #:
     #: :Type: ``tuple``
     _OPTIONAL = tuple({
-        # pylint: disable = C0326
+        # pylint: disable = bad-whitespace
 
         'html':     ('html',),
         'head':     ('html', 'body', 'head',),
@@ -127,7 +128,7 @@ class HTMLDTD(object):
                 """ :See: `tdi.interfaces.DTDInterface.nestable` """
                 opt = optional(outer)
                 if opt is not None:
-                    return not(opt(inner))  # pylint: disable = C0325
+                    return not opt(inner)
                 elif empty(outer):
                     return False
                 return True
@@ -141,22 +142,28 @@ class HTMLDTD(object):
             ]).__contains__
             self._optional = optional
 
-    def cdata(self, name):  # pylint: disable = E0202
+    def cdata(self, name):
         """ :See: `tdi.interfaces.DTDInterface.cdata` """
+        # pylint: disable = method-hidden
+
         return self._cdata(name)
 
-    def nestable(self, outer, inner):  # pylint: disable = E0202
+    def nestable(self, outer, inner):
         """ :See: `tdi.interfaces.DTDInterface.nestable` """
+        # pylint: disable = method-hidden
+
         opt = self._optional(outer)
         if opt is not None:
-            return not(opt(inner))  # pylint: disable = C0325
+            return not opt(inner)
         elif self._empty(outer):
             return False
 
         return True
 
-    def empty(self, name):  # pylint: disable = E0202
+    def empty(self, name):
         """ :See: `tdi.interfaces.DTDInterface.empty` """
+        # pylint: disable = method-hidden
+
         return self._empty(name)
 
 
@@ -168,17 +175,16 @@ class XMLDTD(object):
     """
     __implements__ = [_interfaces.DTDInterface]
 
+    # pylint: disable = unused-argument
+
     def cdata(self, name):
         """ :See: `DTDInterface` """
-        # pylint: disable = W0613
         return False
 
     def nestable(self, outer, inner):
         """ :See: `DTDInterface` """
-        # pylint: disable = W0613
         return True
 
     def empty(self, name):
         """ :See: `DTDInterface` """
-        # pylint: disable = W0613
         return False

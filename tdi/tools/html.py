@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,9 +25,10 @@ u"""
 
 HTML Tools.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 __all__ = [
     'decode', 'entities', 'class_add', 'class_del', 'multiline',
@@ -147,7 +148,8 @@ def _make_multiline():
         :Return: The multilined content
         :Rtype: ``str``
         """
-        # pylint: disable = W0621
+        # pylint: disable = redefined-outer-name
+
         content = (
             content
             .replace(u'&', u'&amp;')
@@ -506,17 +508,17 @@ class _StringBuilder(object):
 
     def handle_escape(self, escaped, data):
         """ :see: `ListenerInterface` """
-        # pylint: disable = W0613
+        # pylint: disable = unused-argument
         self._result.append(data)
 
     def handle_starttag(self, name, attr, closed, data):
         """ :see: `ListenerInterface` """
-        # pylint: disable = W0613
+        # pylint: disable = unused-argument
         self._result.append(data)
 
     def handle_endtag(self, name, data):
         """ :see: `ListenerInterface` """
-        # pylint: disable = W0613
+        # pylint: disable = unused-argument
         self._result.append(data)
 
     def handle_comment(self, data):
@@ -525,12 +527,12 @@ class _StringBuilder(object):
 
     def handle_msection(self, name, value, data):
         """ :see: `ListenerInterface` """
-        # pylint: disable = W0613
+        # pylint: disable = unused-argument
         self._result.append(data)
 
     def handle_decl(self, name, value, data):
         """ :see: `ListenerInterface` """
-        # pylint: disable = W0613
+        # pylint: disable = unused-argument
         self._result.append(data)
 
     def handle_pi(self, data):

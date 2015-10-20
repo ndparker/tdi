@@ -1,8 +1,8 @@
-# -*- coding: ascii -*-  pylint: disable = C0302
-u"""
+# -*- coding: ascii -*-  pylint: disable = too-many-lines
+r"""
 :Copyright:
 
- Copyright 2012 - 2014
+ Copyright 2012 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,9 +25,10 @@ u"""
 
 HTML5 named character references.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 

@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2007 - 2014
+ Copyright 2007 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,9 +25,10 @@ u"""
 
 Form helper classes.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 __all__ = [
     'DictParameterAdapter', 'ListDictParameterAdapter',
@@ -149,10 +150,13 @@ class NullParameterAdapter(object):
     """ This adapter just returns nothing """
     __implements__ = [ParameterAdapterInterface]
 
-    def getlist(self, name):  # pylint: disable = W0613
+    def getlist(self, name):
         """ :See: `ParameterAdapterInterface.getlist` """
+        # pylint: disable = unused-argument
         return []
 
-    def getfirst(self, name, default=None):  # pylint: disable = W0613
+    def getfirst(self, name, default=None):
         """ :See: `ParameterAdapterInterface.getfirst` """
+        # pylint: disable = unused-argument
+
         return default

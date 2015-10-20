@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -45,20 +45,19 @@ This module provides node tree management.
   `DONE_NODE` : ``int``
     Already processed node
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
-
-# pylint: disable = W0212
-# Access to a protected member _udict of a client class
 
 import itertools as _it
 
 from ._exceptions import NodeNotFoundError, NodeTreeError
 
-
 TEXT_NODE, PROC_NODE, SEP_NODE, CB_NODE, DONE_NODE = xrange(5)
+
+# pylint: disable = protected-access
 
 
 def overlay(udict, oindex, template, root):
@@ -93,7 +92,10 @@ def overlay(udict, oindex, template, root):
         if node is None:
             return None, in_overlay
         nodes, newnode = [], template('', (), {}, node._udict['closed'])
-        (_, _, osource, oname), old_io = node._udict['overlay'], in_overlay
+        (_, _, osource, oname), old_io = (  # noqa
+            node._udict['overlay'],
+            in_overlay
+        )
 
         tdi = node._udict['name']
         tdiscope = node._udict['scope']
@@ -247,11 +249,10 @@ def copydeep(node, model, ctx, user_node):
     if udict['content'][0] is None:
         TEXT, deep = TEXT_NODE, copydeep
         udict['nodes'] = [(
-            # pylint: disable = C0330
             kind,
-            (kind != TEXT and node._usernode) and
-                deep(node, model, ctx, user_node) or node
-        ) for kind, node in udict['nodes']]  # noqa
+            (kind != TEXT and snode._usernode)
+            and deep(snode, model, ctx, user_node) or snode
+        ) for kind, snode in udict['nodes']]
 
     return nodecopy
 
@@ -270,8 +271,6 @@ def represent(udict, verbose):
     :Return: List of string lines
     :Rtype: ``list``
     """
-    # pylint: disable = R0912
-
     _len, _iter, exhausted = len, iter, StopIteration
     TEXT, SEP = TEXT_NODE, SEP_NODE
     stack = []
@@ -431,7 +430,7 @@ def findnode(current, nodestring):
     :Exceptions:
       - `NodeNotFoundError` : Node not found
     """
-    # pylint: disable = R0912
+    # pylint: disable = too-many-branches
 
     if nodestring is None:
         return current
@@ -524,7 +523,7 @@ def render(startnode, model, user_node):
     :Return: Iterable over rendered chunks
     :Rtype: iterable
     """
-    # pylint: disable = R0912, R0914, R0915
+    # pylint: disable = too-many-locals, too-many-branches, too-many-statements
 
     udict, escaped = startnode._udict, bool(model.emit_escaped)
     if udict.get('is_root') and udict['content'][0] is not None:
@@ -562,7 +561,7 @@ def render(startnode, model, user_node):
             if udict['removed']:
                 continue
 
-            if kind == DONE and not 'callback' in udict:
+            if kind == DONE and 'callback' not in udict:
                 done = True
             else:
                 next_node = False
@@ -634,11 +633,10 @@ def render(startnode, model, user_node):
 
             ctx = tnode.ctx
             nodes = [(
-                # noqa pylint: disable = C0330
                 subkind,
                 subkind != TEXT
-                    and user_node(subnode, model, ctx, subnode._usernode)
-                    or subnode
+                and user_node(subnode, model, ctx, subnode._usernode)
+                or subnode
             ) for subkind, subnode in udict['nodes']]
             push((depth_done, _iter(nodes).next, endtag))
             depth_done = done or depth_done

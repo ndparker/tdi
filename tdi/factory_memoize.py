@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,9 +25,10 @@ u"""
 
 Factory Caching.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 
@@ -71,7 +72,7 @@ class MemoizedFactory(object):
                 overlay_default_streamfilters=None, default_encoding=None,
                 memoizer=None):
         """ Create factory with replaced parameters """
-        # pylint: disable = R0913
+        # pylint: disable = too-many-arguments
 
         return self.__class__(self._factory.replace(
             autoupdate=autoupdate,

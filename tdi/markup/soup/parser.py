@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -42,9 +42,10 @@ implicitly closed elements. Furthermore it knows about CDATA elements like
 The actual semantics are provided by a DTD query class (implementing
 `DTDInterface`.)
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 import re as _re
@@ -141,7 +142,7 @@ class SoupLexer(object):
       `_conditional_ie_comments` : ``bool``
         Handle conditional IE comments as text?
     """
-    # pylint: disable = E1101
+    # pylint: disable = no-member
 
     def __init__(self, listener, conditional_ie_comments=True):
         r"""
@@ -659,26 +660,28 @@ class SoupLexer(object):
 _LEXERS = []
 _STATES = []
 for _idx, (_statename, _funcname) in enumerate([
-    # pylint: disable = C0330, C0326
-    ('FINAL',    '_lex_final'),
-    ('TEXT',     '_lex_text'),
-    ('CDATA',    '_lex_cdata'),
-    ('MARKUP',   '_lex_markup'),
-    ('STARTTAG', '_lex_start'),
-    ('ENDTAG',   '_lex_end'),
-    ('COMMENT',  '_lex_comment'),
-    ('MSECTION', '_lex_msection'),
-    ('DECL',     '_lex_decl'),
-    ('PI',       '_lex_pi'),
-    ('EMPTY',    '_lex_empty'),
-]):
+        # pylint: disable = bad-whitespace
+
+        ('FINAL',    '_lex_final'),
+        ('TEXT',     '_lex_text'),
+        ('CDATA',    '_lex_cdata'),
+        ('MARKUP',   '_lex_markup'),
+        ('STARTTAG', '_lex_start'),
+        ('ENDTAG',   '_lex_end'),
+        ('COMMENT',  '_lex_comment'),
+        ('MSECTION', '_lex_msection'),
+        ('DECL',     '_lex_decl'),
+        ('PI',       '_lex_pi'),
+        ('EMPTY',    '_lex_empty'),
+    ]):  # noqa
     setattr(SoupLexer, _statename, _idx)
     _LEXERS.append(_funcname)
     _STATES.append(_statename)
 
-SoupLexer._LEXERS = tuple(_LEXERS)  # pylint: disable = W0212
-SoupLexer._STATES = tuple(_STATES)  # pylint: disable = W0212
-del _idx, _statename, _funcname, _LEXERS, _STATES  # pylint: disable = W0631
+SoupLexer._LEXERS = tuple(_LEXERS)  # pylint: disable = protected-access
+SoupLexer._STATES = tuple(_STATES)  # pylint: disable = protected-access
+del _idx, _statename, _funcname  # pylint: disable = undefined-loop-variable
+del _LEXERS, _STATES
 
 
 from ... import c
@@ -686,7 +689,7 @@ c = c.load('impl')
 if c is not None:
     DEFAULT_LEXER = c.SoupLexer
 else:
-    DEFAULT_LEXER = SoupLexer  # pylint: disable = C0103
+    DEFAULT_LEXER = SoupLexer  # pylint: disable = invalid-name
 del c
 
 
@@ -821,7 +824,7 @@ class SoupParser(object):
             self.listener.handle_endtag(self._tagstack.pop()[1], '')
 
     #########################################################################
-    ### ListenerInterface ###################################################
+    # ListenerInterface #####################################################
     #########################################################################
 
     def handle_text(self, data):
@@ -893,11 +896,12 @@ class SoupParser(object):
 
     def handle_escape(self, escaped, data):
         """ :See: `ListenerInterface` """
-        # pylint: disable = W0613
+        # pylint: disable = unused-argument
+
         raise AssertionError()
 
     #########################################################################
-    ### ParserInterface #####################################################
+    # ParserInterface #######################################################
     #########################################################################
 
     def feed(self, food):
@@ -912,17 +916,17 @@ class SoupParser(object):
           - `LexerEOFError` : EOF in the middle of a state
         """
         if self._lexer is not None:
-            self._lexer, _ = None, self._lexer.finalize()
+            self._lexer, _ = None, self._lexer.finalize()  # noqa
 
         tagstack = self._tagstack
         while tagstack:
             self.listener.handle_endtag(tagstack.pop()[1], '')
 
 
-from ... import c  # pylint: disable = W0404
+from ... import c
 c = c.load('impl')
 if c is not None:
     DEFAULT_PARSER = c.SoupParser
 else:
-    DEFAULT_PARSER = SoupParser  # pylint: disable = C0103
+    DEFAULT_PARSER = SoupParser  # pylint: disable = invalid-name
 del c

@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2012 - 2014
+ Copyright 2012 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,9 +25,10 @@ u"""
 
 Text Parser.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 import re as _re
@@ -38,7 +39,7 @@ from ... import interfaces as _interfaces
 
 class TextLexer(object):
     """ Text Lexer """
-    # pylint: disable = E1101
+    # pylint: disable = no-member
 
     def __init__(self, listener):
         """
@@ -334,22 +335,24 @@ class TextLexer(object):
 _LEXERS = []
 _STATES = []
 for _idx, (_statename, _funcname) in enumerate([
-    # pylint: disable = C0330, C0326
-    ('FINAL',    '_lex_final'),
-    ('TEXT',     '_lex_text'),
-    ('MARKUP',   '_lex_markup'),
-    ('STARTTAG', '_lex_start'),
-    ('ENDTAG',   '_lex_end'),
-    ('PI',       '_lex_pi'),
-    ('COMMENT',  '_lex_comment'),
-]):
+        # pylint: disable = bad-whitespace
+
+        ('FINAL',    '_lex_final'),
+        ('TEXT',     '_lex_text'),
+        ('MARKUP',   '_lex_markup'),
+        ('STARTTAG', '_lex_start'),
+        ('ENDTAG',   '_lex_end'),
+        ('PI',       '_lex_pi'),
+        ('COMMENT',  '_lex_comment'),
+    ]):  # noqa
     setattr(TextLexer, _statename, _idx)
     _LEXERS.append(_funcname)
     _STATES.append(_statename)
 
-TextLexer._LEXERS = tuple(_LEXERS)  # pylint: disable = W0212
-TextLexer._STATES = tuple(_STATES)  # pylint: disable = W0212
-del _idx, _statename, _funcname, _LEXERS, _STATES  # pylint: disable = W0631
+TextLexer._LEXERS = tuple(_LEXERS)  # pylint: disable = protected-access
+TextLexer._STATES = tuple(_STATES)  # pylint: disable = protected-access
+del _idx, _statename, _funcname  # pylint: disable = undefined-loop-variable
+del _LEXERS, _STATES
 
 
 class TextParser(object):
@@ -376,7 +379,7 @@ class TextParser(object):
         self._normalize = self.listener.decoder.normalize
 
     #########################################################################
-    ### ListenerInterface ###################################################
+    # ListenerInterface #####################################################
     #########################################################################
 
     def handle_text(self, data):
@@ -417,16 +420,18 @@ class TextParser(object):
 
     def handle_msection(self, name, value, data):
         """ :See: `ListenerInterface` """
-        # pylint: disable = W0613
+        # pylint: disable = unused-argument
+
         raise AssertionError()
 
     def handle_decl(self, name, value, data):
         """ :See: `ListenerInterface` """
-        # pylint: disable = W0613
+        # pylint: disable = unused-argument
+
         raise AssertionError()
 
     #########################################################################
-    ### ParserInterface #####################################################
+    # ParserInterface #######################################################
     #########################################################################
 
     def feed(self, food):
@@ -441,7 +446,7 @@ class TextParser(object):
           - `LexerEOFError` : EOF in the middle of a state
         """
         if self._lexer is not None:
-            self._lexer, _ = None, self._lexer.finalize()
+            self._lexer, _ = None, self._lexer.finalize()  # noqa
 
         tagstack = self._tagstack
         while tagstack:

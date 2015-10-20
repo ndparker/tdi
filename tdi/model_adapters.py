@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,9 +25,10 @@ u"""
 
 Model adapter implementations.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 from ._exceptions import ModelMissingError
@@ -59,8 +60,6 @@ class RenderAdapter(object):
         :Return: Render adapter
         :Rtype: `ModelAdapterInterface`
         """
-        # pylint: disable = R0912
-
         self = object.__new__(cls)
 
         requiremethods = bool(requiremethods)
@@ -68,7 +67,8 @@ class RenderAdapter(object):
         getattr_ = getattr
         models = {'': model}
 
-        class unset(object):  # pylint: disable = C0103, C0111
+        class unset(object):
+            # pylint: disable = invalid-name,  missing-docstring
             pass
         unset = unset()
 
@@ -185,8 +185,6 @@ class PreRenderWrapper(object):
         :Return: Render adapter
         :Rtype: `ModelAdapterInterface`
         """
-        # pylint: disable = R0912
-
         self = object.__new__(cls)
 
         scope_attr = 'tdi:scope'

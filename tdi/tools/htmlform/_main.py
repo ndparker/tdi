@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2007 - 2014
+ Copyright 2007 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,9 +25,10 @@ u"""
 
 Form helper classes.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 __all__ = ['normalize_newlines', 'normalize_whitespaces', 'HTMLForm']
 
@@ -42,7 +43,7 @@ def normalize_newlines():
     SUB_U = _re.compile(ur'\r?\n|\r').sub
     SUB_S = _re.compile(r'\r?\n|\r').sub
 
-    def normalize_newlines(value):  # pylint: disable = W0621
+    def normalize_newlines(value):
         """
         Normalize the newlines of a string
 
@@ -55,6 +56,8 @@ def normalize_newlines():
         :Return: The normalized value, the type depends on the input type
         :Rtype: ``basestring``
         """
+        # pylint: disable = redefined-outer-name
+
         if isinstance(value, unicode):
             subber, repl = SUB_U, u"\n"
         else:
@@ -69,7 +72,7 @@ def normalize_whitespaces():
     SUB_U = _re.compile(ur'\s').sub
     SUB_S = _re.compile(r'\s').sub
 
-    def normalize_whitespaces(value):  # pylint: disable = W0621
+    def normalize_whitespaces(value):
         """
         Normalize the whitespaces of a string
 
@@ -82,6 +85,8 @@ def normalize_whitespaces():
         :Return: The normalized value, the type depends on the input type
         :Rtype: ``basestring``
         """
+        # pylint: disable = redefined-outer-name
+
         if isinstance(value, unicode):
             subber, repl = SUB_U, u" "
         else:
@@ -291,7 +296,7 @@ class HTMLForm(object):
           `raw` : ``bool``
             Default "rawness" value for the hidden field list
         """
-        # pylint: disable = R0912
+        # pylint: disable = too-many-branches
 
         pre_proc = self._pre_proc
         if pre_proc is not None:
@@ -422,8 +427,9 @@ class HTMLForm(object):
         'autocomplete', 'placeholder', 'pattern', 'autofocus',
     )
     datetime = make_input(
+        # pylint: disable = bad-continuation
         'datetime', '(HTML5)\n\n    '
-            '(e.g. ``1979-10-14T12:00:00.001-04:00``)',  # noqa pylint: disable = C0330
+            '(e.g. ``1979-10-14T12:00:00.001-04:00``)',  # noqa
         'name', 'value', 'readonly', 'disabled', 'required', 'autocomplete',
         'list', 'max', 'min', 'step', 'autofocus', 'raw',
     )
@@ -448,8 +454,9 @@ class HTMLForm(object):
         'list', 'max', 'min', 'step', 'autofocus', 'raw',
     )
     datetime_local = make_input(
+        # pylint: disable = bad-continuation
         'datetime-local', '(HTML5)\n\n    '
-            '(e.g. ``1979-10-14T12:00:00.001``)',  # noqa pylint: disable = C0330
+            '(e.g. ``1979-10-14T12:00:00.001``)',  # noqa
         'name', 'value', 'readonly', 'disabled', 'required', 'autocomplete',
         'list', 'max', 'min', 'step', 'autofocus', 'raw',
     )
@@ -555,7 +562,7 @@ class HTMLForm(object):
           `raw` : ``bool``
             Is the value to be treated raw?
         """
-        # pylint: disable = R0912, R0913
+        # pylint: disable = too-many-arguments, too-many-branches
 
         pre_proc = self._pre_proc
         if pre_proc is not None:
@@ -688,7 +695,7 @@ class HTMLForm(object):
             be an ``iterable`` containing multiple selected values in this
             case.
         """
-        # pylint: disable = R0912, R0914
+        # pylint: disable = too-many-locals, too-many-branches
 
         pre_proc = self._pre_proc
         if pre_proc is not None:
@@ -806,7 +813,7 @@ class HTMLForm(object):
             The node of the ``option`` node, relative to the
             ``select`` node. The parameter is expected in dotted notation.
         """
-        # pylint: disable = C0103, W0622
+        # pylint: disable = invalid-name, redefined-builtin
 
         pre_proc = self._pre_proc
         if pre_proc is not None:
@@ -876,7 +883,7 @@ class HTMLForm(object):
             Label attribute (HTML5). If omitted or ``None``, any existing
             attribute is deleted.
         """
-        # pylint: disable = R0912
+        # pylint: disable = too-many-branches
 
         pre_proc = self._pre_proc
         if pre_proc is not None:

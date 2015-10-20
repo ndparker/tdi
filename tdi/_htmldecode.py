@@ -1,7 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
+:Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -24,9 +25,10 @@ u"""
 
 HTML Decoder.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 import re as _re
@@ -36,8 +38,6 @@ from . import _htmlentities
 
 def _make_decode():
     """ Make decoder """
-    # pylint: disable = R0912
-
     from . import c
     c = c.load('impl')
     if c is not None:
@@ -87,7 +87,7 @@ def _make_decode():
         :Return: The decoded content
         :Rtype: ``unicode``
         """
-        # pylint: disable = W0621
+        # pylint: disable = redefined-outer-name
 
         if not isinstance_(value, unicode_):
             value = str_(value).decode(encoding, errors)

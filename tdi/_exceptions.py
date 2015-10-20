@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2007 - 2014
+ Copyright 2007 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -26,9 +26,10 @@ u"""
 The module provides all exceptions and warnings used throughout the
 `tdi` package.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 import contextlib as _contextlib
@@ -126,7 +127,7 @@ class DependencyCycle(DependencyError):
     """
 
 
-class Warning(Warning):  # pylint: disable = W0622
+class Warning(Warning):
     """
     Base warning for this package
 
@@ -142,6 +143,7 @@ class Warning(Warning):  # pylint: disable = W0622
     ...
     Warning: lalala
     """
+    # pylint: disable = redefined-builtin, undefined-variable
 
     @classmethod
     def emit(cls, message, stacklevel=1):  # pragma: no cover
@@ -166,7 +168,7 @@ class Warning(Warning):  # pylint: disable = W0622
         _warnings.warn(message, cls, max(1, stacklevel) + 1)
 
 
-class DeprecationWarning(Warning):  # pylint: disable = W0622
+class DeprecationWarning(Warning):  # pylint: disable = redefined-builtin
     """ TDI specific deprecation warning """
 
 

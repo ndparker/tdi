@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,9 +25,10 @@ u"""
 
 Misc utilities.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 import inspect as _inspect
@@ -49,7 +50,7 @@ def find_public(space):
     return [key for key in space.keys() if not key.startswith('_')]
 
 
-def Property(func):  # pylint: disable = C0103
+def Property(func):
     """
     Property with improved docs handling
 
@@ -63,6 +64,8 @@ def Property(func):  # pylint: disable = C0103
     :Return: The requested property
     :Rtype: ``property``
     """
+    # pylint: disable = invalid-name
+
     kwargs = func()
     kwargs.setdefault('doc', func.__doc__)
     kwargs = kwargs.get
@@ -91,8 +94,6 @@ def decorating(decorated, extra=None):
     :Return: Decorator
     :Rtype: ``callable``
     """
-    # pylint: disable = R0912
-
     def flat_names(args):
         """ Create flat list of argument names """
         for arg in args:
@@ -136,7 +137,7 @@ def decorating(decorated, extra=None):
             argspec[0], argspec[1], argspec[2], kwnames,
             formatvalue=lambda value: '=' + value
         )
-        exec "def %s%s: return %s%s" % (  # pylint: disable = W0122
+        exec "def %s%s: return %s%s" % (  # pylint: disable = exec-used
             name, _inspect.formatargspec(*argspec), proxy_name, passed
         ) in space
         wrapper = space[name]

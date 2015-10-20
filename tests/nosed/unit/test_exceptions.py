@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2014
+ Copyright 2014 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,14 +25,13 @@ u"""
 
 Tests for tdi._exceptions
 """
-from __future__ import with_statement
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
-from nose.tools import (  # pylint: disable = E0611
-    assert_raises
-)
+from nose.tools import assert_raises
 
 from tdi import _exceptions
 
@@ -43,12 +42,12 @@ def test_reraise():
         try:
             raise RuntimeError()
         except RuntimeError:
-            with _exceptions.reraise():
+            with _exceptions.reraise():  # pylint: disable = no-member
                 raise ValueError()
 
     with assert_raises(RuntimeError):
         try:
             raise RuntimeError()
         except RuntimeError:
-            with _exceptions.reraise():
+            with _exceptions.reraise():  # pylint: disable = no-member
                 pass

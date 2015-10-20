@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,16 +25,20 @@ u"""
 
 Template Data Interface (TDI).
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 __license__ = "Apache License, Version 2.0"
 __version__ = ('0.9.9.8', False, 4809)
 
 from tdi import _util
 from tdi import _version
-from tdi._exceptions import *  # noqa pylint: disable = W0622, W0401, W0614
+if 1:
+    # pylint: disable = redefined-builtin
+    # pylint: disable = wildcard-import
+    from tdi._exceptions import *  # noqa
 del reraise  # noqa
 from .markup import factory as _factory
 
@@ -61,4 +65,4 @@ text = _factory.text
 __all__ = _util.find_public(globals())
 del _factory
 
-from tdi import _deprecations  # noqa pylint: disable = W0611
+from tdi import _deprecations  # noqa

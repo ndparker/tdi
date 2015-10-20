@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -26,9 +26,10 @@ u"""
 This module provides the logic to build a nodetree out of parser
 events.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 import codecs as _codecs
@@ -110,7 +111,7 @@ class SoupBuilder(object):
             self._text = []
 
     #########################################################################
-    ### ListenerInterface ###################################################
+    # ListenerInterface #####################################################
     #########################################################################
 
     def handle_text(self, data):
@@ -180,12 +181,14 @@ class SoupBuilder(object):
 
     def handle_msection(self, name, value, data):
         """ :see: `ListenerInterface` """
-        # pylint: disable = W0613
+        # pylint: disable = unused-argument
+
         self.handle_text(data)
 
     def handle_decl(self, name, value, data):
         """ :see: `ListenerInterface` """
-        # pylint: disable = W0613
+        # pylint: disable = unused-argument
+
         self.handle_text(data)
 
     def handle_pi(self, data):
@@ -193,7 +196,7 @@ class SoupBuilder(object):
         self.handle_text(data)
 
     #########################################################################
-    ### BuildingListenerInterface Extension #################################
+    # BuildingListenerInterface Extension ###################################
     #########################################################################
 
     def handle_encoding(self, encoding):
@@ -213,7 +216,7 @@ class SoupBuilder(object):
             self.decoder.encoding = encoding
 
     #########################################################################
-    ### BuilderInterface ####################################################
+    # BuilderInterface ######################################################
     #########################################################################
 
     def finalize(self):

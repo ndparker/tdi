@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2014
+ Copyright 2014 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,23 +25,26 @@ u"""
 
 Tests for tdi._util
 """
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 import types as _types
 
-from nose.tools import (  # pylint: disable = E0611
-    assert_equals,
-)
+from nose.tools import assert_equals
 
 from tdi import _util
+
+# pylint: disable = protected-access
 
 
 def test_find_public_symbols():
     """ find_public finds all non underscored symbols """
     mod = _types.ModuleType('lala')
     mod.a = 1
-    mod._b = 2  # pylint: disable = W0212
+    mod._b = 2
 
     assert_equals(_util.find_public(vars(mod)), ['a'])
 

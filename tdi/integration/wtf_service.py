@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2010 - 2014
+ Copyright 2010 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -57,10 +57,11 @@ Configuration
   #
   # template filters work on the final template object
 """
-from __future__ import absolute_import
-
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
-__author__ = u"Andr\xe9 Malo"
 
 import errno as _errno
 import itertools as _it
@@ -124,7 +125,7 @@ def _load_dotted(name):
 
 def _resource():
     """ Load resource service """
-    from __svc__.wtf import resource  # pylint: disable = F0401
+    from __svc__.wtf import resource  # pylint: disable = import-error
     return resource
 
 
@@ -156,7 +157,7 @@ class RequestParameterAdapter(object):
             return self.param[name]
         return default
 
-    def getlist(self, name):  # pylint: disable = E0202
+    def getlist(self, name):  # pylint: disable = method-hidden
         """ :See: ``tdi.tools.htmlform.ParameterAdapterInterface`` """
         return self.param.multi(name)
 
@@ -203,7 +204,7 @@ class DirectoryTemplateLister(object):
         :Return: Iterator over template names
         :Rtype: ``iterable``
         """
-        # pylint: disable = R0912
+        # pylint: disable = too-many-branches
 
         seen = set()
         if _os.path.sep == '/':
@@ -213,7 +214,7 @@ class DirectoryTemplateLister(object):
 
         for base in self._dirs:
             baselen = len(_os.path.join(base, ''))
-            reldir = lambda x: x[baselen:]  # pylint: disable = W0640
+            reldir = lambda x, b=baselen: x[b:]
 
             def onerror(_):
                 """ Error handler """
@@ -443,9 +444,6 @@ class ResponseFactory(object):
           `global_template` : `GlobalTemplate`
             The global template service
         """
-        # pylint: disable = R0912
-        # (too many branches)
-
         def adapter(model):
             """ Adapter factory """
             return _model_adapters.RenderAdapter(
@@ -454,9 +452,8 @@ class ResponseFactory(object):
                 requirescopes=global_template.require_scopes,
             )
 
-        def load_html(response):
+        def load_html(response):  # pylint: disable = unused-argument
             """ Response factory for ``load_html`` """
-            # pylint: disable = W0613
             def load_html(*names):
                 """
                 Load TDI template
@@ -486,9 +483,8 @@ class ResponseFactory(object):
                 "pre_render_html", 'text/html', pre=True
             )
 
-        def load_xml(response):
+        def load_xml(response):  # pylint: disable = unused-argument
             """ Response factory for ``load_xml`` """
-            # pylint: disable = W0613
             def load_xml(*names):
                 """
                 Load TDI template
@@ -518,9 +514,8 @@ class ResponseFactory(object):
                 "pre_render_xml", 'text/xml', pre=True,
             )
 
-        def load_text(response):
+        def load_text(response):  # pylint: disable = unused-argument
             """ Response factory for ``load_text`` """
-            # pylint: disable = W0613
             def load_text(*names):
                 """
                 Load TDI template
@@ -641,7 +636,7 @@ class ResponseFactory(object):
                 adapter=adapter, startnode=startnode, prerender=prerender,
             )]
         try:
-            render_func.__name__ = func_name  # pylint: disable = W0622
+            render_func.__name__ = func_name
         except TypeError:  # python 2.3 doesn't allow changing names
             pass
         return render_func
@@ -704,7 +699,8 @@ class TDIService(object):
 
     def __init__(self, config, opts, args):
         """ Initialization """
-        # pylint: disable = W0613
+        # pylint: disable = unused-argument
+
         self._global = GlobalTemplate(
             config.tdi.locations,
             config.tdi('autoreload', False),

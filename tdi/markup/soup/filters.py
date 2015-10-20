@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,7 +25,10 @@ u"""
 
 Filters for soup templates.
 """
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 import re as _re
@@ -58,7 +61,7 @@ def _make_parse_content_type():
     })
     stripre = _re.compile(r'\r?\n')
 
-    def _parse_content_type(value):  # pylint: disable = W0621
+    def _parse_content_type(value):
         """
         Parse a content type
 

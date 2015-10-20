@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2013 - 2014
+ Copyright 2013 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,14 +25,15 @@ u"""
 
 Template Tools.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 import pprint as _pprint
 
-from .._exceptions import (  # noqa pylint: disable = W0611
+from .._exceptions import (  # noqa  # pylint: disable = unused-import
     DependencyError, DependencyCycle
 )
 from .. import _graph
@@ -130,7 +131,7 @@ class TemplateList(list):
     """
     missing = None
 
-    def __init__(*args, **kwargs):  # pylint: disable = E0211
+    def __init__(*args, **kwargs):  # pylint: disable = no-method-argument
         """
         Initialization
 
@@ -404,7 +405,7 @@ def discover(loader, names, use=None, ignore=None):
     :Exceptions:
      - `DependencyCycle` : A dependency cycle occured
     """
-    # pylint: disable = R0912
+    # pylint: disable = too-many-branches
 
     names, missing, undecided = list(names), set(), {}
     if not names:
@@ -493,7 +494,7 @@ class Loader(object):
         Selector
     """
 
-    def __init__(self, list, load, select):  # pylint: disable = W0622
+    def __init__(self, list, load, select):
         """
         Initialization
 
@@ -515,6 +516,8 @@ class Loader(object):
             to return a bool value, which decides whether this template is
             in the pool for automatic templates or not.
         """
+        # pylint: disable = redefined-builtin
+
         self._available = None
         self._registered = set()
         self._load = load

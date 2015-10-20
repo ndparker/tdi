@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,18 +25,16 @@ u"""
 
 This module provides node tree management.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 from ._exceptions import NodeNotFoundError, NodeTreeError
 from . import _finalize
 from . import _nodetree
 from . import _util
-
-# pylint: disable = W0212
-# access to _udict
 
 
 class RawNode(object):
@@ -48,6 +46,8 @@ class RawNode(object):
         The dict containing node information
     """
     __slots__ = ['content', 'encoder', 'decoder', '_udict']
+
+    # pylint: disable = protected-access
 
     def __init__(self, node):
         """
@@ -66,7 +66,8 @@ class RawNode(object):
 
         :Type: ``str``
         """
-        # pylint: disable = E0211, C0111, W0612
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = missing-docstring
 
         unicode_, str_, isinstance_ = unicode, str, isinstance
 
@@ -90,7 +91,9 @@ class RawNode(object):
 
         :Type: `EncoderInterface`
         """
-        # pylint: disable = E0211, C0111, W0612
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = missing-docstring
+
         def fget(self):
             return self._udict['encoder']
         return locals()
@@ -102,7 +105,9 @@ class RawNode(object):
 
         :Type: `DecoderInterface`
         """
-        # pylint: disable = E0211, C0111, W0612
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = missing-docstring
+
         def fget(self):
             return self._udict['decoder']
         return locals()
@@ -201,6 +206,8 @@ class Node(object):
     _usernode = True
     __slots__ = ['content', 'raw', 'ctx', '_model', '_udict']
 
+    # pylint: disable = protected-access
+
     @_util.Property
     def content():
         """
@@ -216,7 +223,9 @@ class Node(object):
 
         :Type: ``basestring`` or ``None``
         """
-        # pylint: disable = E0211, C0111, W0612
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = missing-docstring
+
         basestring_, isinstance_, str_ = basestring, isinstance, str
 
         def fset(self, content):
@@ -237,7 +246,9 @@ class Node(object):
 
         :Type: ``bool``
         """
-        # pylint: disable = E0211, C0111, W0612
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = missing-docstring
+
         def fset(self, value):
             self._udict['noelement'] = value and True or False
 
@@ -252,7 +263,9 @@ class Node(object):
 
         :Type: ``bool``
         """
-        # pylint: disable = E0211, C0111, W0612
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = missing-docstring
+
         def fget(self):
             return self._udict['closed']
         return locals()
@@ -264,7 +277,9 @@ class Node(object):
 
         :Type: `RawNode`
         """
-        # pylint: disable = E0211, C0111, W0612
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = missing-docstring
+
         def fget(self):
             return RawNode(self)
         return locals()
@@ -586,10 +601,9 @@ class Node(object):
         model = self._model
 
         udict['nodes'] = [(
-            # pylint: disable = C0330
             kind,
-            (kind != TEXT and node._usernode) and
-                deep(node, model, ctx, Node) or node  # noqa
+            (kind != TEXT and node._usernode)
+            and deep(node, model, ctx, Node) or node
         ) for kind, node in udict['nodes']]
 
         udict['name'] = self._udict['name']  # name stays the same
@@ -696,6 +710,8 @@ class TemplateNode(object):
     ctx = None
     _usernode = False
 
+    # pylint: disable = protected-access
+
     @_util.Property
     def endtag():
         """
@@ -703,7 +719,9 @@ class TemplateNode(object):
 
         :Type: ``str``
         """
-        # pylint: disable = E0211, C0111, W0612
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = missing-docstring
+
         def fset(self, data):
             if self._finalized:
                 raise NodeTreeError("Tree was already finalized")
@@ -863,6 +881,8 @@ class Root(TemplateNode):
     """
     _sources, _targets = None, None
 
+    # pylint: disable = protected-access
+
     @_util.Property
     def encoder():
         """
@@ -870,7 +890,9 @@ class Root(TemplateNode):
 
         :Type: `EncoderInterface`
         """
-        # pylint: disable = E0211, C0111, W0612
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = missing-docstring
+
         def fget(self):
             return self._udict['encoder']
         return locals()
@@ -882,7 +904,9 @@ class Root(TemplateNode):
 
         :Type: `DecoderInterface`
         """
-        # pylint: disable = E0211, C0111, W0612
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = missing-docstring
+
         def fget(self):
             return self._udict['decoder']
         return locals()
@@ -894,7 +918,9 @@ class Root(TemplateNode):
 
         :Type: iterable
         """
-        # pylint: disable = E0211, C0111, W0612
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = missing-docstring
+
         def fget(self):
             if self._sources is None:
                 return ()
@@ -908,7 +934,9 @@ class Root(TemplateNode):
 
         :Type: iterable
         """
-        # pylint: disable = E0211, C0111, W0612
+        # pylint: disable = no-method-argument, unused-variable
+        # pylint: disable = missing-docstring
+
         def fget(self):
             if self._targets is None:
                 return ()

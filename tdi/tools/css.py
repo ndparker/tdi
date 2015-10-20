@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2006 - 2014
+ Copyright 2006 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,9 +25,10 @@ u"""
 
 CSS Tools.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 from .. import filters as _filters
@@ -287,14 +288,14 @@ def MinifyFilter(builder, minifier=None, standalone=False):
         Standalone context? In this case, we won't watch out for TDI
         attributes.
     """
-    # pylint: disable = C0103
+    # pylint: disable = invalid-name
 
     if minifier is None:
         minifier = minify
     return CSSInlineFilter(builder, minify, standalone=standalone)
 
 
-def CDATAFilter(builder, standalone=False):  # pylint: disable = C0103
+def CDATAFilter(builder, standalone=False):
     """
     TDI filter for adding failsafe CDATA containers around CSS styles
 
@@ -306,4 +307,6 @@ def CDATAFilter(builder, standalone=False):  # pylint: disable = C0103
         Standalone context? In this case, we won't watch out for TDI
         attributes.
     """
+    # pylint: disable = invalid-name
+
     return CSSInlineFilter(builder, cdata, standalone=standalone)

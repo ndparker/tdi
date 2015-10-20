@@ -1,8 +1,8 @@
 # -*- coding: ascii -*-
-u"""
+r"""
 :Copyright:
 
- Copyright 2007 - 2014
+ Copyright 2007 - 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -25,9 +25,10 @@ u"""
 
 Generate input field functions.
 """
-from __future__ import absolute_import
-
-__author__ = u"Andr\xe9 Malo"
+if __doc__:
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 import textwrap as _textwrap
@@ -35,14 +36,16 @@ import textwrap as _textwrap
 
 def make_input(type_, doc_extra, *keywords, **kwargs):
     """ Make <input> control method """
-    # pylint: disable = R0912, C0330
+    # pylint: disable = too-many-branches
+    # pylint: disable = bad-continuation
 
     type_id = type_.replace('-', '_')
     keywords = dict([(word, True) for word in keywords])
     if kwargs.get('assert_upload'):
         doc_extra += ('\n\n'
+            # noqa
             r'''    :Note: This is only possible if the class '''
-                r'''was initialized''' '\n'  # noqa
+                r'''was initialized''' '\n'
             r'''           with ``upload=True``.'''
         )
     if doc_extra and not doc_extra.startswith('\n'):
@@ -178,7 +181,7 @@ def make_input(type_, doc_extra, *keywords, **kwargs):
     elif 'value' not in words and 'raw' in words:  # pragma: no cover
         raise AssertionError("Unexpected keyword: raw (no value)")
 
-    s8, s12 = ' ' * 8, ' ' * 12  # pylint: disable = C0103
+    s8, s12 = ' ' * 8, ' ' * 12  # pylint: disable = invalid-name
     code = _textwrap.dedent(r'''
     def %(ti)s(%(p)s):
         """
@@ -195,7 +198,8 @@ def make_input(type_, doc_extra, *keywords, **kwargs):
 
         node[u'type'] = u%(t)r
     %(name)s%(readonly)s%(disabled)s%(required)s%(autocomplete)s'''
-        '''%(autofocus)s'''  # noqa
+        # noqa
+        '''%(autofocus)s'''
         '''%(placeholder)s%(pattern)s%(list)s%(dirname)s%(mul)s'''
         '''%(min)s%(max)s%(step)s'''
         '''%(simpval)s%(rawlenval)s%(rawval)s%(lenval)s%(val)s%(noval)s'''
@@ -437,5 +441,5 @@ def make_input(type_, doc_extra, *keywords, **kwargs):
             r'''        node[u'height'] = unicode(height)''' '\n'
             or '',
     )
-    exec code  # pylint: disable = W0122
+    exec code  # pylint: disable = exec-used
     return locals()[type_id]
