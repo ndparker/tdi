@@ -99,6 +99,15 @@ def test_unicode():
     assert_equals(unicode(ver), u"1.2.3.4.\xe9")
 
 
+def test_none():
+    """ Version accepts empty versionstring """
+    ver = _version.Version("", True, 8)
+    assert_equals(unicode(ver), u'0.0.0-dev-r8')
+
+    ver = _version.Version("", False, 9)
+    assert_equals(unicode(ver), u'0.0.0')
+
+
 def test_repr():
     """ Version produces reasonable repr """
     ver = _version.Version("1.2.3.4.foo", True, 5)

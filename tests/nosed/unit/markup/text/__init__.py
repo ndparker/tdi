@@ -2,7 +2,7 @@
 r"""
 :Copyright:
 
- Copyright 2013 - 2015
+ Copyright 2015
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -19,14 +19,15 @@ r"""
  See the License for the specific language governing permissions and
  limitations under the License.
 
-========================
- TDI markup collections
-========================
+============================
+ tdi.markup.text unit tests
+============================
 
-This package contains TDI's builtin soup markup (HTML / XML)
+tdi.markup.text unit tests.
 """
-if __doc__:  # pragma: no cover
+if __doc__:
     # pylint: disable = redefined-builtin
     __doc__ = __doc__.encode('ascii').decode('unicode_escape')
 __author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
+__license__ = "Apache License, Version 2.0"

@@ -25,7 +25,7 @@ r"""
 
 Form helper classes.
 """
-if __doc__:
+if __doc__:  # pragma: no cover
     # pylint: disable = redefined-builtin
     __doc__ = __doc__.encode('ascii').decode('unicode_escape')
 __author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
@@ -35,7 +35,7 @@ __all__ = [
 ]
 
 
-class ParameterAdapterInterface(object):
+class ParameterAdapterInterface(object):  # pragma: no cover
     """
     Interface for a request parameter adapter suitable for `HTMLForm`
     """
@@ -72,7 +72,7 @@ class ParameterAdapterInterface(object):
         """
 
 
-class PreProcInterface(object):
+class PreProcInterface(object):  # pragma: no cover
     """ Interface for node processors """
 
     def __call__(self, method, node, kwargs):
@@ -96,7 +96,7 @@ class PreProcInterface(object):
         """
 
 
-class PostProcInterface(object):
+class PostProcInterface(object):  # pragma: no cover
     """ Interface for node processors """
 
     def __call__(self, method, node, kwargs):

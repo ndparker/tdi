@@ -25,7 +25,7 @@ r"""
 
 HTML5 named character references.
 """
-if __doc__:
+if __doc__:  # pragma: no cover
     # pylint: disable = redefined-builtin
     __doc__ = __doc__.encode('ascii').decode('unicode_escape')
 __author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
