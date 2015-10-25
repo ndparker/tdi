@@ -25,7 +25,7 @@ r"""
 
 Tool Utilities.
 """
-if __doc__:
+if __doc__:  # pragma: no cover
     # pylint: disable = redefined-builtin
     __doc__ = __doc__.encode('ascii').decode('unicode_escape')
 __author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
@@ -35,14 +35,33 @@ import encodings as _encodings
 
 
 def _make_norm_enc():
-    """ Make encoding normalizer """
+    """
+    Make encoding name normalizer
+
+    :Return: Encoding name normalization function
+    :Rtype: callable
+    """
     isinstance_, unicode_, str_ = isinstance, unicode, str
     normalize = _encodings.normalize_encoding
     aliases = _encodings.aliases.aliases.get
     get_alias = lambda x: aliases(x, x)
 
     def norm_enc(encoding):
-        """ Return normalized unaliased encoding name """
+        """
+        Return normalized unaliased encoding name
+
+        :Parameters:
+          `encoding` : ``basestring``
+            Encoding name to normalize and unalias
+
+        :Return: Normalized encoding name. If it's aliased, unaliasing is
+                 applied
+        :Rtype: ``str``
+
+        :Exceptions:
+          - `UnicodeError` : The `encoding` was unicode and not latin-1
+                             compatible
+        """
         # pylint: disable = redefined-outer-name
 
         if not isinstance_(encoding, unicode_):
