@@ -54,70 +54,75 @@ def test_globals():
 @_test.patch(_c, '__import__', name='imp')
 @_test.patch(_c, '_os', name='os')
 @_test.patch(_c, 'globals', name='glob')
-def test_load(imp, os, glob):
+@_test.patch(_c, 'locals', name='loc')
+def test_load(imp, os, glob, loc):
     """ c.load() imports and returns a module """
     imp.side_effect = ['lalala']
     os.environ.get.side_effect = [None]
     glob.side_effect = [dict(a=1, b=2)]
+    loc.side_effect = [dict(c=4, d=5)]
 
     result = _c.load('foo')
 
     assert_equals(result, 'lalala')
     assert_equals(map(tuple, imp.mock_calls), [
-        ('', ('tdi.c._tdi_foo', {'a': 1, 'b': 2},
-              {'modname': 'foo', 'tpl': 'tdi.c._tdi_%s',
-               'env_override': 'TDI_NO_C_OVERRIDE'}, ['*']), {}),
+        ('', ('tdi.c._tdi_foo', {'a': 1, 'b': 2}, {'c': 4, 'd': 5}, ['*']),
+         {}),
     ])
     assert_equals(map(tuple, os.mock_calls), [
         ('environ.get', ('TDI_NO_C_OVERRIDE',), {}),
     ])
     assert_equals(map(tuple, glob.mock_calls), [('', (), {})])
+    assert_equals(map(tuple, loc.mock_calls), [('', (), {})])
 
 
 @_test.patch(_c, '__import__', name='imp')
 @_test.patch(_c, '_os', name='os')
 @_test.patch(_c, 'globals', name='glob')
-def test_load_override(imp, os, glob):
+@_test.patch(_c, 'locals', name='loc')
+def test_load_override(imp, os, glob, loc):
     """ c.load() accepts different override """
     imp.side_effect = ['lalala']
     os.environ.get.side_effect = [None]
     glob.side_effect = [dict(a=1, b=2)]
+    loc.side_effect = [dict(c=4, d=5)]
 
     result = _c.load('foo', env_override='YO')
 
     assert_equals(result, 'lalala')
     assert_equals(map(tuple, imp.mock_calls), [
-        ('', ('tdi.c._tdi_foo', {'a': 1, 'b': 2},
-              {'modname': 'foo', 'tpl': 'tdi.c._tdi_%s',
-               'env_override': 'YO'}, ['*']), {}),
+        ('', ('tdi.c._tdi_foo', {'a': 1, 'b': 2}, {'c': 4, 'd': 5}, ['*']),
+         {}),
     ])
     assert_equals(map(tuple, os.mock_calls), [
         ('environ.get', ('YO',), {}),
     ])
     assert_equals(map(tuple, glob.mock_calls), [('', (), {})])
+    assert_equals(map(tuple, loc.mock_calls), [('', (), {})])
 
 
 @_test.patch(_c, '__import__', name='imp')
 @_test.patch(_c, '_os', name='os')
 @_test.patch(_c, 'globals', name='glob')
-def test_load_tpl(imp, os, glob):
+@_test.patch(_c, 'locals', name='loc')
+def test_load_tpl(imp, os, glob, loc):
     """ c.load() accepts different template """
     imp.side_effect = ['lalala']
     os.environ.get.side_effect = [None]
     glob.side_effect = [dict(a=1, b=2)]
+    loc.side_effect = [dict(c=4, d=5)]
 
     result = _c.load('foo', tpl='_xx_%s_yy_')
 
     assert_equals(result, 'lalala')
     assert_equals(map(tuple, imp.mock_calls), [
-        ('', ('_xx_foo_yy_', {'a': 1, 'b': 2},
-              {'modname': 'foo', 'tpl': '_xx_%s_yy_',
-               'env_override': 'TDI_NO_C_OVERRIDE'}, ['*']), {}),
+        ('', ('_xx_foo_yy_', {'a': 1, 'b': 2}, {'c': 4, 'd': 5}, ['*']), {}),
     ])
     assert_equals(map(tuple, os.mock_calls), [
         ('environ.get', ('TDI_NO_C_OVERRIDE',), {}),
     ])
     assert_equals(map(tuple, glob.mock_calls), [('', (), {})])
+    assert_equals(map(tuple, loc.mock_calls), [('', (), {})])
 
 
 @_test.patch(_c, '__import__', name='imp')
@@ -139,21 +144,79 @@ def test_load_none(imp, os):
 @_test.patch(_c, '__import__', name='imp')
 @_test.patch(_c, '_os', name='os')
 @_test.patch(_c, 'globals', name='glob')
-def test_load_error(imp, os, glob):
+@_test.patch(_c, 'locals', name='loc')
+def test_load_error(imp, os, glob, loc):
     """ c.load() returns None on import error """
     imp.side_effect = [ImportError]
     os.environ.get.side_effect = [None]
     glob.side_effect = [dict(a=1, b=2)]
+    loc.side_effect = [dict(c=4, d=5)]
 
     result = _c.load('foo')
 
     assert_equals(result, None)
     assert_equals(map(tuple, imp.mock_calls), [
-        ('', ('tdi.c._tdi_foo', {'a': 1, 'b': 2},
-              {'modname': 'foo', 'tpl': 'tdi.c._tdi_%s',
-               'env_override': 'TDI_NO_C_OVERRIDE'}, ['*']), {}),
+        ('', ('tdi.c._tdi_foo', {'a': 1, 'b': 2}, {'c': 4, 'd': 5}, ['*']),
+         {}),
     ])
     assert_equals(map(tuple, os.mock_calls), [
         ('environ.get', ('TDI_NO_C_OVERRIDE',), {}),
     ])
     assert_equals(map(tuple, glob.mock_calls), [('', (), {})])
+    assert_equals(map(tuple, loc.mock_calls), [('', (), {})])
+
+
+@_test.patch(_c, '__import__', name='imp')
+@_test.patch(_c, '_os', name='os')
+@_test.patch(_c, 'globals', name='glob')
+@_test.patch(_c, 'locals', name='loc')
+def test_load_space(imp, os, glob, loc):
+    """ c.load() modifies space """
+    mod = _test.Bunch(bar='BAZ', plop='blub')
+    imp.side_effect = [mod]
+    os.environ.get.side_effect = [None]
+    glob.side_effect = [dict(a=1, b=2)]
+    loc.side_effect = [dict(c=4, d=5)]
+    space = dict(bar=1)
+
+    result = _c.load('foo', space)
+
+    assert_equals(space, {'bar': 'BAZ'})
+    assert_equals(result, mod)
+    assert_equals(map(tuple, imp.mock_calls), [
+        ('', ('tdi.c._tdi_foo', {'a': 1, 'b': 2}, {'c': 4, 'd': 5}, ['*']),
+         {}),
+    ])
+    assert_equals(map(tuple, os.mock_calls), [
+        ('environ.get', ('TDI_NO_C_OVERRIDE',), {}),
+    ])
+    assert_equals(map(tuple, glob.mock_calls), [('', (), {})])
+    assert_equals(map(tuple, loc.mock_calls), [('', (), {})])
+
+
+@_test.patch(_c, '__import__', name='imp')
+@_test.patch(_c, '_os', name='os')
+@_test.patch(_c, 'globals', name='glob')
+@_test.patch(_c, 'locals', name='loc')
+def test_load_space_delc(imp, os, glob, loc):
+    """ c.load() modifies space and deletes 'c' """
+    mod = _test.Bunch(bar='BAZ', plop='blub')
+    imp.side_effect = [mod]
+    os.environ.get.side_effect = [None]
+    glob.side_effect = [dict(a=1, b=2)]
+    loc.side_effect = [dict(c=4, d=5)]
+    space = dict(plop=42, c='something', d='else')
+
+    result = _c.load('foo', space)
+
+    assert_equals(space, {'plop': 'blub', 'd': 'else'})
+    assert_equals(result, mod)
+    assert_equals(map(tuple, imp.mock_calls), [
+        ('', ('tdi.c._tdi_foo', {'a': 1, 'b': 2}, {'c': 4, 'd': 5}, ['*']),
+         {}),
+    ])
+    assert_equals(map(tuple, os.mock_calls), [
+        ('environ.get', ('TDI_NO_C_OVERRIDE',), {}),
+    ])
+    assert_equals(map(tuple, glob.mock_calls), [('', (), {})])
+    assert_equals(map(tuple, loc.mock_calls), [('', (), {})])

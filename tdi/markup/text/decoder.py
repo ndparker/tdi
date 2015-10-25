@@ -78,7 +78,4 @@ class TextDecoder(object):
 
 
 from ... import c
-c = c.load('impl')
-if c is not None:
-    TextDecoder = c.TextDecoder  # noqa
-del c
+c.load('impl', globals())

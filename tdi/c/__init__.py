@@ -53,13 +53,19 @@ DEFAULT_ENV_OVERRIDE = 'TDI_NO_C_OVERRIDE'
 DEFAULT_TPL = 'tdi.c._tdi_%s'
 
 
-def load(modname, env_override=None, tpl=None):
+def load(modname, space=None, env_override=None, tpl=None):
     """
     Module loading facade
 
     :Parameters:
       `modname` : ``str``
         Module name part (like ``util`` for ``tdi.c._tdi_util``), see `tpl`
+
+      `space` : ``dict``
+        Namespace to modify in place. Every key in `space` (not starting with
+        ``_``) also appearing in the imported module is replaced by the module
+        attribute. Additionally the key with the name 'c' is deleted from
+        `space`.
 
       `env_override` : ``str``
         Name of the environment variable, which can disable the c extension
@@ -84,6 +90,14 @@ def load(modname, env_override=None, tpl=None):
             mod = __import__(tpl % modname, globals(), locals(), ['*'])
         except ImportError:
             mod = None
+        else:
+            if space is not None:
+                symbols = set(space.keys()) & set(vars(mod).keys())
+                for symbol in symbols:
+                    if not symbol.startswith('_'):
+                        space[symbol] = getattr(mod, symbol)
+                if 'c' in space:
+                    del space['c']
     else:
         mod = None
     return mod
