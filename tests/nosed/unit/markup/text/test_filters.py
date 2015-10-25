@@ -23,7 +23,7 @@ r"""
  Tests for tdi.markup.text.filters
 ===================================
 
-Tests for tdi._util
+Tests for tdi.markup.text.filters
 """
 if __doc__:
     # pylint: disable = redefined-builtin

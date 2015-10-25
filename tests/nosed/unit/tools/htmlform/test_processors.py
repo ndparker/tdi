@@ -19,11 +19,11 @@ r"""
  See the License for the specific language governing permissions and
  limitations under the License.
 
-===================================
- Tests for tdi.markup.text.filters
-===================================
+==========================================
+ Tests for tdi.tools.htmlform._processors
+==========================================
 
-Tests for tdi._util
+Tests for tdi.tools.htmlform._processors
 """
 if __doc__:
     # pylint: disable = redefined-builtin
