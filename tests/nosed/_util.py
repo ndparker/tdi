@@ -32,7 +32,9 @@ __author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
 import contextlib as _contextlib
-import functools as _functools
+import functools as _ft
+import sys as _sys
+import types as _types
 
 import mock as _mock
 
@@ -40,9 +42,9 @@ unset = object()
 
 
 @_contextlib.contextmanager
-def mocked(where, what, how=unset):
+def patched(where, what, how=unset):
     """
-    Context manager which replaces a symbol temporarily
+    Context manager to replace a symbol with a mock temporarily
 
     :Parameters:
       `where` : any
@@ -55,19 +57,27 @@ def mocked(where, what, how=unset):
         How should it be replaced? If omitted or `unset`, a new MagicMock
         instance is created. The result is yielded as context.
     """
-    old = getattr(where, what)
+    try:
+        old = getattr(where, what)
+    except AttributeError:
+        pass
     try:
         if how is unset:
             how = _mock.MagicMock()
         setattr(where, what, how)
         yield how
     finally:
-        setattr(where, what, old)
+        try:
+            old
+        except NameError:
+            delattr(where, what)
+        else:
+            setattr(where, what, old)
 
 
-def mock(where, what, how=unset, name=None):
+def patch(where, what, how=unset, name=None):
     """
-    Decorator-Configurator for pre-creating mocks
+    Decorator replacing attributes temporarily with mocks
 
     :Parameters:
       `where` : any
@@ -99,10 +109,115 @@ def mock(where, what, how=unset, name=None):
         :Return: Proxy function wrapping `func`
         :Rtype: callable
         """
-        @_functools.wraps(func)
+        @_ft.wraps(func)
         def proxy(*args, **kwargs):
             """ Function proxy """
-            with mocked(where, what, how=how) as fake:
+            with patched(where, what, how) as fake:
+                if name is not None:
+                    kwargs[name] = fake
+                return func(*args, **kwargs)
+        return proxy
+    return inner
+
+
+@_contextlib.contextmanager
+def patched_import(what, how=unset):
+    """
+    Context manager to mock an import statement temporarily
+
+    :Parameters:
+      `what` : ``str``
+        Name of the module to mock
+
+      `how` : any
+        How should it be replaced? If omitted or `unset`, a new MagicMock
+        instance is created. The result is yielded as context.
+    """
+    # basically stolen from here:
+    # http://stackoverflow.com/questions/2481511/mocking-importerror-in-python
+
+    try:
+        import builtins
+    except ImportError:
+        import __builtin__ as builtins
+    realimport = builtins.__import__
+    realmodules = _sys.modules
+
+    _is_exc = lambda obj: isinstance(obj, BaseException) or (
+        isinstance(obj, (type, _types.ClassType))
+        and issubclass(obj, BaseException)
+    )
+
+    try:
+        _sys.modules = dict(realmodules)
+
+        if what in _sys.modules:
+            del _sys.modules[what]
+
+        result = _mock.MagicMock() if how is unset else how
+
+        def myimport(name, globals={}, locals={}, fromlist=[], level=-1):
+            """ Fake importer """
+            # pylint: disable = redefined-builtin, dangerous-default-value
+
+            if name == what:
+                if _is_exc(result):
+                    raise result
+                return result
+            else:
+                kwargs = dict(
+                    globals=globals,
+                    locals=locals,
+                    fromlist=fromlist,
+                )
+                if level != -1:
+                    kwargs['level'] = level
+                return realimport(name, **kwargs)
+
+        builtins.__import__ = myimport
+        try:
+            yield result
+        finally:
+            builtins.__import__ = realimport
+    finally:
+        _sys.modules = realmodules
+
+
+def patch_import(what, how=unset, name=None):
+    """
+    Decorator to mock an import statement temporarily
+
+    :Parameters:
+      `what` : ``str``
+        Name of the module to mock
+
+      `how` : any
+        How should it be replaced? If omitted or `unset`, a new MagicMock
+        instance is created.
+
+      `name` : ``str``
+        The keyword argument name, which should be used to pass the fake
+        object to the decorated function. If omitted or ``None``, the fake
+        object won't be passed.
+
+    :Return: Decorator function
+    :Rtype: callable
+    """
+    def inner(func):
+        """
+        Actual decorator
+
+        :Parameters:
+          `func` : callable
+            Function to decorate
+
+        :Return: Proxy function wrapping `func`
+        :Rtype: callable
+        """
+        @_ft.wraps(func)
+        def proxy(*args, **kwargs):
+            """ Function proxy """
+            with patched_import(what, how=how) as fake:
                 if name is not None:
                     kwargs[name] = fake
                 return func(*args, **kwargs)
