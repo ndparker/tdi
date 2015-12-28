@@ -36,9 +36,10 @@ import functools as _ft
 import sys as _sys
 import types as _types
 
-import mock as _mock
+import mock
+from nose import SkipTest
 
-unset = object()
+unset = type('unset', (object,), {})()
 
 
 @_contextlib.contextmanager
@@ -63,7 +64,7 @@ def patched(where, what, how=unset):
         pass
     try:
         if how is unset:
-            how = _mock.MagicMock()
+            how = mock.MagicMock()
         setattr(where, what, how)
         yield how
     finally:
@@ -133,52 +134,62 @@ def patched_import(what, how=unset):
         How should it be replaced? If omitted or `unset`, a new MagicMock
         instance is created. The result is yielded as context.
     """
-    # basically stolen from here:
-    # http://stackoverflow.com/questions/2481511/mocking-importerror-in-python
-
-    try:
-        import builtins
-    except ImportError:
-        import __builtin__ as builtins
-    realimport = builtins.__import__
-    realmodules = _sys.modules
+    # basically stolen from svnmailer
 
     _is_exc = lambda obj: isinstance(obj, BaseException) or (
         isinstance(obj, (type, _types.ClassType))
         and issubclass(obj, BaseException)
     )
 
+    class FinderLoader(object):
+        """ Finder / Loader for meta path """
+
+        def __init__(self, fullname, module):
+            self.module = module
+            self.name = fullname
+            extra = '%s.' % fullname
+            for key in _sys.modules.keys():
+                if key.startswith(extra):
+                    del _sys.modules[key]
+            if fullname in _sys.modules:
+                del _sys.modules[fullname]
+
+        def find_module(self, fullname, path=None):
+            """ Find the module """
+            # pylint: disable = unused-argument
+            if fullname == self.name:
+                return self
+            return None
+
+        def load_module(self, fullname):
+            """ Load the module """
+            if _is_exc(self.module):
+                raise self.module
+            _sys.modules[fullname] = self.module
+            return self.module
+
+    realmodules = _sys.modules
     try:
         _sys.modules = dict(realmodules)
-
-        if what in _sys.modules:
-            del _sys.modules[what]
-
-        result = _mock.MagicMock() if how is unset else how
-
-        def myimport(name, globals={}, locals={}, fromlist=[], level=-1):
-            """ Fake importer """
-            # pylint: disable = redefined-builtin, dangerous-default-value
-
-            if name == what:
-                if _is_exc(result):
-                    raise result
-                return result
-            else:
-                kwargs = dict(
-                    globals=globals,
-                    locals=locals,
-                    fromlist=fromlist,
-                )
-                if level != -1:
-                    kwargs['level'] = level
-                return realimport(name, **kwargs)
-
-        builtins.__import__ = myimport
+        obj = FinderLoader(what, mock.MagicMock() if how is unset else how)
+        realpath = _sys.meta_path
         try:
-            yield result
+            _sys.meta_path = [obj] + _sys.meta_path
+            old, parts = unset, what.rsplit('.', 1)
+            if len(parts) == 2:
+                parent, base = parts[0], parts[1]
+                if parent in _sys.modules:
+                    parent = _sys.modules[parent]
+                    if hasattr(parent, base):
+                        old = getattr(parent, base)
+                        setattr(parent, base, obj.module)
+            try:
+                yield obj.module
+            finally:
+                if old is not unset:
+                    setattr(parent, base, old)
         finally:
-            builtins.__import__ = realimport
+            _sys.meta_path = realpath
     finally:
         _sys.modules = realmodules
 
@@ -231,3 +242,141 @@ class Bunch(object):
     def __init__(self, **kw):
         """ Initialization """
         self.__dict__.update(kw)
+
+
+def python_impl(*module):
+    """
+    Decorator to ensure python implementation usage in module(s)
+
+    :Parameters:
+      `module` : ``tuple``
+        Modules to set up (at least one)
+
+    :Return: Decorator function
+    :Rtype: callable
+    """
+    assert module
+
+    def inner(func):
+        """ Actual decorator """
+        @_ft.wraps(func)
+        def proxy(*args, **kwargs):
+            """ Proxy function, mocking c loader and stuff """
+            try:
+                with patched_import('tdi.c') as c:
+                    c.load.side_effect = lambda *x: None
+                    for mod in module:
+                        reload(mod)
+                    return func(*args, **kwargs)
+            finally:
+                for mod in module:
+                    reload(mod)
+        return proxy
+    return inner
+
+
+def c_impl(*module, **kwargs):
+    """
+    c_impl(*module, test=None)
+
+    Decorator to ensure c implementation usage in module(s)
+
+    if c loader doesn't load, the test will be skipped.
+
+    :Parameters:
+      `module` : ``tuple``
+        Modules to set up (at least one)
+
+      `test` : ``str``
+        Module name (part) to pass to the loader in order to test it. If
+        omitted or ``None``, 'impl' is used.
+
+    :Return: Decorator
+    :Rtype: callable
+    """
+    assert module
+    test = kwargs.pop('test', None)
+    if kwargs:
+        raise TypeError("Unrecognized arguments")
+    if test is None:
+        test = 'impl'
+
+    def inner(func):
+        """ Actual decorator """
+        @_ft.wraps(func)
+        def proxy(*args, **kwargs):
+            """ Proxy function """
+            from tdi import c
+            if c.load(test) is None:
+                raise SkipTest("c extension not found")
+            for mod in module:
+                reload(mod)
+            return func(*args, **kwargs)
+        return proxy
+    return inner
+
+
+def multi_impl(space, *module, **kwargs):
+    """
+    multi_impl(space, *module, test=None, name=None)
+
+    Decorator to create test functions for all implementations
+
+    :Parameters:
+      `space` : ``dict``
+        Namespace to create these functions in
+
+      `module` : ``tuple``
+        Modules to set up (at least one)
+
+      `test` : ``str``
+        Module name (part) to test - passed to c_impl. If omitted or ``None``,
+        a default is picked (by c_impl)
+
+      `name` : ``str``
+        test function argument name to pass the current implementation name
+        ('py' or 'c'). If omitted or ``None``, the info is not passed.
+
+    :Return: Decorator function
+    :Rtype: callable
+    """
+    assert module
+
+    test = kwargs.pop('test', None)
+    arg = kwargs.pop('name', None)
+    if kwargs:
+        raise TypeError("Unrecognized arguments")
+
+    if arg is None:
+        arger = lambda x, y: y
+    else:
+        def arger(impl, func):
+            """ Decorator function to inject impl as arg """
+            @_ft.wraps(func)
+            def proxy(*args, **kwargs):
+                """ Proxy function """
+                kwargs[arg] = impl
+                return func(*args, **kwargs)
+            return proxy
+
+    def inner(func):
+        """ Actual decorator """
+        name = func.__name__
+        if name.startswith('test'):
+            name = name[4:]
+        while name.startswith('_'):
+            name = name[1:]
+
+        space['test_py__' + name] = pfunc = arger(
+            'py', python_impl(*module)(func)
+        )
+        space['test_c__' + name] = cfunc = arger(
+            'c', c_impl(*module, **{'test': test})(func)
+        )
+        func.__test__ = False
+        if pfunc.__doc__:
+            pfunc.__doc__ = '(py) %s' % pfunc.__doc__.lstrip()
+        if cfunc.__doc__:
+            cfunc.__doc__ = '(c) %s' % cfunc.__doc__.lstrip()
+        return func
+    return inner

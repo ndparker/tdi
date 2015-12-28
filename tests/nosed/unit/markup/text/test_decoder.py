@@ -31,6 +31,21 @@ if __doc__:
 __author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 
-from nose.tools import assert_equals
+from nose.tools import assert_equals, assert_true
+from .... import _util as _test
 
 from tdi.markup.text import decoder as _decoder
+
+
+@_test.multi_impl(globals(), _decoder, name='impl')
+def test_decoder_init(impl):
+    """ TextDecoder initializes properly """
+    result = _decoder.TextDecoder('FOO')
+
+    assert_true(isinstance(result, _decoder.TextDecoder))
+    tresult = type(result)
+
+    assert_equals("%s.%s" % (tresult.__module__, tresult.__name__),
+                  'tdi.c._tdi_impl.TextDecoder' if impl == 'c' else
+                  'tdi.markup.text.decoder.TextDecoder')
+    assert_equals(result.encoding, 'FOO')
