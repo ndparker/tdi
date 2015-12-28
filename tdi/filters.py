@@ -26,7 +26,7 @@ r"""
 This module provides the base classes and concrete implementations for
 filters.
 """
-if __doc__:
+if __doc__:  # pragma: no cover
     # pylint: disable = redefined-builtin
     __doc__ = __doc__.encode('ascii').decode('unicode_escape')
 __author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
@@ -135,10 +135,7 @@ class BaseEventFilter(object):
 
 
 from . import c
-c = c.load('impl')
-if c is not None:
-    BaseEventFilter = c.BaseEventFilter  # noqa
-del c
+c = c.load('impl', globals())
 
 
 class FilterFilename(BaseEventFilter):
