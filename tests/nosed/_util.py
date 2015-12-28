@@ -375,8 +375,22 @@ def multi_impl(space, *module, **kwargs):
         )
         func.__test__ = False
         if pfunc.__doc__:
-            pfunc.__doc__ = '(py) %s' % pfunc.__doc__.lstrip()
+            pfunc.__doc__ = '[py] %s' % pfunc.__doc__.lstrip()
         if cfunc.__doc__:
-            cfunc.__doc__ = '(c) %s' % cfunc.__doc__.lstrip()
+            cfunc.__doc__ = '[c] %s' % cfunc.__doc__.lstrip()
         return func
     return inner
+
+
+def uni(value):
+    """
+    Create unicode from raw string with unicode escapes
+
+    :Parameters:
+      `value` : ``str``
+        String, which encodes to ascii and decodes as unicode_escape
+
+    :Return: The decoded string
+    :Rtype: ``unicode``
+    """
+    return value.encode('ascii').decode('unicode_escape')
