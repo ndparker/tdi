@@ -31,7 +31,7 @@ if __doc__:
 __author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 __docformat__ = "restructuredtext en"
 __license__ = "Apache License, Version 2.0"
-__version__ = ('0.9.9.8', False, 4809)
+__version__ = ('0.9.9.9', False, 4810)
 
 from tdi import _util
 from tdi import _version

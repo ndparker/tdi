@@ -4,7 +4,7 @@ Download
 Change Log
 ----------
 
-`CHANGES file <http://storage.perlig.de/tdi/CHANGES-0.9.9.8>`_
+`CHANGES file <http://storage.perlig.de/tdi/CHANGES-0.9.9.9>`_
 
 
 Source Packages
@@ -13,13 +13,13 @@ Source Packages
 .. begin stable
 
 Current Stable Version
-++++++++++++++++++++++
+''''''''''''''''''''''
 
-- `tdi-0.9.9.8.tar.lzma <http://storage.perlig.de/tdi/tdi-0.9.9.8.tar.lzma>`_
-- `tdi-0.9.9.8.tar.bz2 <http://storage.perlig.de/tdi/tdi-0.9.9.8.tar.bz2>`_
-- `tdi-0.9.9.8.tar.gz <http://storage.perlig.de/tdi/tdi-0.9.9.8.tar.gz>`_
-- `tdi-0.9.9.8.zip <http://storage.perlig.de/tdi/tdi-0.9.9.8.zip>`_
-- `tdi-0.9.9.8.digests <http://storage.perlig.de/tdi/tdi-0.9.9.8.digests>`_
+- `tdi-0.9.9.9.tar.lzma <http://storage.perlig.de/tdi/tdi-0.9.9.9.tar.lzma>`_
+- `tdi-0.9.9.9.tar.bz2 <http://storage.perlig.de/tdi/tdi-0.9.9.9.tar.bz2>`_
+- `tdi-0.9.9.9.tar.gz <http://storage.perlig.de/tdi/tdi-0.9.9.9.tar.gz>`_
+- `tdi-0.9.9.9.zip <http://storage.perlig.de/tdi/tdi-0.9.9.9.zip>`_
+- `tdi-0.9.9.9.digests <http://storage.perlig.de/tdi/tdi-0.9.9.9.digests>`_
 
 .. end stable
 
@@ -33,17 +33,17 @@ Integrity Check
 
 There are hashes (MD5, SHA1 and SHA256) of the download packages stored
 in the `digests file
-<http://storage.perlig.de/tdi/tdi-0.9.9.8.digests>`_\. In order to
+<http://storage.perlig.de/tdi/tdi-0.9.9.9.digests>`_\. In order to
 check the integrity of the downloaded file, use a tool like md5sum (or
 sha1sum, sha256sum accordingly), e.g.:
 
 .. sourcecode:: console
 
-    $ md5sum -c tdi-0.9.9.8.digests
-    tdi-0.9.9.8.tar.bz2: OK
-    tdi-0.9.9.8.tar.gz: OK
-    tdi-0.9.9.8.tar.lzma: OK
-    tdi-0.9.9.8.zip: OK
+    $ md5sum -c tdi-0.9.9.9.digests
+    tdi-0.9.9.9.tar.bz2: OK
+    tdi-0.9.9.9.tar.gz: OK
+    tdi-0.9.9.9.tar.lzma: OK
+    tdi-0.9.9.9.zip: OK
 
 In order to check the integrity of the digest file itself, you can check
 the PGP signature of that file. The file is signed by André Malo, Key-ID
@@ -51,7 +51,7 @@ the PGP signature of that file. The file is signed by André Malo, Key-ID
 
 .. sourcecode:: console
 
-    $ gpg --verify tdi-0.9.9.8.digests
+    $ gpg --verify tdi-0.9.9.9.digests
     gpg: Signature made Wed Apr  2 00:41:45 2014 CEST using DSA key ID 8103A37E
     gpg: Good signature from "Andre Malo <nd@apache.org>"
     gpg:                 aka "Andr\xe9\x20Malo <nd@perlig.de>"
@@ -62,7 +62,7 @@ Vendor Packages
 ---------------
 
 There's a `Gentoo Linux Ebuild
-<http://storage.perlig.de/tdi/tdi-0.9.9.8.ebuild>`_ available.
+<http://storage.perlig.de/tdi/tdi-0.9.9.9.ebuild>`_ available.
 
 
 Get Informed About New Releases
