@@ -1,5 +1,15 @@
 Changes with version
 
+ *) Started a formal unit test setup (ongoing)
+
+ *) Deprecated tdi.util.*
+    The code there had nothing to do with tdi per se and hence was removed from
+    public API.
+
+ *) Removed previously deprecated code.
+
+ *) Made lots of stylistic adjustments to satisfy pylint and flake8.
+
  *) Updated rJSmin to version 1.0.12
 
  *) Updated rCSSmin to version 1.0.6
