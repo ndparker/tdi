@@ -62,7 +62,7 @@ the PGP signature of that file. The file is signed by André Malo, Key-ID
 .. sourcecode:: console
 
     $ gpg --verify tdi-@@VERSION@@.digests
-    gpg: Signature made Wed Apr  2 00:41:45 2014 CEST using DSA key ID 8103A37E
+    gpg: Signature made Thu Dec 31 19:02:04 2015 CET using DSA key ID 8103A37E
     gpg: Good signature from "Andre Malo <nd@apache.org>"
     gpg:                 aka "Andr\xe9\x20Malo <nd@perlig.de>"
     gpg:                 aka "Andre Malo <ndparker@gmx.net>"
