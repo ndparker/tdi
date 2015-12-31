@@ -30,7 +30,7 @@ marked nodes are presented to your python code, where they can be
 modified in any way you want.
 
 |TDI| is currently available for python2 versions only (starting with
-python 2.6). Python 3 is not supported yet. The following
+python 2.7). Python 3 is not supported yet. The following
 alternative implementations are supported:
 
 - PyPy (2.0) (Python only)

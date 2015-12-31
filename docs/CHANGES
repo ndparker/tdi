@@ -14,7 +14,7 @@ Changes with version
 
  *) Updated rCSSmin to version 1.0.6
 
- *) Removed support for Python < 2.6, PyPy < 2.0, Jython < 2.7
+ *) Removed support for Python < 2.7, PyPy < 2.0, Jython < 2.7
 
 
 Changes with version 0.9.9.8

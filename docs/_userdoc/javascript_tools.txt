@@ -113,14 +113,6 @@ Here's a simple example:
     :language: python
     :start-after: BEGIN INCLUDE
 
-``SimpleJSON`` only works if a JSON library is installed: (The
-`json module`_ as part of the standard library starting with python 2.6
-or `simplejson`_ for versions below). However, the output of this little
-script will be:
-
-.. _json module: http://docs.python.org/2.7/library/json.html
-.. _simplejson: http://pypi.python.org/pypi/simplejson/
-
 .. literalinclude:: ../examples/out/js_tools_replace.out
 
 

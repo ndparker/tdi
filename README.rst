@@ -41,7 +41,7 @@ at: <http://www.apache.org/licenses/LICENSE-2.0>.
 SYSTEM REQUIREMENTS
 -------------------
 
-You need python 2 (>= 2.6). Python 3 is NOT supported yet.
+You need python 2 (>= 2.7). Python 3 is NOT supported yet.
 
 The following python implementations are supported, too:
 
