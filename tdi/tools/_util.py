@@ -2,7 +2,7 @@
 r"""
 :Copyright:
 
- Copyright 2006 - 2015
+ Copyright 2006 - 2016
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -60,7 +60,7 @@ def _make_norm_enc():
 
         :Exceptions:
           - `UnicodeError` : The `encoding` was unicode and not latin-1
-                             compatible
+            compatible
         """
         # pylint: disable = redefined-outer-name
 
