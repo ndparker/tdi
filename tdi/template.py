@@ -183,7 +183,7 @@ class Template(object):
             Force reload? (only if there's a loader present)
 
         :Return: The reloaded (new) template or self
-        :Rtype: `Template`
+        :Rtype: `tdi.template.Template`
         """
         if self.loader is not None:
             if force:
@@ -420,11 +420,11 @@ class Template(object):
         Overlay this template with another one
 
         :Parameters:
-          `other` : `Template`
+          `other` : `tdi.template.Template`
             The template layed over self
 
         :Return: The combined template
-        :Rtype: `Template`
+        :Rtype: `tdi.template.Template`
         """
         return OverlayTemplate(self, other)
 
@@ -438,13 +438,13 @@ class OverlayTemplate(Template):
         Initialization
 
         :Parameters:
-          `original` : `Template`
+          `original` : `tdi.template.Template`
             Original template
 
-          `overlay` : `Template`
+          `overlay` : `tdi.template.Template`
             Overlay template
 
-          `keep` : `Template`
+          `keep` : `tdi.template.Template`
             Keep original templates?
         """
         tree1, tree2 = original.virgin_tree, overlay.virgin_tree
@@ -481,7 +481,7 @@ class OverlayTemplate(Template):
             Force reload (if possible)?
 
         :Return: The reloaded template or self
-        :Rtype: `Template`
+        :Rtype: `tdi.template.Template`
         """
         if self._left is not None:
             original = self._left.reload(force=force)
@@ -514,7 +514,7 @@ class AutoUpdate(object):
         Initialization
 
         :Parameters:
-          `template` : `Template`
+          `template` : `tdi.template.Template`
             The template to autoupdate
         """
         self._template = template.template()
@@ -576,11 +576,11 @@ class AutoUpdate(object):
         Overlay this template with another one
 
         :Parameters:
-          `other` : `Template`
+          `other` : `tdi.template.Template`
             The template layed over self
 
         :Return: The combined template
-        :Rtype: `Template`
+        :Rtype: `tdi.template.Template`
         """
         return self.__class__(
             OverlayTemplate(self, other, keep=True), _cb=self._cb
@@ -608,7 +608,7 @@ class AutoUpdate(object):
             Force reload (if possible)?
 
         :Return: The reloaded (new) template or self
-        :Rtype: `Template`
+        :Rtype: `tdi.template.Template`
         """
         template = self._template
         if force or template.update_available():
@@ -633,7 +633,7 @@ class WrappedTemplate(Template):
     class just defines the basics.
 
     :IVariables:
-      `_template` : `Template`
+      `_template` : `tdi.template.Template`
         Original template instance
 
       `_opts` : any
@@ -649,7 +649,7 @@ class WrappedTemplate(Template):
         instance.
 
         :Parameters:
-          `template` : `Template`
+          `template` : `tdi.template.Template`
             Original template instance
 
           `opts` : any
@@ -667,7 +667,7 @@ class WrappedTemplate(Template):
         Initialization
 
         :Parameters:
-          `template` : `Template`
+          `template` : `tdi.template.Template`
             Original template instance
 
           `opts` : any
@@ -684,11 +684,11 @@ class WrappedTemplate(Template):
         Overlay this template with another one
 
         :Parameters:
-          `other` : `Template`
+          `other` : `tdi.template.Template`
             The template layed over self
 
         :Return: The combined template
-        :Rtype: `Template`
+        :Rtype: `tdi.template.Template`
         """
         return self.__class__(self._original.overlay(other), opts=self._opts)
 
@@ -710,7 +710,7 @@ class WrappedTemplate(Template):
             Force reload (if possible)?
 
         :Return: The reloaded (new) template or self
-        :Rtype: `Template`
+        :Rtype: `tdi.template.Template`
         """
         if force or self.update_available():
             self.__init__(self._original.reload(force=force), self._opts)
