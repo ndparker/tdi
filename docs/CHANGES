@@ -34,11 +34,13 @@ Changes with version 0.9.9.8
     automatic template discovery and ordering by inspecting overlay
     information (check out the "discover" function and the "Layout" class)
 
- *) WTF service: Added single-file loaders. (.html_file(), .xml_file() and
-    .text_file()). These loaders integrate no filters, except the load filters.
+ *) integration.wtf_service: Added single-file loaders (.html_file(),
+    .xml_file() and .text_file()). These loaders integrate no filters, but the
+    load filters.
 
- *) WTF service: Added DirectoryTemplateLister class. An instance of this class
-    can be created by the global service's .lister() method.
+ *) integration.wtf_service: Added DirectoryTemplateLister class. An
+    instance of this class can be created by the global service's .lister()
+    method.
 
  *) Added generic "WrappedTemplate" class
 
