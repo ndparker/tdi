@@ -406,22 +406,22 @@ def _memoize(func):
         cache = self._cache  # pylint: disable = protected-access
         if cache is None or key is None:
             return func(*args, **kwargs)
-        lock, key = getattr(cache, 'lock', None), (name, key)
+        lock, ckey = getattr(cache, 'lock', None), (name, key)
         if lock is None:
             lock = _global_lock
         lock.acquire()
         try:
-            if key in cache:
-                return cache[key]
+            if ckey in cache:
+                return cache[ckey]
         finally:
             lock.release()
         res = func(*args, **kwargs)
         lock.acquire()
         try:
-            if key in cache:
-                return cache[key]
+            if ckey in cache:
+                return cache[ckey]
             else:
-                cache[key] = res
+                cache[ckey] = res
                 return res
         finally:
             lock.release()
