@@ -1,5 +1,9 @@
 Changes with version
 
+ *) Removed deprecated code:
+    * opener argument of the Factory.from_stream method
+    * 4-tuple streamopen return value of Factory.from_streams method
+
  *) API change: loader passed to the template is not a function anymore, but a
     class.
 

@@ -716,8 +716,7 @@ class Factory(object):
         return result
 
     @_memoize
-    def from_stream(self, stream, encoding=None, filename=None,
-                    mtime=None, opener=None):
+    def from_stream(self, stream, encoding=None, filename=None, mtime=None):
         """
         Build template from stream
 
@@ -737,9 +736,6 @@ class Factory(object):
           `mtime` : ``int``
             Optional fake mtime
 
-          `opener`
-            Deprecated. Don't use it anymore.
-
         :Return: The new `Template` instance
         :Rtype: `Template`
         """
@@ -751,20 +747,7 @@ class Factory(object):
             except AttributeError:
                 filename = '<stream>'
         tree = self._loader(stream, filename, encoding)
-        if opener is not None:
-            import warnings as _warnings
-            _warnings.warn(
-                "opener argument is deprecated. Use the from_opener "
-                "method instead.",
-                category=DeprecationWarning, stacklevel=2
-            )
-            loader = self._loader.persist(filename, encoding, opener)
-        else:
-            loader = None
-        result = _template.Template(tree, filename, mtime, self, loader)
-        if self._autoupdate and loader is not None:
-            result = _template.AutoUpdate(result)
-        return result
+        return _template.Template(tree, filename, mtime, self, None)
 
     @_memoize
     def from_string(self, data, encoding=None, filename=None, mtime=None):
@@ -866,26 +849,7 @@ class Factory(object):
         def tpls():
             """ Get templates """
             for item in streams:
-                tup = streamopen(item)
-                if len(tup) == 4:
-                    # pylint: disable = unbalanced-tuple-unpacking
-                    filename, stream, mtime, opener = tup
-                    try:
-                        import warnings as _warnings
-                        _warnings.warn(
-                            "streamopen returning a 4-tuple is deprecated. "
-                            "Return a 2-tuple instead (streamspec, key).",
-                            category=DeprecationWarning, stacklevel=2
-                        )
-                        tpl = self.from_stream(
-                            stream, encoding, filename, mtime, opener
-                        )
-                    finally:
-                        stream.close()
-                    yield tpl
-                    continue
-
-                tup, key = tup
+                tup, key = streamopen(item)
                 if len(tup) == 3:
                     # pylint: disable = unbalanced-tuple-unpacking
                     stream, filename, mtime = tup
@@ -895,12 +859,11 @@ class Factory(object):
                             mtime=mtime, key=key,
                         )
                     finally:
-                        stream.close()
+                        stream.close()  # pylint: disable = no-member
                     yield tpl
-                    continue
-
-                opener, filename = tup
-                yield self.from_opener(  # noqa pylint: disable = unexpected-keyword-arg
-                    opener, filename, encoding=encoding, key=key,
-                )
+                else:
+                    opener, filename = tup
+                    yield self.from_opener(  # noqa pylint: disable = unexpected-keyword-arg
+                        opener, filename, encoding=encoding, key=key,
+                    )
         return overlay(tpls())
