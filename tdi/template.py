@@ -2,7 +2,7 @@
 r"""
 :Copyright:
 
- Copyright 2006 - 2015
+ Copyright 2006 - 2016
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -152,8 +152,9 @@ class Template(object):
           `factory` : `Factory`
             Template factory
 
-          `loader` : ``callable``
-            Template loader
+          `loader` : `tdi.factory.Reloader`
+            Template loader. If omitted or ``None``, the template cannot be
+            reloaded.
         """
         self._tree = [tree, None, None]
         self.filename = filename
@@ -186,12 +187,8 @@ class Template(object):
         :Rtype: `tdi.template.Template`
         """
         if self.loader is not None:
-            if force:
-                mtime = None
-            else:
-                mtime = self.mtime
             try:
-                tree, mtime = self.loader(mtime)
+                tree, mtime = self.loader.load(self.mtime, force=force)
             except (AttributeError, IOError, OSError, Error), e:
                 raise TemplateReloadError(str(e))
             if tree is not None:
@@ -208,7 +205,7 @@ class Template(object):
         :Rtype: ``bool``
         """
         if self.loader is not None:
-            return self.loader(self.mtime, check_only=True)[0]
+            return self.loader.check(self.mtime)[0]
         return False
 
     def _prepare(self):

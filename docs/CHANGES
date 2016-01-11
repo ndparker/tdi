@@ -1,5 +1,8 @@
 Changes with version
 
+ *) API change: loader passed to the template is not a function anymore, but a
+    class.
+
 
 Changes with version 0.9.9.9
 

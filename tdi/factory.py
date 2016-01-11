@@ -2,7 +2,7 @@
 r"""
 :Copyright:
 
- Copyright 2006 - 2015
+ Copyright 2006 - 2016
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -188,28 +188,10 @@ class Loader(object):
           `opener` : ``callable``
             Stream opener, returns stream and mtime
 
-        :Return: persisted loader (takes stream and optional mtime)
-        :Rtype: ``callable``
+        :Return: A new Reloader instance
+        :Rtype: `tdi.factory.Reloader`
         """
-        def load(mtime=None, check_only=False):
-            """
-            Load the template and build the tree
-
-            :Parameters:
-              `mtime` : ``int``
-                Optional mtime key, which is passed to the opener, which can
-                compare it with the current mtime key.
-            """
-            stream, mtime = opener(filename, mtime, check_only=check_only)
-            try:
-                if check_only or stream is None:
-                    return stream, mtime
-                return self(stream, filename, encoding), mtime
-            finally:
-                if not check_only and stream is not None:
-                    stream.close()
-
-        return load
+        return Reloader(self, filename, encoding, opener)
 
     def __call__(self, stream, filename, encoding):
         """
@@ -241,6 +223,93 @@ class Loader(object):
             feed(chunk)
         parser.finalize()
         return make_tree()
+
+
+class Reloader(object):
+    """
+    Loader wrapper, configured for a particular template
+
+    :IVariables:
+      `_loader` : `Loader`
+        Loader instance
+
+      `_filename` : ``str``
+        Template name
+
+      `_encoding` : ``str``
+        Initial encoding
+
+      `_opener` : ``callable``
+        Stream opener
+    """
+    __slots__ = ('_loader', '_filename', '_encoding', '_opener')
+
+    def __init__(self, loader, filename, encoding, opener):
+        """
+        Persist loader
+
+        :Parameters:
+          `loader` : `Loader`
+            Loader instance
+
+          `filename` : ``str``
+            Filename in question
+
+          `encoding` : ``str``
+            Initial template encoding
+
+          `opener` : ``callable``
+            Stream opener, returns stream and mtime
+
+        :Return: persisted loader (takes stream and optional mtime)
+        :Rtype: ``callable``
+        """
+        self._loader = loader
+        self._filename = filename
+        self._encoding = encoding
+        self._opener = opener
+
+    def load(self, mtime=None, force=False):
+        """
+        Load the template again, if the mtime changed.
+
+        :Parameters:
+          `mtime` : any
+            modification time of the current template. If omitted or
+            ``None``, no mtime evaluation will happen.
+
+          `force` : ``bool``
+            Force loading independently from mtime?
+
+        :Return: The template tree and the new tree's mtime. If the template
+                 didn't change (determined by mtime evaluation) and loading
+                 was not forced - the tree is None.
+        :Rtype: ``tuple``
+        """
+        if force:
+            mtime = None
+        stream, mtime = self._opener(self._filename, mtime)
+        try:
+            if stream is None:
+                return stream, mtime
+            return self._loader(stream, self._filename, self._encoding), mtime
+        finally:
+            if stream is not None:
+                stream.close()
+
+    def check(self, mtime):
+        """
+        Check the template for modifications, by evaluating mtime.
+
+        :Parameters:
+          `mtime` : any
+            Known modification time. If ``None``, the return value will
+            indicate a change.
+
+        :Return: A tuple of: update available? and the new mtime
+        :Rtype: ``tuple``
+        """
+        return self._opener(self._filename, mtime, check_only=True)
 
 
 def file_opener(filename, mtime, check_only=False):
@@ -639,7 +708,7 @@ class Factory(object):
         if encoding is None:
             encoding = self._default_encoding
         loader = self._loader.persist(filename, encoding, opener)
-        tree, mtime = loader()
+        tree, mtime = loader.load()
         result = _template.Template(tree, filename, mtime, self, loader)
         if self._autoupdate:
             result = _template.AutoUpdate(result)
