@@ -176,7 +176,7 @@ class Loader(object):
 
     def persist(self, filename, encoding, opener):
         """
-        Persist loader
+        Create persistent loader (able to reload)
 
         :Parameters:
           `filename` : ``str``
