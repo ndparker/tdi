@@ -662,6 +662,7 @@ class Factory(object):
 
         return self.__class__(**args)
 
+    @_memoize
     def from_file(self, filename, encoding=None):
         """
         Build template from file
@@ -684,8 +685,8 @@ class Factory(object):
         if encoding is None:
             encoding = self._default_encoding
         return self.from_opener(file_opener, filename, encoding=encoding)
-    from_file = _memoize(from_file)
 
+    @_memoize
     def from_opener(self, opener, filename, encoding=None):
         """
         Build template from stream as returned by stream opener
@@ -713,8 +714,8 @@ class Factory(object):
         if self._autoupdate:
             result = _template.AutoUpdate(result)
         return result
-    from_opener = _memoize(from_opener)
 
+    @_memoize
     def from_stream(self, stream, encoding=None, filename=None,
                     mtime=None, opener=None):
         """
@@ -764,8 +765,8 @@ class Factory(object):
         if self._autoupdate and loader is not None:
             result = _template.AutoUpdate(result)
         return result
-    from_stream = _memoize(from_stream)
 
+    @_memoize
     def from_string(self, data, encoding=None, filename=None, mtime=None):
         """
         Build template from from string
@@ -795,8 +796,8 @@ class Factory(object):
         stream = _string_io.StringIO(data)
         tree = self._loader(stream, filename, encoding)
         return _template.Template(tree, filename, mtime, self)
-    from_string = _memoize(from_string)
 
+    @_memoize
     def from_files(self, names, encoding=None, basedir=None):
         """
         Load templates from files and overlay them
@@ -821,11 +822,13 @@ class Factory(object):
         if basedir is not None:
             names = [_os.path.join(basedir, name) for name in names]
         return overlay([
-            self.from_file(name, encoding=encoding, key=name)
+            self.from_file(  # pylint: disable = unexpected-keyword-arg
+                name, encoding=encoding, key=name
+            )
             for name in names
         ])
-    from_files = _memoize(from_files)
 
+    @_memoize
     def from_streams(self, streams, encoding=None, streamopen=None):
         """
         Load templates from streams and overlay them
@@ -887,7 +890,7 @@ class Factory(object):
                     # pylint: disable = unbalanced-tuple-unpacking
                     stream, filename, mtime = tup
                     try:
-                        tpl = self.from_stream(
+                        tpl = self.from_stream(  # noqa pylint: disable = unexpected-keyword-arg
                             stream, encoding=encoding, filename=filename,
                             mtime=mtime, key=key,
                         )
@@ -897,8 +900,7 @@ class Factory(object):
                     continue
 
                 opener, filename = tup
-                yield self.from_opener(
+                yield self.from_opener(  # noqa pylint: disable = unexpected-keyword-arg
                     opener, filename, encoding=encoding, key=key,
                 )
         return overlay(tpls())
-    from_streams = _memoize(from_streams)
