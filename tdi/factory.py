@@ -663,7 +663,7 @@ class Factory(object):
         return self.__class__(**args)
 
     @_memoize
-    def from_file(self, filename, encoding=None):
+    def from_file(self, filename, encoding=None, cls=None):
         """
         Build template from file
 
@@ -675,19 +675,24 @@ class Factory(object):
             The initial template encoding. If omitted or ``None``, the default
             encoding is applied.
 
-        :Return: A new `Template` instance
-        :Rtype: `Template`
+          `cls` : ``callable``
+            result wrapper, takes the resulting template and returns the final
+            template. If omitted or ``None``, the result won't be wrapped.
+            Note that the wrapped result will be memoized (if memoization is
+            enabled).
+
+        :Return: A new `tdi.template.Template` instance
+        :Rtype: `tdi.template.Template`
 
         :Exceptions:
           - `Error` : An error occured while loading the template
           - `IOError` : Error while opening/reading the file
         """
-        if encoding is None:
-            encoding = self._default_encoding
-        return self.from_opener(file_opener, filename, encoding=encoding)
+        return self.from_opener(file_opener, filename, encoding=encoding,
+                                cls=cls)
 
     @_memoize
-    def from_opener(self, opener, filename, encoding=None):
+    def from_opener(self, opener, filename, encoding=None, cls=None):
         """
         Build template from stream as returned by stream opener
 
@@ -703,22 +708,35 @@ class Factory(object):
             Initial template encoding. If omitted or ``None``, the default
             encoding is applied.
 
-        :Return: The new `Template` instance
-        :Rtype: `Template`
+          `cls` : ``callable``
+            result wrapper, takes the resulting template and returns the final
+            template. If omitted or ``None``, the result won't be wrapped.
+            Note that the wrapped result will be memoized (if memoization is
+            enabled).
+
+        :Return: The new `tdi.template.Template` instance
+        :Rtype: `tdi.template.Template`
         """
         if encoding is None:
             encoding = self._default_encoding
         loader = self._loader.persist(filename, encoding, opener)
         tree, mtime = loader.load()
         result = _template.Template(tree, filename, mtime, self, loader)
+        if cls is not None:
+            result = cls(result)
         if self._autoupdate:
             result = _template.AutoUpdate(result)
         return result
 
     @_memoize
-    def from_stream(self, stream, encoding=None, filename=None, mtime=None):
+    def from_stream(self, stream, encoding=None, filename=None, mtime=None,
+                    cls=None):
         """
         Build template from stream
+
+        Since the stream is exhausted after reading it, templates created
+        using this method cannot be auto-updated. If you want auto-updated
+        templates constructed from streams, use `from_opener`.
 
         :Parameters:
           `stream` : ``file``
@@ -736,8 +754,14 @@ class Factory(object):
           `mtime` : ``int``
             Optional fake mtime
 
-        :Return: The new `Template` instance
-        :Rtype: `Template`
+          `cls` : ``callable``
+            result wrapper, takes the resulting template and returns the final
+            template. If omitted or ``None``, the result won't be wrapped.
+            Note that the wrapped result will be memoized (if memoization is
+            enabled).
+
+        :Return: The new `tdi.template.Template` instance
+        :Rtype: `tdi.template.Template`
         """
         if encoding is None:
             encoding = self._default_encoding
@@ -747,20 +771,27 @@ class Factory(object):
             except AttributeError:
                 filename = '<stream>'
         tree = self._loader(stream, filename, encoding)
-        return _template.Template(tree, filename, mtime, self, None)
+        result = _template.Template(tree, filename, mtime, self, None)
+        if cls is not None:
+            return cls(result)
+        return result
 
     @_memoize
-    def from_string(self, data, encoding=None, filename=None, mtime=None):
+    def from_string(self, data, encoding=None, filename=None, mtime=None,
+                    cls=None):
         """
         Build template from from string
+
+        Templates built using this method cannot be auto-updated, because
+        strings are constant.
 
         :Parameters:
           `data` : ``str``
             The string to process
 
           `encoding` : ``str``
-            The initial template encoding. If omitted or ``None``, the default
-            encoding is applied.
+            The initial template encoding. If omitted or ``None``, the
+            default encoding is applied.
 
           `filename` : ``str``
             Optional fake filename of the template. If not set,
@@ -769,19 +800,23 @@ class Factory(object):
           `mtime` : ``int``
             Optional fake mtime
 
-        :Return: The new `Template` instance
-        :Rtype: `Template`
+          `cls` : ``callable``
+            result wrapper, takes the resulting template and returns the final
+            template. If omitted or ``None``, the result won't be wrapped.
+            Note that the wrapped result will be memoized (if memoization is
+            enabled).
+
+        :Return: The new `tdi.template.Template` instance
+        :Rtype: `tdi.template.Template`
         """
-        if encoding is None:
-            encoding = self._default_encoding
         if filename is None:
             filename = '<string>'
-        stream = _string_io.StringIO(data)
-        tree = self._loader(stream, filename, encoding)
-        return _template.Template(tree, filename, mtime, self)
+        return self.from_stream(_string_io.StringIO(data),
+                                encoding=encoding, filename=filename,
+                                mtime=mtime, cls=cls)
 
     @_memoize
-    def from_files(self, names, encoding=None, basedir=None):
+    def from_files(self, names, encoding=None, basedir=None, cls=None):
         """
         Load templates from files and overlay them
 
@@ -797,22 +832,29 @@ class Factory(object):
             Directory, all filenames are relative to. If omitted or ``None``
             the names are applied as-is.
 
+          `cls` : ``callable``
+            result wrapper, takes the resulting template and returns the final
+            template. If omitted or ``None``, the result won't be wrapped.
+            Note that the wrapped result will be memoized (if memoization is
+            enabled).
+
         :Return: The final template
-        :Rtype: `Template`
+        :Rtype: `tdi.template.Template`
         """
-        if encoding is None:
-            encoding = self._default_encoding
         if basedir is not None:
             names = [_os.path.join(basedir, name) for name in names]
-        return overlay([
+        result = overlay([
             self.from_file(  # pylint: disable = unexpected-keyword-arg
                 name, encoding=encoding, key=name
             )
             for name in names
         ])
+        if cls is not None:
+            return cls(result)
+        return result
 
     @_memoize
-    def from_streams(self, streams, encoding=None, streamopen=None):
+    def from_streams(self, streams, encoding=None, streamopen=None, cls=None):
         """
         Load templates from streams and overlay them
 
@@ -838,11 +880,15 @@ class Factory(object):
 
             If omitted or ``None``, the items are assumed to be file names.
 
+          `cls` : ``callable``
+            result wrapper, takes the resulting template and returns the final
+            template. If omitted or ``None``, the result won't be wrapped.
+            Note that the wrapped result will be memoized (if memoization is
+            enabled).
+
         :Return: The final template
-        :Rtype: `Template`
+        :Rtype: `tdi.template.Template`
         """
-        if encoding is None:
-            encoding = self._default_encoding
         if streamopen is None:
             streamopen = lambda x: ((file_opener, x), x)
 
@@ -866,4 +912,7 @@ class Factory(object):
                     yield self.from_opener(  # noqa pylint: disable = unexpected-keyword-arg
                         opener, filename, encoding=encoding, key=key,
                     )
-        return overlay(tpls())
+        result = overlay(tpls())
+        if cls is not None:
+            return cls(result)
+        return result

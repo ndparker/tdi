@@ -1,5 +1,7 @@
 Changes with version
 
+ *) Added optional template wrapper argument in template factory methods.
+
  *) Removed deprecated code:
     * opener argument of the Factory.from_stream method
     * 4-tuple streamopen return value of Factory.from_streams method

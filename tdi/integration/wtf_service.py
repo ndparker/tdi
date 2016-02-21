@@ -42,20 +42,24 @@ Configuration
   #require_methods = False
   #filters.html.load =
   #filters.html.overlay =
+  #filters.html.overlay_class =
   #filters.html.template =
   #filters.xml.load =
   #filters.xml.overlay =
-  #filters.xml.template=
+  #filters.xml.overlay_class =
+  #filters.xml.template =
   #filters.text.load =
   #filters.text.overlay =
-  #filters.text.template=
+  #filters.text.overlay_class =
+  #filters.text.template =
 
   # load + overlay Filters are lists of (event) filter factories, for example
   #
   #filters.html.load =
   #  tdi.tools.html.MinifyFilter
   #
-  # template filters work on the final template object
+  # class is a single callable, return the final template object (memoized)
+  # template filters work on the final template object (after memoizing)
 """
 if __doc__:
     # pylint: disable = redefined-builtin
@@ -206,14 +210,14 @@ class DirectoryTemplateLister(object):
         """
         # pylint: disable = too-many-branches
 
-        seen = set()
+        seen, len_ = set(), len
         if _os.path.sep == '/':
             norm = lambda p: p
         else:
             norm = lambda p: p.replace(_os.path.sep, '/')
 
         for base in self._dirs:
-            baselen = len(_os.path.join(base, ''))
+            baselen = len_(_os.path.join(base, ''))
             reldir = lambda x, b=baselen: x[b:]
 
             def onerror(_):
@@ -230,7 +234,7 @@ class DirectoryTemplateLister(object):
                         elif dirname in self._ignore:
                             continue
                         newdirs.append(dirname)
-                    if len(newdirs) != len(dirs):
+                    if len_(newdirs) != len_(dirs):
                         dirs[:] = newdirs
 
                 # find names
@@ -315,7 +319,7 @@ class GlobalTemplate(object):
             stream.close()
             return (_factory.file_opener, filename), filename
 
-        def loader(which, post_load=None, **kwargs):
+        def loader(which, post_load=None, overlay_cls=None, **kwargs):
             """ Template loader """
             kwargs['autoupdate'] = autoreload
             kwargs['memoizer'] = _Memoizer()
@@ -326,7 +330,8 @@ class GlobalTemplate(object):
 
             def load(names):
                 """ Actual loader """
-                res = factory.from_streams(names, streamopen=streamopen)
+                res = factory.from_streams(names, streamopen=streamopen,
+                                           cls=overlay_cls)
                 for item in post_load or ():
                     res = item(res)
                 return res
@@ -354,18 +359,21 @@ class GlobalTemplate(object):
         self.html, self.html_file = loader(
             'html',
             post_load=load('html', 'template'),
+            overlay_cls=(load('html', 'overlay_class') or [None])[0],
             eventfilters=load('html', 'load'),
             overlay_eventfilters=load('html', 'overlay'),
         )
         self.xml, self.xml_file = loader(
             'xml',
             post_load=load('xml', 'template'),
+            overlay_cls=(load('xml', 'overlay_class') or [None])[0],
             eventfilters=load('xml', 'load'),
             overlay_eventfilters=load('xml', 'overlay'),
         )
         self.text, self.text_file = loader(
             'text',
             post_load=load('text', 'template'),
+            overlay_cls=(load('text', 'overlay_class') or [None])[0],
             eventfilters=load('text', 'load'),
             overlay_eventfilters=load('text', 'overlay'),
         )

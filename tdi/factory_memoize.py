@@ -2,7 +2,7 @@
 r"""
 :Copyright:
 
- Copyright 2006 - 2015
+ Copyright 2006 - 2016
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -89,17 +89,17 @@ class MemoizedFactory(object):
         ))
     _copy_doc(replace)
 
-    def from_file(self, filename, encoding=None, key=None):
+    def from_file(self, filename, encoding=None, cls=None, key=None):
         """ Build template from file """
         if key is None:
             key = filename
         return self._factory.from_file(
-            filename, encoding=encoding, key=key
+            filename, encoding=encoding, cls=cls, key=key
         )
     _copy_doc(from_file)
 
     def from_stream(self, stream, encoding=None, filename=None, mtime=None,
-                    opener=None, key=None):
+                    opener=None, cls=None, key=None):
         """ Build template from stream """
         if key is None:
             key = filename
@@ -109,21 +109,23 @@ class MemoizedFactory(object):
             filename=filename,
             mtime=mtime,
             opener=opener,
+            cls=cls,
             key=key,
         )
     _copy_doc(from_stream)
 
-    def from_opener(self, opener, filename, encoding=None, key=None):
+    def from_opener(self, opener, filename, encoding=None, cls=None,
+                    key=None):
         """ Build template from stream opener """
         if key is None:
             key = filename
         return self._factory.from_opener(
-            opener, filename, encoding=encoding, key=key
+            opener, filename, encoding=encoding, cls=cls, key=key
         )
     _copy_doc(from_opener)
 
     def from_string(self, data, encoding=None, filename=None, mtime=None,
-                    key=None):
+                    cls=None, key=None):
         """ Build template from string """
         if key is None:
             key = filename
@@ -132,11 +134,13 @@ class MemoizedFactory(object):
             encoding=encoding,
             filename=filename,
             mtime=mtime,
+            cls=cls,
             key=key,
         )
     _copy_doc(from_string)
 
-    def from_files(self, names, encoding=None, basedir=None, key=None):
+    def from_files(self, names, encoding=None, basedir=None, cls=None,
+                   key=None):
         """ Load templates from files and overlay them """
         if key is None:
             key = (basedir,) + tuple(names)
@@ -144,11 +148,12 @@ class MemoizedFactory(object):
             names,
             encoding=encoding,
             basedir=basedir,
+            cls=cls,
             key=key,
         )
     _copy_doc(from_files)
 
-    def from_streams(self, streams, encoding=None, streamopen=None,
+    def from_streams(self, streams, encoding=None, streamopen=None, cls=None,
                      key=None):
         """ Load templates from streams and overlay them """
         if key is None:
@@ -161,6 +166,7 @@ class MemoizedFactory(object):
             streams,
             encoding=encoding,
             streamopen=streamopen,
+            cls=cls,
             key=key,
         )
     _copy_doc(from_streams)
