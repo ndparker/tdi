@@ -3,7 +3,7 @@
 r"""
 :Copyright:
 
- Copyright 2006 - 2015
+ Copyright 2006 - 2016
  Andr\xe9 Malo or his licensors, as applicable
 
 :License:
@@ -88,10 +88,8 @@ class Target(make.Target):
             _sys.path.insert(0, libpath)
 
         self.ebuild_files = {
-            'tdi-beta.ebuild.in':
-                'tdi-%(VERSION)s_beta%(REV)s.ebuild',
-            'tdi.ebuild.in':
-                'tdi-%(VERSION)s.ebuild',
+            'tdi-beta.ebuild.in': 'tdi-%(VERSION)s_beta%(REV)s.ebuild',
+            'tdi.ebuild.in': 'tdi-%(VERSION)s.ebuild',
         }
 
 
