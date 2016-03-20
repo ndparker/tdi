@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: ascii -*-
+# -*- coding: ascii -*-  pylint: skip-file
 r"""
 :Copyright:
 
@@ -43,9 +43,10 @@ from _setup import make
 from _setup import term
 
 
-if _sys.version_info[0] == 3:
+if _sys.version_info[0] >= 3:
     py3 = 1
     cfgread = dict(encoding='utf-8')
+
     def textopen(*args):
         return open(*args, **cfgread)
     exec ("def reraise(*e): raise e[1].with_traceback(e[2])")
@@ -74,7 +75,7 @@ class Target(make.Target):
             'userdoc_source': 'docs/_userdoc',
             'userdoc_build': 'docs/_userdoc/_build',
             'website': 'dist/website',
-            '_website': '_website', # source dir
+            '_website': '_website',  # source dir
             'fake': '_pkg/fake',
             'dist': 'dist',
             'build': 'build',
@@ -108,7 +109,8 @@ class Distribution(Target):
 
     def dist_pkg(self):
         term.green("Building package...")
-        dist.run_setup("sdist", "--formats", "tar,zip",
+        dist.run_setup(
+            "sdist", "--formats", "tar,zip",
             fakeroot=shell.frompath('fakeroot')
         )
         exts = ['.zip']
@@ -149,7 +151,8 @@ class Distribution(Target):
         except ImportError:
             self.compress_external(filename, outfilename, 'gzip', '-c9')
         else:
-            outfile = _gzip.GzipFile(filename, 'wb',
+            outfile = _gzip.GzipFile(
+                filename, 'wb',
                 fileobj=textopen(outfilename, 'wb')
             )
             self.compress_internal(filename, outfile, outfilename)
@@ -180,7 +183,7 @@ class Distribution(Target):
                     shell.rm(outfilename)
                 finally:
                     try:
-                        reraise(*e)
+                        reraise(*e)  # noqa
                     finally:
                         del e
         finally:
@@ -230,7 +233,7 @@ class Distribution(Target):
     def do_digest(self, hashfunc, name, filename):
         filename = shell.native(filename)
         term.green("%(digest)s-digesting %(name)s...",
-            digest=name, name=_os.path.basename(filename))
+                   digest=name, name=_os.path.basename(filename))
         fp = textopen(filename, 'rb')
         sig = hashfunc()
         block = fp.read(8192)
@@ -333,7 +336,8 @@ class Distribution(Target):
             make.warn('GPG not found -> cannot sign')
             return False
         if detach:
-            shell.spawn(gpg,
+            shell.spawn(
+                gpg,
                 '--armor',
                 '--output', filename + '.asc',
                 '--detach-sign',
@@ -341,7 +345,8 @@ class Distribution(Target):
                 filename,
             )
         else:
-            shell.spawn(gpg,
+            shell.spawn(
+                gpg,
                 '--output', filename + '.signed',
                 '--clearsign',
                 '--',
@@ -416,16 +421,17 @@ class Entities(Target):
                             for cp in spec['codepoints']:
                                 if cp > 0xFFFF:
                                     result.append(
-                                    '    %r: \'%s\'.decode("utf-16-le"),' % (
-                                        key,
-                                        quote_u(
-                                            spec[u('characters')]
-                                            .encode("utf-16-le")
-                                            .decode('latin-1')
-                                            .encode('unicode_escape')
-                                            .decode('latin-1')
-                                        ),
-                                    )
+                                        '%s%r: \'%s\'.decode("utf-16-le"),' % (
+                                            '    ',
+                                            key,
+                                            quote_u(
+                                                spec[u('characters')]
+                                                .encode("utf-16-le")
+                                                .decode('latin-1')
+                                                .encode('unicode_escape')
+                                                .decode('latin-1')
+                                            ),
+                                        )
                                     )
                                     break
                             else:
@@ -477,8 +483,8 @@ class ExampleTest(Target):
 
     def run(self):
         if shell.spawn(_sys.executable, 'run_tests.py',
-            self.dirs['examples'], self.dirs['lib']
-        ): raise RuntimeError('tests failed')
+                       self.dirs['examples'], self.dirs['lib']):
+            raise RuntimeError('tests failed')
 
 
 class SystemTest(Target):
@@ -488,14 +494,14 @@ class SystemTest(Target):
 
     def run(self):
         if shell.spawn(_sys.executable, 'run_tests.py',
-            self.dirs['tests'], self.dirs['lib']
-        ): raise RuntimeError('tests failed')
+                       self.dirs['tests'], self.dirs['lib']):
+            raise RuntimeError('tests failed')
 
 
 class Compile(Target):
     """ Compile the python code """
     NAME = "compile"
-    #DEPS = None
+    # DEPS = None
 
     def run(self):
         import setup
@@ -527,7 +533,7 @@ class Compile(Target):
     def compile(self, name):
         path = shell.native(name)
         term.write("%(ERASE)s%(BOLD)s>>> Compiling %(name)s...%(NORMAL)s",
-            name=name)
+                   name=name)
         from distutils import util
         try:
             from distutils import log
@@ -593,7 +599,7 @@ class ApiDoc(Target):
 class UserDoc(Target):
     """ Build the user docs """
     NAME = "userdoc"
-    #DEPS = None
+    # DEPS = None
 
     def run(self):
         from _setup.dev import userdoc
@@ -706,8 +712,7 @@ class Website(Target):
                 ),
             ))
             fp.write("\nexclude_trees.append(%r)\n" %
-                "doc-%d.%d" % shortversion
-            )
+                     "doc-%d.%d" % shortversion)
             fp.write("\nexclude_trees.append('examples')\n")
         finally:
             fp.close()
@@ -747,7 +752,7 @@ class PreCheck(Target):
 
 class SVNRelease(Target):
     """ Release current version """
-    #NAME = "release"
+    # NAME = "release"
     DEPS = None
 
     def run(self):
@@ -790,8 +795,7 @@ class SVNRelease(Target):
         self.runner('revision', 'version', seen={})
         svn = shell.frompath('svn')
         shell.spawn(svn, 'commit', '-m', 'Pre-release: version update',
-            echo=True
-        )
+                    echo=True)
 
     def _repo_url(self):
         """ Determine URL """
@@ -818,7 +822,8 @@ class SVNRelease(Target):
             if not match:
                 make.fail("Not in trunk or release branch!")
         svn = shell.frompath('svn')
-        lines = shell.spawn(svn, 'stat', '--ignore-externals',
+        lines = shell.spawn(
+            svn, 'stat', '--ignore-externals',
             stdout=True, env=dict(_os.environ, LC_ALL='C'),
         ).splitlines()
         for line in lines:
@@ -829,7 +834,7 @@ class SVNRelease(Target):
 
 class GitRelease(Target):
     """ Release current version """
-    #NAME = "release"
+    # NAME = "release"
     DEPS = None
 
     def run(self):
@@ -861,13 +866,13 @@ class GitRelease(Target):
         self.runner('revision', 'version', seen={})
         git = shell.frompath('git')
         shell.spawn(git, 'commit', '-a', '-m', 'Pre-release: version update',
-            echo=True
-        )
+                    echo=True)
 
     def _check_committed(self):
         """ Check if everything is committed """
         git = shell.frompath('git')
-        lines = shell.spawn(git, 'branch', '--color=never',
+        lines = shell.spawn(
+            git, 'branch', '--color=never',
             stdout=True, env=dict(_os.environ, LC_ALL='C')
         ).splitlines()
         for line in lines:
@@ -882,7 +887,8 @@ class GitRelease(Target):
             if not match:
                 make.fail("Not in master or release branch.")
 
-        lines = shell.spawn(git, 'status', '--porcelain',
+        lines = shell.spawn(
+            git, 'status', '--porcelain',
             stdout=True, env=dict(_os.environ, LC_ALL='C'),
         )
         if lines:
@@ -891,13 +897,13 @@ class GitRelease(Target):
 
 class Release(GitRelease):
     NAME = "release"
-    #DEPS = None
+    # DEPS = None
 
 
 class SVNRevision(Target):
     """ Insert the svn revision into all relevant files """
-    #NAME = "revision"
-    #DEPS = None
+    # NAME = "revision"
+    # DEPS = None
 
     def run(self):
         revision = self._revision()
@@ -941,8 +947,8 @@ class SVNRevision(Target):
 
 class SimpleRevision(Target):
     """ Update the revision number and insert into all relevant files """
-    #NAME = "revision"
-    #DEPS = None
+    # NAME = "revision"
+    # DEPS = None
 
     def run(self):
         self._revision_cfg()
@@ -976,13 +982,13 @@ GitRevision = SimpleRevision
 class Revision(GitRevision):
     """ Insert the revision into all relevant files """
     NAME = "revision"
-    #DEPS = None
+    # DEPS = None
 
 
 class Version(Target):
     """ Insert the program version into all relevant files """
     NAME = "version"
-    #DEPS = None
+    # DEPS = None
 
     def run(self):
         from _setup.util import SafeConfigParser as parser
@@ -1099,7 +1105,7 @@ class Version(Target):
                 dllines = oldstable
             else:
                 VERSION = "%s-dev-%s" % (strversion, revision)
-                PATH='dev/'
+                PATH = 'dev/'
         newdev = []
         fp = textopen(filename + '.in')
         try:
@@ -1125,7 +1131,8 @@ class Version(Target):
                     instable.append(line)
                     if line.startswith('.. end stable'):
                         if not isdev:
-                            res = (''.join(instable)
+                            res = (
+                                ''.join(instable)
                                 .replace('@@VERSION@@', strversion)
                                 .replace('@@PATH@@', '')
                             )
@@ -1141,7 +1148,8 @@ class Version(Target):
                         if isdev:
                             if newdev:
                                 indev = newdev
-                            fp.write(''.join(indev)
+                            fp.write(
+                                ''.join(indev)
                                 .replace('@@DEVVERSION@@', "%s-dev-r%d" % (
                                     strversion, revision
                                 ))
@@ -1157,7 +1165,8 @@ class Version(Target):
                 elif isdev and hasstable:
                     fp.write(line)
                 else:
-                    fp.write(line
+                    fp.write(
+                        line
                         .replace('@@VERSION@@', VERSION)
                         .replace('@@PATH@@', PATH)
                     )
