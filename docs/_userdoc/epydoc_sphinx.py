@@ -1,19 +1,29 @@
 # -*- coding: ascii -*-
-#
-# Copyright 2010, 2011
-# Andr\xe9 Malo or his licensors, as applicable
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+r"""
+:Copyright:
+
+ Copyright 2010 - 2016
+ Andr\xe9 Malo or his licensors, as applicable
+
+:License:
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+"""
+if __doc__:  # pragma: no cover
+    # pylint: disable = redefined-builtin
+    __doc__ = __doc__.encode('ascii').decode('unicode_escape')
+__author__ = r"Andr\xe9 Malo".encode('ascii').decode('unicode_escape')
 
 import os
 import posixpath
@@ -21,6 +31,8 @@ import posixpath
 from docutils import nodes
 
 from sphinx.util import caption_ref_re
+
+# pylint: disable = invalid-name, unused-argument, dangerous-default-value
 
 
 def relpath(path, start=os.path.curdir):
@@ -41,9 +53,9 @@ def relpath(path, start=os.path.curdir):
     return os.path.join(*rel_list)
 
 try:
-    relpath = os.path.relpath
+    relpath = os.path.relpath  # noqa
 except AttributeError:
-    pass
+    sep = os.path.sep
 
 
 def make_roles(app):
@@ -71,6 +83,8 @@ def make_epydoc_role(app, epydoc):
     def epydoc_role(role, rawtext, text, lineno, inliner, options={},
                     content=[]):
         """ Actual role callback """
+        # pylint: disable = too-many-branches
+
         match = caption_ref_re.match(text)
         if match:
             extra, (text, ref) = True, match.group(1, 2)
@@ -88,7 +102,7 @@ def make_epydoc_role(app, epydoc):
 
         if '/' in ref:
             chunks = ref.split('/', 1)
-            if not chunks[0]: # Main page
+            if not chunks[0]:  # Main page
                 uri = 'index.html'
             else:
                 uri = apis.get(''.join(chunks))
@@ -116,7 +130,9 @@ def make_epydoc_role(app, epydoc):
             baseuri = '/'.join(baseuri)
             uri = posixpath.join(baseuri, uri)
             if not extra:
-                text =u'\u2192\xa0' + text
+                text = u'\u2192\xa0' + text
+
+            # pylint: disable = redefined-variable-type
             node = nodes.reference(rawtext, text, refuri=uri, **options)
             if not extra:
                 node = nodes.literal(rawtext, '', node)
@@ -126,5 +142,6 @@ def make_epydoc_role(app, epydoc):
 
 
 def setup(app):
+    """ Setup hook """
     app.add_config_value('epydoc', None, 'html')
     app.connect('builder-inited', make_roles)
