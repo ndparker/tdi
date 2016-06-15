@@ -624,6 +624,7 @@ class Factory(object):
         :Rtype: `Factory`
         """
         # pylint: disable = too-many-arguments, too-many-branches
+        # pylint: disable = unsubscriptable-object, not-a-mapping
 
         args = self._loader.args
         if autoupdate is None:

@@ -222,7 +222,7 @@ class DirectoryTemplateLister(object):
 
             def onerror(_):
                 """ Error handler """
-                raise
+                raise  # pylint: disable = misplaced-bare-raise
             for dirpath, dirs, files in _os.walk(base, onerror=onerror):
                 # fixup directories to recurse
                 if self._ignore:
@@ -299,6 +299,7 @@ class GlobalTemplate(object):
             Filter factories to apply
         """
         self._dirs = list(_it.chain(*[
+            # pylint: disable = unsubscriptable-object
             _resource()[location] for location in locations
         ]))
         self.autoreload = autoreload

@@ -436,7 +436,7 @@ def findnode(current, nodestring):
         return current
     names = nodestring.split('.')
     names.reverse()
-    while names:
+    while names:  # pylint: disable = too-many-nested-blocks
         name = names.pop()
 
         # if name occurs within current children, resolve the node and

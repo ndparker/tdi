@@ -169,6 +169,7 @@ class Template(object):
         :Return: The string representation
         :Rtype: ``str``
         """
+        # pylint: disable = no-member
         return self.tree.to_string(verbose=False)
 
     def template(self):
@@ -256,6 +257,7 @@ class Template(object):
 
         # 2nd) check if prerendering is actually needed.
         ptree = otree[2]
+        # pylint: disable = unsubscriptable-object
         if ptree is None:
             version = None
         else:
